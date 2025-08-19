@@ -1,0 +1,81 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Customer Detail{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Customer Details</h1>
+            <p class="text-gray-600">View customer information and history</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-900">Customer Information</h2>
+                    <div class="flex space-x-2">
+                        <a href="{% url 'marketing:customer_form' %}" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Edit</a>
+                        <a href="{% url 'marketing:customer_list' %}" class="bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-400">Back</a>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+                        <dl class="space-y-3">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Company Name</dt>
+                                <dd class="text-sm text-gray-900">ABC Manufacturing Ltd.</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Contact Person</dt>
+                                <dd class="text-sm text-gray-900">Jane Smith</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Email</dt>
+                                <dd class="text-sm text-gray-900">jane@abcmfg.com</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Phone</dt>
+                                <dd class="text-sm text-gray-900">+91-9876543210</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Region</dt>
+                                <dd class="text-sm text-gray-900">North</dd>
+                            </div>
+                        </dl>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Business Information</h3>
+                        <dl class="space-y-3">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Industry</dt>
+                                <dd class="text-sm text-gray-900">Manufacturing</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Company Size</dt>
+                                <dd class="text-sm text-gray-900">100-500 employees</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Annual Revenue</dt>
+                                <dd class="text-sm text-gray-900">$10M - $50M</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Customer Since</dt>
+                                <dd class="text-sm text-gray-900">2023-01-15</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Address</h3>
+                    <p class="text-sm text-gray-700">123 Business Park, Industrial Area, Delhi - 110001</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

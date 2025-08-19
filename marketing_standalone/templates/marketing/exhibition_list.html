@@ -1,0 +1,198 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Exhibitions{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Exhibitions</h1>
+            <p class="text-gray-600">Manage and track your exhibition events</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'marketing:exhibition_create' %}" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                Add Exhibition
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Exhibitions</p>
+                    <p class="text-2xl font-bold text-gray-900">12</p>
+                </div>
+                <div class="bg-purple-100 rounded-full p-3">
+                    <i data-lucide="calendar" class="w-6 h-6 text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Upcoming</p>
+                    <p class="text-2xl font-bold text-gray-900">3</p>
+                </div>
+                <div class="bg-blue-100 rounded-full p-3">
+                    <i data-lucide="clock" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Active</p>
+                    <p class="text-2xl font-bold text-gray-900">2</p>
+                </div>
+                <div class="bg-green-100 rounded-full p-3">
+                    <i data-lucide="play" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Completed</p>
+                    <p class="text-2xl font-bold text-gray-900">7</p>
+                </div>
+                <div class="bg-gray-100 rounded-full p-3">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-gray-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+        <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+                <input type="text" placeholder="Search exhibitions..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+            </div>
+            <div class="flex gap-2">
+                <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <option>All Status</option>
+                    <option>Upcoming</option>
+                    <option>Active</option>
+                    <option>Completed</option>
+                </select>
+                <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <option>All Types</option>
+                    <option>Trade Show</option>
+                    <option>Conference</option>
+                    <option>Seminar</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exhibitions List -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-200">
+                        <th class="text-left py-4 px-6 font-medium text-gray-700">Exhibition</th>
+                        <th class="text-left py-4 px-6 font-medium text-gray-700">Type</th>
+                        <th class="text-left py-4 px-6 font-medium text-gray-700">Date</th>
+                        <th class="text-left py-4 px-6 font-medium text-gray-700">Location</th>
+                        <th class="text-left py-4 px-6 font-medium text-gray-700">Status</th>
+                        <th class="text-left py-4 px-6 font-medium text-gray-700">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-4 px-6">
+                            <div>
+                                <p class="font-medium text-gray-900">Auto Expo 2024</p>
+                                <p class="text-sm text-gray-500">Automotive industry showcase</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                Trade Show
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-gray-900">Dec 15-18, 2024</td>
+                        <td class="py-4 px-6 text-gray-900">Mumbai, India</td>
+                        <td class="py-4 px-6">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Upcoming
+                            </span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-2">
+                                <a href="#" class="text-purple-600 hover:text-purple-700 text-sm font-medium">View</a>
+                                <a href="#" class="text-blue-600 hover:text-blue-700 text-sm font-medium">Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-4 px-6">
+                            <div>
+                                <p class="font-medium text-gray-900">Manufacturing Summit</p>
+                                <p class="text-sm text-gray-500">Industry conference and networking</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                Conference
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-gray-900">Nov 20-22, 2024</td>
+                        <td class="py-4 px-6 text-gray-900">Delhi, India</td>
+                        <td class="py-4 px-6">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Upcoming
+                            </span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-2">
+                                <a href="#" class="text-purple-600 hover:text-purple-700 text-sm font-medium">View</a>
+                                <a href="#" class="text-blue-600 hover:text-blue-700 text-sm font-medium">Edit</a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-4 px-6">
+                            <div>
+                                <p class="font-medium text-gray-900">Tech Innovation Expo</p>
+                                <p class="text-sm text-gray-500">Technology showcase and demos</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                Seminar
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-gray-900">Oct 10-12, 2024</td>
+                        <td class="py-4 px-6 text-gray-900">Bangalore, India</td>
+                        <td class="py-4 px-6">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                Completed
+                            </span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-2">
+                                <a href="#" class="text-purple-600 hover:text-purple-700 text-sm font-medium">View</a>
+                                <a href="#" class="text-green-600 hover:text-green-700 text-sm font-medium">Report</a>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
+{% endblock %}

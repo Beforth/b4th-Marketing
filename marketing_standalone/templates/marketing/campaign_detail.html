@@ -1,0 +1,81 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Campaign Detail{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Campaign Details</h1>
+            <p class="text-gray-600">View campaign information and performance</p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-gray-900">Campaign Information</h2>
+                    <div class="flex space-x-2">
+                        <a href="{% url 'marketing:campaign_form' %}" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">Edit</a>
+                        <a href="{% url 'marketing:campaign_list' %}" class="bg-gray-300 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-400">Back</a>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+                        <dl class="space-y-3">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Campaign Name</dt>
+                                <dd class="text-sm text-gray-900">Sample Campaign</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Type</dt>
+                                <dd class="text-sm text-gray-900">Email Campaign</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Status</dt>
+                                <dd class="text-sm text-gray-900"><span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Active</span></dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Start Date</dt>
+                                <dd class="text-sm text-gray-900">2024-01-15</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">End Date</dt>
+                                <dd class="text-sm text-gray-900">2024-02-15</dd>
+                            </div>
+                        </dl>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Performance Metrics</h3>
+                        <dl class="space-y-3">
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Total Leads</dt>
+                                <dd class="text-sm text-gray-900">245</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Conversion Rate</dt>
+                                <dd class="text-sm text-gray-900">12.5%</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">ROI</dt>
+                                <dd class="text-sm text-gray-900">185%</dd>
+                            </div>
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Cost per Lead</dt>
+                                <dd class="text-sm text-gray-900">$45</dd>
+                            </div>
+                        </dl>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Description</h3>
+                    <p class="text-sm text-gray-700">This is a sample campaign description with details about the marketing strategy and objectives.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

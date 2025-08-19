@@ -1,0 +1,152 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Dispatch Management{% endblock %}
+
+{% block content %}
+<div class="mx-auto w-full p-2 md:p-4 xl:p-2">
+    <!-- Modern Header -->
+    <div class="mb-4">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Dispatch Management</h1>
+                <p class="text-sm text-gray-600">Track product dispatch and delivery status</p>
+            </div>
+            <a href="#" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm transition">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                New Dispatch
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-2 bg-brand-100 rounded-lg">
+                    <i data-lucide="package" class="w-6 h-6 text-brand-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Dispatches</p>
+                    <p class="text-2xl font-semibold text-gray-900">156</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-2 bg-green-100 rounded-lg">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Delivered</p>
+                    <p class="text-2xl font-semibold text-gray-900">142</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-2 bg-yellow-100 rounded-lg">
+                    <i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">In Transit</p>
+                    <p class="text-2xl font-semibold text-gray-900">12</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+            <div class="flex items-center">
+                <div class="p-2 bg-red-100 rounded-lg">
+                    <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Delayed</p>
+                    <p class="text-2xl font-semibold text-gray-900">2</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dispatch Table -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-900">All Dispatches</h2>
+                <a href="#" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm transition">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    New Dispatch
+                </a>
+            </div>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dispatch ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transporter</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dispatch Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">DISP-202401-001</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">TechCorp Inc.</div>
+                                <div class="text-sm text-gray-500">John Doe</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Industrial Pump</div>
+                                <div class="text-sm text-gray-500">Qty: 2</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">ABC Logistics</div>
+                                <div class="text-sm text-gray-500">Truck</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Delivered</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-20</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                                <a href="#" class="text-green-600 hover:text-green-900">Track</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">DISP-202401-002</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Innovate Solutions</div>
+                                <div class="text-sm text-gray-500">Jane Smith</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Control Panel</div>
+                                <div class="text-sm text-gray-500">Qty: 1</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">XYZ Transport</div>
+                                <div class="text-sm text-gray-500">Courier</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">In Transit</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-22</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                                <a href="#" class="text-green-600 hover:text-green-900">Track</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

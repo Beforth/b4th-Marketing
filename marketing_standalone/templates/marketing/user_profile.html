@@ -1,0 +1,211 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">My Profile</h1>
+            <p class="text-gray-600">Manage your account and view your activity</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'marketing:edit_profile' %}" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                <i data-lucide="edit" class="w-4 h-4 inline mr-2"></i>
+                Edit Profile
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Profile Information -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="text-center mb-6">
+                    <div class="w-24 h-24 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-white text-2xl font-bold">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-900">{{ user.get_full_name }}</h2>
+                    <p class="text-gray-600">{{ user.email }}</p>
+                    <p class="text-sm text-gray-500">Member since {{ user.date_joined|date:"M Y" }}</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-600">Username</span>
+                        <span class="font-medium">{{ user.username }}</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-600">First Name</span>
+                        <span class="font-medium">{{ user.first_name|default:"Not set" }}</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-600">Last Name</span>
+                        <span class="font-medium">{{ user.last_name|default:"Not set" }}</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                        <span class="text-gray-600">Email</span>
+                        <span class="font-medium">{{ user.email }}</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2">
+                        <span class="text-gray-600">Status</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Active
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mt-6 space-y-2">
+                    <a href="{% url 'marketing:change_password' %}" class="block w-full text-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                        <i data-lucide="lock" class="w-4 h-4 inline mr-2"></i>
+                        Change Password
+                    </a>
+                    {% if user.is_superuser %}
+                    <a href="/admin/" class="block w-full text-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                        <i data-lucide="settings" class="w-4 h-4 inline mr-2"></i>
+                        Admin Panel
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics and Activity -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Customers</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ user_stats.total_customers }}</p>
+                        </div>
+                        <div class="bg-blue-100 rounded-full p-3">
+                            <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Leads</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ user_stats.total_leads }}</p>
+                        </div>
+                        <div class="bg-green-100 rounded-full p-3">
+                            <i data-lucide="target" class="w-6 h-6 text-green-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Visits</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ user_stats.total_visits }}</p>
+                        </div>
+                        <div class="bg-purple-100 rounded-full p-3">
+                            <i data-lucide="map-pin" class="w-6 h-6 text-purple-600"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Expenses</p>
+                            <p class="text-2xl font-bold text-gray-900">{{ user_stats.total_expenses }}</p>
+                        </div>
+                        <div class="bg-orange-100 rounded-full p-3">
+                            <i data-lucide="receipt" class="w-6 h-6 text-orange-600"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Recent Activity</h3>
+                
+                {% if recent_activities %}
+                <div class="space-y-4">
+                    {% for activity in recent_activities %}
+                    <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
+                        <div class="w-8 h-8 bg-{{ activity.color }}-100 rounded-full flex items-center justify-center">
+                            <i data-lucide="{{ activity.icon }}" class="w-4 h-4 text-{{ activity.color }}-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-medium text-gray-900">{{ activity.title }}</p>
+                            <p class="text-sm text-gray-600">{{ activity.description }}</p>
+                            <p class="text-xs text-gray-500 mt-1">{{ activity.time|timesince }} ago</p>
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-{{ activity.color }}-100 text-{{ activity.color }}-800">
+                            {{ activity.status }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <i data-lucide="activity" class="w-12 h-12 text-gray-400 mx-auto mb-2"></i>
+                    <p class="text-gray-500">No recent activity</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Quick Actions</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <a href="{% url 'marketing:customer_create' %}" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                            <i data-lucide="user-plus" class="w-5 h-5 text-blue-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">Add Customer</p>
+                            <p class="text-sm text-gray-600">Create a new customer record</p>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'marketing:lead_create' %}" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                            <i data-lucide="target" class="w-5 h-5 text-green-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">Add Lead</p>
+                            <p class="text-sm text-gray-600">Create a new lead</p>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'marketing:visit_create' %}" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                            <i data-lucide="map-pin" class="w-5 h-5 text-purple-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">Record Visit</p>
+                            <p class="text-sm text-gray-600">Log a customer visit</p>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'marketing:expense_create' %}" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+                            <i data-lucide="receipt" class="w-5 h-5 text-orange-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">Add Expense</p>
+                            <p class="text-sm text-gray-600">Record an expense</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Customer Regions{% endblock %}
+
+{% block content %}
+<div class="mx-auto w-full p-2 md:p-4 xl:p-2">
+    <!-- Modern Header -->
+    <div class="mb-4">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Customer Regions</h1>
+                <p class="text-sm text-gray-600">Region-wise customer distribution and analysis</p>
+            </div>
+            <a href="{% url 'marketing:region_management' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm transition">
+                <i data-lucide="settings" class="w-4 h-4"></i>
+                Manage Regions
+            </a>
+        </div>
+    </div>
+
+    <!-- Region Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+        {% for region in regions %}
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">{{ region.name }}</h3>
+                <div class="p-2 bg-brand-100 rounded-lg">
+                    <i data-lucide="map-pin" class="w-5 h-5 text-brand-600"></i>
+                </div>
+            </div>
+            
+            <div class="space-y-3">
+                <div class="flex justify-between">
+                    <span class="text-sm text-gray-600">Total Customers</span>
+                    <span class="text-sm font-semibold text-gray-900">{{ region.total_customers }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-sm text-gray-600">Existing Customers</span>
+                    <span class="text-sm font-semibold text-green-600">{{ region.existing_customers }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-sm text-gray-600">Prospects</span>
+                    <span class="text-sm font-semibold text-yellow-600">{{ region.prospects }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-sm text-gray-600">Lapsed</span>
+                    <span class="text-sm font-semibold text-red-600">{{ region.lapsed_customers }}</span>
+                </div>
+            </div>
+            
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <a href="{% url 'marketing:customer_list' %}?region={{ region.id }}" 
+                   class="text-brand-600 hover:text-brand-700 text-sm font-medium">
+                    View Customers →
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Region Details Table -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Region Details</h2>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Region</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Customers</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Existing</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prospects</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lapsed</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for region in regions %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10">
+                                    <div class="h-10 w-10 rounded-full bg-brand-100 flex items-center justify-center">
+                                        <span class="text-sm font-medium text-brand-600">{{ region.name|first|upper }}</span>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">{{ region.name }}</div>
+                                    <div class="text-sm text-gray-500">{{ region.description|default:"" }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ region.total_customers }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-green-600">{{ region.existing_customers }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-yellow-600">{{ region.prospects }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-red-600">{{ region.lapsed_customers }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="{% url 'marketing:customer_list' %}?region={{ region.id }}" 
+                               class="text-brand-600 hover:text-brand-700 mr-3">View</a>
+                            <a href="{% url 'marketing:region_management' %}" 
+                               class="text-green-600 hover:text-green-700">Manage</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

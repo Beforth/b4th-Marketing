@@ -1,0 +1,312 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Email Automation - Marketing Hub{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Email Automation</h1>
+            <p class="text-gray-600">Manage email templates and automated campaigns</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{% url 'marketing:sms_notifications' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                <span>SMS Notifications</span>
+            </a>
+            <a href="{% url 'marketing:real_time_notifications' %}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2">
+                <i data-lucide="bell" class="w-4 h-4"></i>
+                <span>Real-time Notifications</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-lg shadow border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Templates</p>
+                    <p class="text-2xl font-bold text-blue-600">{{ total_templates }}</p>
+                </div>
+                <div class="bg-blue-100 p-2 rounded">
+                    <i data-lucide="mail" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-4 rounded-lg shadow border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Active Templates</p>
+                    <p class="text-2xl font-bold text-green-600">{{ active_templates }}</p>
+                </div>
+                <div class="bg-green-100 p-2 rounded">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-4 rounded-lg shadow border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Sent</p>
+                    <p class="text-2xl font-bold text-orange-600">{{ total_sent }}</p>
+                </div>
+                <div class="bg-orange-100 p-2 rounded">
+                    <i data-lucide="send" class="w-6 h-6 text-orange-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-4 rounded-lg shadow border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Avg Open Rate</p>
+                    <p class="text-2xl font-bold text-purple-600">{{ avg_open_rate }}%</p>
+                </div>
+                <div class="bg-purple-100 p-2 rounded">
+                    <i data-lucide="eye" class="w-6 h-6 text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Email Template -->
+    <div class="bg-white p-6 rounded-lg shadow border">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Create Email Template</h3>
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Template Name</label>
+                    <input type="text" name="template_name" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="e.g., Welcome Email">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Subject Line</label>
+                    <input type="text" name="subject" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="e.g., Welcome to Our Company">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Trigger Type</label>
+                    <select name="trigger_type" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select Trigger</option>
+                        <option value="new_customer">New Customer Registration</option>
+                        <option value="visit_completion">Visit Completion</option>
+                        <option value="follow_up">Follow-up Reminder</option>
+                        <option value="exhibition">Exhibition Invitation</option>
+                        <option value="quote_sent">Quote Sent</option>
+                        <option value="order_confirmed">Order Confirmed</option>
+                        <option value="custom">Custom Trigger</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Target Audience</label>
+                    <select name="target_audience" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select Audience</option>
+                        <option value="new_customers">New Customers</option>
+                        <option value="existing_customers">Existing Customers</option>
+                        <option value="leads">Leads</option>
+                        <option value="prospects">Prospects</option>
+                        <option value="all">All Contacts</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Schedule Type</label>
+                    <select name="schedule_type" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select Schedule</option>
+                        <option value="immediate">Immediate</option>
+                        <option value="delayed">Delayed (1 hour)</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Email Content</label>
+                <textarea name="content" rows="8" required 
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Write your email content here... You can use variables like {customer_name}, {company_name}, etc."></textarea>
+                <div class="mt-2 text-sm text-gray-500">
+                    Available variables: {customer_name}, {company_name}, {visit_date}, {exhibition_name}, {quote_number}
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Preview
+                </button>
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
+                    Create Template
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Email Templates List -->
+    <div class="bg-white rounded-lg shadow border">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Email Templates</h3>
+            <p class="text-sm text-gray-600">Manage your email automation templates</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Template</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trigger</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sent</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Open Rate</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Click Rate</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Sent</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for template in email_templates %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">{{ template.name }}</div>
+                                <div class="text-sm text-gray-500">{{ template.subject }}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ template.trigger }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if template.status == 'Active' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    Draft
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ template.sent_count }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ template.open_rate }}%</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ template.click_rate }}%</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ template.last_sent }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <a href="#" class="text-blue-600 hover:text-blue-900">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </a>
+                                <a href="#" class="text-green-600 hover:text-green-900">
+                                    <i data-lucide="edit" class="w-4 h-4"></i>
+                                </a>
+                                <a href="#" class="text-purple-600 hover:text-purple-900">
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </a>
+                                <a href="#" class="text-orange-600 hover:text-orange-900">
+                                    <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                            No email templates found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Email Analytics -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Performance Chart -->
+        <div class="bg-white rounded-lg shadow border">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Email Performance</h3>
+                <p class="text-sm text-gray-600">Open rates and click rates over time</p>
+            </div>
+            <div class="p-6">
+                <div class="h-64 flex items-center justify-center bg-gray-50 rounded">
+                    <div class="text-center">
+                        <i data-lucide="bar-chart-3" class="w-12 h-12 text-gray-400 mx-auto mb-2"></i>
+                        <p class="text-gray-500">Email performance chart will be displayed here</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Template Performance -->
+        <div class="bg-white rounded-lg shadow border">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Template Performance</h3>
+                <p class="text-sm text-gray-600">Best performing templates</p>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    {% for template in email_templates %}
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">{{ template.name }}</div>
+                            <div class="text-sm text-gray-500">{{ template.sent_count }} sent</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm font-medium text-gray-900">{{ template.open_rate }}%</div>
+                            <div class="text-sm text-gray-500">open rate</div>
+                        </div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-blue-600 h-2 rounded-full" style="width: {{ template.open_rate }}%"></div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-save draft functionality
+    let autoSaveTimer;
+    const contentTextarea = document.querySelector('textarea[name="content"]');
+    
+    contentTextarea.addEventListener('input', function() {
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = setTimeout(function() {
+            // Auto-save draft (placeholder)
+            console.log('Auto-saving draft...');
+        }, 3000);
+    });
+    
+    // Template preview functionality
+    document.querySelector('button[type="button"]').addEventListener('click', function() {
+        const content = contentTextarea.value;
+        const subject = document.querySelector('input[name="subject"]').value;
+        
+        // Show preview modal (placeholder)
+        alert('Preview functionality would show a modal with the email preview');
+    });
+</script>
+{% endblock %}

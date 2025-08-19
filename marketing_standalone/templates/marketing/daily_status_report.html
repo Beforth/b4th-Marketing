@@ -1,0 +1,438 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Daily Status Report - Marketing Hub{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Daily Status Report</h1>
+            <p class="text-gray-600">Activity summary for {{ today|date:"F d, Y" }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="exportReport()" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 transition-colors">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Export Report
+            </button>
+            <a href="{% url 'marketing:daily_reports' %}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <i data-lucide="calendar" class="w-4 h-4"></i>
+                View History
+            </a>
+        </div>
+    </div>
+
+    <!-- Today's Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Visits</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ today_visits.count }}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="map-pin" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">New Leads</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ today_leads.count }}</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="user-plus" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Quotations</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ today_quotations.count }}</p>
+                </div>
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="file-text" class="w-6 h-6 text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Active Users</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ user_summary|length }}</p>
+                </div>
+                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="users" class="w-6 h-6 text-orange-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User-wise Summary -->
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">User-wise Activity Summary</h3>
+        </div>
+        {% if user_summary %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visits</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Leads</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quotations</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Activity</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for summary in user_summary %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center mr-3">
+                                    <span class="text-sm font-medium text-brand-600">{{ summary.user.first_name|first|upper }}{{ summary.user.last_name|first|upper }}</span>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">{{ summary.user.get_full_name|default:summary.user.username }}</div>
+                                    <div class="text-sm text-gray-500">{{ summary.user.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ summary.visits }}</div>
+                            {% if summary.visits > 0 %}
+                            <div class="text-xs text-gray-500">Last: {{ today_visits|first|date:"H:i" }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ summary.leads }}</div>
+                            {% if summary.leads > 0 %}
+                            <div class="text-xs text-gray-500">New today</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ summary.quotations }}</div>
+                            {% if summary.quotations > 0 %}
+                            <div class="text-xs text-gray-500">Generated</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ summary.visits|add:summary.leads|add:summary.quotations }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if summary.visits|add:summary.leads|add:summary.quotations > 5 %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Excellent
+                                </span>
+                            {% elif summary.visits|add:summary.leads|add:summary.quotations > 2 %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    Good
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Needs Attention
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="px-6 py-12 text-center">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="users" class="w-8 h-8 text-gray-400"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No Activity Today</h3>
+            <p class="text-gray-600">No users have recorded any activity for today.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Region-wise Summary -->
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Region-wise Activity Summary</h3>
+        </div>
+        {% if region_summary %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Region</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visits</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Leads</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quotations</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Activity</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for summary in region_summary %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center mr-3">
+                                    <i data-lucide="map-pin" class="w-4 h-4 text-brand-600"></i>
+                                </div>
+                                <div class="text-sm font-medium text-gray-900">{{ summary.region.name }}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ summary.visits }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ summary.leads }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ summary.quotations }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ summary.visits|add:summary.leads|add:summary.quotations }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if summary.visits|add:summary.leads|add:summary.quotations > 10 %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    High Activity
+                                </span>
+                            {% elif summary.visits|add:summary.leads|add:summary.quotations > 5 %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    Moderate
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Low Activity
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="px-6 py-12 text-center">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="map" class="w-8 h-8 text-gray-400"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No Regional Activity</h3>
+            <p class="text-gray-600">No activity recorded for any region today.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Today's Activities -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Today's Visits -->
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Today's Visits</h3>
+                <p class="text-sm text-gray-600">{{ today_visits.count }} visits recorded</p>
+            </div>
+            {% if today_visits %}
+            <div class="max-h-96 overflow-y-auto">
+                {% for visit in today_visits|slice:":10" %}
+                <div class="px-6 py-4 border-b border-gray-100 hover:bg-gray-50">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">{{ visit.customer.name }}</div>
+                            <div class="text-sm text-gray-500">{{ visit.purpose|title }} - {{ visit.visited_by.get_full_name|default:visit.visited_by.username }}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-900">{{ visit.visit_time|time:"H:i" }}</div>
+                            <div class="text-xs text-gray-500">{{ visit.visit_date|date:"M d" }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if today_visits.count > 10 %}
+                <div class="px-6 py-3 text-center">
+                    <p class="text-sm text-gray-500">And {{ today_visits.count|add:"-10" }} more visits...</p>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="px-6 py-12 text-center">
+                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="map-pin" class="w-6 h-6 text-gray-400"></i>
+                </div>
+                <p class="text-gray-600">No visits recorded today</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Today's Leads -->
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Today's Leads</h3>
+                <p class="text-sm text-gray-600">{{ today_leads.count }} leads generated</p>
+            </div>
+            {% if today_leads %}
+            <div class="max-h-96 overflow-y-auto">
+                {% for lead in today_leads|slice:":10" %}
+                <div class="px-6 py-4 border-b border-gray-100 hover:bg-gray-50">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">{{ lead.customer.name }}</div>
+                            <div class="text-sm text-gray-500">{{ lead.source|title }} - {{ lead.created_by.get_full_name|default:lead.created_by.username }}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-900">₹{{ lead.potential_value|default:"0" }}</div>
+                            <div class="text-xs text-gray-500">{{ lead.created_at|time:"H:i" }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if today_leads.count > 10 %}
+                <div class="px-6 py-3 text-center">
+                    <p class="text-sm text-gray-500">And {{ today_leads.count|add:"-10" }} more leads...</p>
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="px-6 py-12 text-center">
+                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="user-plus" class="w-6 h-6 text-gray-400"></i>
+                </div>
+                <p class="text-gray-600">No leads generated today</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Performance Insights -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Performance Insights</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center">
+                <div class="text-2xl font-bold text-brand-600">{{ today_visits.count|default:0 }}</div>
+                <div class="text-sm text-gray-600">Total Visits</div>
+                <div class="text-xs text-gray-500 mt-1">
+                    {% if today_visits.count > 0 %}
+                        Average: {{ today_visits.count|floatformat:1 }} per user
+                    {% else %}
+                        No visits today
+                    {% endif %}
+                </div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-green-600">{{ today_leads.count|default:0 }}</div>
+                <div class="text-sm text-gray-600">New Leads</div>
+                <div class="text-xs text-gray-500 mt-1">
+                    {% if today_leads.count > 0 %}
+                        Conversion rate: {{ today_leads.count|div:today_visits.count|mul:100|floatformat:1 }}%
+                    {% else %}
+                        No leads today
+                    {% endif %}
+                </div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-purple-600">{{ today_quotations.count|default:0 }}</div>
+                <div class="text-sm text-gray-600">Quotations</div>
+                <div class="text-xs text-gray-500 mt-1">
+                    {% if today_quotations.count > 0 %}
+                        From {{ today_quotations.count }} customers
+                    {% else %}
+                        No quotations today
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <button onclick="exportReport()" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-3 text-sm font-medium text-white hover:bg-brand-700 transition-colors">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Export Report
+            </button>
+            <button onclick="sendReport()" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <i data-lucide="mail" class="w-4 h-4"></i>
+                Send Report
+            </button>
+            <button onclick="scheduleReport()" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <i data-lucide="calendar" class="w-4 h-4"></i>
+                Schedule Daily
+            </button>
+            <a href="{% url 'marketing:customer_visit' %}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Record Visit
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Export daily report
+function exportReport() {
+    const today = '{{ today|date:"Y-m-d" }}';
+    window.open(`/marketing/reports/daily-status/export/?date=${today}`, '_blank');
+}
+
+// Send report via email
+function sendReport() {
+    if (confirm('Send daily status report via email to all managers?')) {
+        fetch('/marketing/reports/daily-status/send/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Daily status report sent successfully!');
+            } else {
+                alert('Error sending report');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error sending report');
+        });
+    }
+}
+
+// Schedule daily report
+function scheduleReport() {
+    if (confirm('Schedule daily status report to be sent automatically every day at 6:00 PM?')) {
+        fetch('/marketing/reports/daily-status/schedule/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Daily status report scheduled successfully!');
+            } else {
+                alert('Error scheduling report');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error scheduling report');
+        });
+    }
+}
+
+// Auto-refresh every 30 minutes
+setInterval(function() {
+    location.reload();
+}, 1800000);
+</script>
+{% endblock %}

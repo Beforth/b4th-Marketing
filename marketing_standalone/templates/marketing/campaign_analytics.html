@@ -1,0 +1,210 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Campaign Analytics{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Campaign Analytics</h1>
+            <p class="text-gray-600">Track and analyze your marketing campaign performance</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                <i data-lucide="download" class="w-4 h-4 inline mr-2"></i>
+                Export Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Analytics Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Campaigns -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Campaigns</p>
+                    <p class="text-2xl font-bold text-gray-900">24</p>
+                </div>
+                <div class="bg-purple-100 rounded-full p-3">
+                    <i data-lucide="trending-up" class="w-6 h-6 text-purple-600"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <span class="text-green-600 text-sm font-medium">+12%</span>
+                <span class="text-gray-500 text-sm">from last month</span>
+            </div>
+        </div>
+
+        <!-- Active Campaigns -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Active Campaigns</p>
+                    <p class="text-2xl font-bold text-gray-900">8</p>
+                </div>
+                <div class="bg-green-100 rounded-full p-3">
+                    <i data-lucide="play" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <span class="text-green-600 text-sm font-medium">+3</span>
+                <span class="text-gray-500 text-sm">new this week</span>
+            </div>
+        </div>
+
+        <!-- Total Leads -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Leads</p>
+                    <p class="text-2xl font-bold text-gray-900">1,247</p>
+                </div>
+                <div class="bg-blue-100 rounded-full p-3">
+                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <span class="text-green-600 text-sm font-medium">+18%</span>
+                <span class="text-gray-500 text-sm">from last month</span>
+            </div>
+        </div>
+
+        <!-- Conversion Rate -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Conversion Rate</p>
+                    <p class="text-2xl font-bold text-gray-900">23.4%</p>
+                </div>
+                <div class="bg-orange-100 rounded-full p-3">
+                    <i data-lucide="target" class="w-6 h-6 text-orange-600"></i>
+                </div>
+            </div>
+            <div class="mt-4">
+                <span class="text-green-600 text-sm font-medium">+2.1%</span>
+                <span class="text-gray-500 text-sm">from last month</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campaign Performance Chart -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-semibold text-gray-900">Campaign Performance</h2>
+            <div class="flex items-center gap-2">
+                <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+                    <option>Last 30 Days</option>
+                    <option>Last 90 Days</option>
+                    <option>Last 6 Months</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Placeholder for chart -->
+        <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+            <div class="text-center">
+                <i data-lucide="bar-chart-3" class="w-12 h-12 text-gray-400 mx-auto mb-2"></i>
+                <p class="text-gray-500">Campaign performance chart will be displayed here</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Performing Campaigns -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-6">Top Performing Campaigns</h2>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-200">
+                        <th class="text-left py-3 px-4 font-medium text-gray-700">Campaign</th>
+                        <th class="text-left py-3 px-4 font-medium text-gray-700">Type</th>
+                        <th class="text-left py-3 px-4 font-medium text-gray-700">Leads</th>
+                        <th class="text-left py-3 px-4 font-medium text-gray-700">Conversion</th>
+                        <th class="text-left py-3 px-4 font-medium text-gray-700">Status</th>
+                        <th class="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4">
+                            <div>
+                                <p class="font-medium text-gray-900">Summer Product Launch</p>
+                                <p class="text-sm text-gray-500">Started 2 weeks ago</p>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                Email
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-gray-900">342</td>
+                        <td class="py-3 px-4 text-gray-900">28.5%</td>
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Active
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <button class="text-purple-600 hover:text-purple-700 text-sm font-medium">View Details</button>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4">
+                            <div>
+                                <p class="font-medium text-gray-900">Social Media Campaign</p>
+                                <p class="text-sm text-gray-500">Started 1 month ago</p>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                Social
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-gray-900">189</td>
+                        <td class="py-3 px-4 text-gray-900">22.1%</td>
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Active
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <button class="text-purple-600 hover:text-purple-700 text-sm font-medium">View Details</button>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-3 px-4">
+                            <div>
+                                <p class="font-medium text-gray-900">Trade Show Promotion</p>
+                                <p class="text-sm text-gray-500">Completed 2 weeks ago</p>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                Event
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-gray-900">156</td>
+                        <td class="py-3 px-4 text-gray-900">31.2%</td>
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                Completed
+                            </span>
+                        </td>
+                        <td class="py-3 px-4">
+                            <button class="text-purple-600 hover:text-purple-700 text-sm font-medium">View Details</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
+{% endblock %}

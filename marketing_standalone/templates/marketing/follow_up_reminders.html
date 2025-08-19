@@ -1,0 +1,379 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Follow-up Reminders - Marketing Hub{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Follow-up Reminders</h1>
+            <p class="text-gray-600">Manage and track customer follow-ups</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'marketing:customer_visit' %}" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 transition-colors">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Record Visit
+            </a>
+            <a href="{% url 'marketing:visit_list' %}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <i data-lucide="list" class="w-4 h-4"></i>
+                View Visits
+            </a>
+        </div>
+    </div>
+
+    <!-- Follow-up Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Follow-ups</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ follow_up_stats.total_follow_ups }}</p>
+                </div>
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="bell" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Upcoming (7 days)</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ follow_up_stats.upcoming_follow_ups }}</p>
+                </div>
+                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Overdue</p>
+                    <p class="text-2xl font-bold text-red-600">{{ follow_up_stats.overdue_follow_ups }}</p>
+                </div>
+                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Completed Today</p>
+                    <p class="text-2xl font-bold text-green-600">{{ follow_up_stats.completed_today }}</p>
+                </div>
+                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overdue Follow-ups -->
+    {% if overdue_follow_ups %}
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-red-50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
+                    <h3 class="text-lg font-semibold text-red-900">Overdue Follow-ups</h3>
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        {{ overdue_follow_ups.count }}
+                    </span>
+                </div>
+                <button onclick="markAllAsCompleted()" class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    Mark All Complete
+                </button>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Days Overdue</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Visit</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for visit in overdue_follow_ups %}
+                    <tr class="hover:bg-red-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">{{ visit.customer.name }}</div>
+                                <div class="text-sm text-gray-500">{{ visit.customer.contact_person }}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ visit.next_follow_up|date:"M d, Y" }}</div>
+                            <div class="text-sm text-red-600">{{ visit.next_follow_up|timesince }} overdue</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                {{ visit.next_follow_up|timesince }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ visit.visited_by.get_full_name|default:visit.visited_by.username }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ visit.visit_date|date:"M d, Y" }}</div>
+                            <div class="text-sm text-gray-500">{{ visit.purpose|title }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex items-center gap-2">
+                                <a href="{% url 'marketing:customer_visit' %}?customer={{ visit.customer.id }}" class="text-brand-600 hover:text-brand-900">Record Visit</a>
+                                <button onclick="markAsCompleted({{ visit.id }})" class="text-green-600 hover:text-green-900">Complete</button>
+                                <button onclick="rescheduleFollowUp({{ visit.id }})" class="text-blue-600 hover:text-blue-900">Reschedule</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Upcoming Follow-ups -->
+    {% if upcoming_follow_ups %}
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-yellow-50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="clock" class="w-5 h-5 text-yellow-600"></i>
+                    <h3 class="text-lg font-semibold text-yellow-900">Upcoming Follow-ups (Next 7 Days)</h3>
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        {{ upcoming_follow_ups.count }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Days Until Due</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned To</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Visit</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for visit in upcoming_follow_ups %}
+                    <tr class="hover:bg-yellow-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">{{ visit.customer.name }}</div>
+                                <div class="text-sm text-gray-500">{{ visit.customer.contact_person }}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ visit.next_follow_up|date:"M d, Y" }}</div>
+                            <div class="text-sm text-yellow-600">Due in {{ visit.next_follow_up|timeuntil }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if visit.next_follow_up|date:"Y-m-d" == today|date:"Y-m-d" %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Today
+                                </span>
+                            {% elif visit.next_follow_up|date:"Y-m-d" == tomorrow|date:"Y-m-d" %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                    Tomorrow
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    {{ visit.next_follow_up|timeuntil }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ visit.visited_by.get_full_name|default:visit.visited_by.username }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ visit.visit_date|date:"M d, Y" }}</div>
+                            <div class="text-sm text-gray-500">{{ visit.purpose|title }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex items-center gap-2">
+                                <a href="{% url 'marketing:customer_visit' %}?customer={{ visit.customer.id }}" class="text-brand-600 hover:text-brand-900">Record Visit</a>
+                                <button onclick="markAsCompleted({{ visit.id }})" class="text-green-600 hover:text-green-900">Complete</button>
+                                <button onclick="rescheduleFollowUp({{ visit.id }})" class="text-blue-600 hover:text-blue-900">Reschedule</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- No Follow-ups Message -->
+    {% if not overdue_follow_ups and not upcoming_follow_ups %}
+    <div class="bg-white rounded-xl border border-gray-200 p-12 text-center">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="check-circle" class="w-8 h-8 text-green-600"></i>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">All Caught Up!</h3>
+        <p class="text-gray-600 mb-6">You have no overdue or upcoming follow-ups at the moment.</p>
+        <a href="{% url 'marketing:customer_visit' %}" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 transition-colors">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            Record New Visit
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button onclick="exportFollowUps()" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Export Follow-ups
+            </button>
+            <button onclick="sendReminders()" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <i data-lucide="mail" class="w-4 h-4"></i>
+                Send Reminders
+            </button>
+            <button onclick="generateReport()" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+                Generate Report
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Mark follow-up as completed
+function markAsCompleted(visitId) {
+    if (confirm('Mark this follow-up as completed?')) {
+        // Send AJAX request to mark as completed
+        fetch(`/marketing/visits/${visitId}/complete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error marking follow-up as completed');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error marking follow-up as completed');
+        });
+    }
+}
+
+// Mark all overdue follow-ups as completed
+function markAllAsCompleted() {
+    if (confirm('Mark all overdue follow-ups as completed?')) {
+        // Send AJAX request to mark all as completed
+        fetch('/marketing/follow-ups/mark-all-complete/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error marking follow-ups as completed');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error marking follow-ups as completed');
+        });
+    }
+}
+
+// Reschedule follow-up
+function rescheduleFollowUp(visitId) {
+    const newDate = prompt('Enter new follow-up date (YYYY-MM-DD):');
+    if (newDate) {
+        // Send AJAX request to reschedule
+        fetch(`/marketing/visits/${visitId}/reschedule/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ next_follow_up: newDate }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error rescheduling follow-up');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error rescheduling follow-up');
+        });
+    }
+}
+
+// Export follow-ups
+function exportFollowUps() {
+    window.open('/marketing/follow-ups/export/', '_blank');
+}
+
+// Send reminders
+function sendReminders() {
+    if (confirm('Send email reminders for overdue follow-ups?')) {
+        fetch('/marketing/follow-ups/send-reminders/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Reminders sent to ${data.count} recipients`);
+            } else {
+                alert('Error sending reminders');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error sending reminders');
+        });
+    }
+}
+
+// Generate report
+function generateReport() {
+    window.open('/marketing/follow-ups/report/', '_blank');
+}
+
+// Auto-refresh every 5 minutes
+setInterval(function() {
+    location.reload();
+}, 300000);
+</script>
+{% endblock %}

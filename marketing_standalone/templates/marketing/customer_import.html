@@ -1,0 +1,152 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Customer Import{% endblock %}
+
+{% block content %}
+<div class="mx-auto w-full p-2 md:p-4 xl:p-2">
+    <!-- Modern Header -->
+    <div class="mb-4">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Customer Import</h1>
+                <p class="text-sm text-gray-600">Import customers from CSV or Excel files</p>
+            </div>
+            <a href="{% url 'marketing:customer_list' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm transition">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Back to Customers
+            </a>
+        </div>
+    </div>
+
+    <!-- Import Form -->
+    <div class="rounded-lg border border-gray-200 bg-white shadow-sm mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Upload File</h2>
+        </div>
+        <div class="p-6">
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- File Upload -->
+                    <div>
+                        <label for="customer_file" class="block text-sm font-medium text-gray-700 mb-2">Select File</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                            <div class="space-y-1 text-center">
+                                <i data-lucide="upload" class="mx-auto h-12 w-12 text-gray-400"></i>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="customer_file" class="relative cursor-pointer bg-white rounded-md font-medium text-brand-600 hover:text-brand-700 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-brand-500">
+                                        <span>Upload a file</span>
+                                        <input id="customer_file" name="customer_file" type="file" class="sr-only" accept=".csv,.xlsx,.xls">
+                                    </label>
+                                    <p class="pl-1">or drag and drop</p>
+                                </div>
+                                <p class="text-xs text-gray-500">CSV, XLSX, or XLS up to 10MB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Import Options -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="region" class="block text-sm font-medium text-gray-700 mb-2">Default Region</label>
+                            <select id="region" name="region" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                <option value="">Select Region</option>
+                                <option value="1">North</option>
+                                <option value="2">South</option>
+                                <option value="3">East</option>
+                                <option value="4">West</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="customer_type" class="block text-sm font-medium text-gray-700 mb-2">Default Customer Type</label>
+                            <select id="customer_type" name="customer_type" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                <option value="prospect">Prospect</option>
+                                <option value="existing">Existing Customer</option>
+                                <option value="lapsed">Lapsed Customer</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Import Options -->
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="skip_duplicates" class="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">Skip duplicate customers (based on email)</span>
+                        </label>
+                    </div>
+
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="send_welcome_email" class="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded">
+                            <span class="ml-2 text-sm text-gray-700">Send welcome email to new customers</span>
+                        </label>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+                        <a href="{% url 'marketing:customer_list' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
+                            Cancel
+                        </a>
+                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                            <i data-lucide="upload" class="w-4 h-4 inline mr-2"></i>
+                            Import Customers
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    <!-- Import History -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Import History</h2>
+        </div>
+            <div class="p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Imported</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Errors</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-20 14:30</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">customers_jan_2024.csv</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Completed</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">45</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2024-01-15 10:15</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">prospects_dec_2023.xlsx</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Completed</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">32</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    <!-- Template Download -->
+    <div class="mt-6 bg-brand-50 border border-brand-200 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-brand-900 mb-2">Need a template?</h3>
+        <p class="text-brand-700 mb-4">Download our CSV template to ensure your data is formatted correctly.</p>
+        <a href="#" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+            <i data-lucide="download" class="w-4 h-4 inline mr-2"></i>
+            Download Template
+        </a>
+    </div>
+</div>
+{% endblock %}

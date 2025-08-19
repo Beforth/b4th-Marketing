@@ -1,0 +1,337 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Notification Settings - Marketing Hub{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Notification Settings</h1>
+            <p class="text-gray-600">Manage how and when you receive notifications</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="saveSettings()" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 transition-colors">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                Save Settings
+            </button>
+        </div>
+    </div>
+
+    <!-- Notification Channels -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">Notification Channels</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="mail" class="w-5 h-5 text-blue-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-gray-900">Email Notifications</h4>
+                            <p class="text-sm text-gray-500">Receive notifications via email</p>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="email_notifications" id="email_notifications" 
+                               {% if notification_settings.email_notifications %}checked{% endif %}
+                               class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
+                    </label>
+                </div>
+                <div class="text-sm text-gray-600">
+                    <p>Notifications will be sent to: <strong>{{ user.email }}</strong></p>
+                </div>
+            </div>
+            
+            <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i data-lucide="message-circle" class="w-5 h-5 text-green-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h4 class="text-sm font-medium text-gray-900">SMS Notifications</h4>
+                            <p class="text-sm text-gray-500">Receive notifications via SMS</p>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="sms_notifications" id="sms_notifications" 
+                               {% if notification_settings.sms_notifications %}checked{% endif %}
+                               class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
+                    </label>
+                </div>
+                <div class="text-sm text-gray-600">
+                    <p>Phone number not configured</p>
+                    <button class="text-brand-600 hover:text-brand-700 text-sm font-medium mt-1">Add Phone Number</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Notifications -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">Report Notifications</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                <div class="flex items-center">
+                    <div class="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i data-lucide="activity" class="w-4 h-4 text-blue-600"></i>
+                    </div>
+                    <span class="ml-3 text-sm font-medium text-gray-900">Daily Reports</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="daily_reports" id="daily_reports" 
+                           {% if notification_settings.daily_reports %}checked{% endif %}
+                           class="sr-only peer">
+                    <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+                </label>
+            </div>
+            
+            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                <div class="flex items-center">
+                    <div class="h-8 w-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i data-lucide="calendar" class="w-4 h-4 text-green-600"></i>
+                    </div>
+                    <span class="ml-3 text-sm font-medium text-gray-900">Weekly Reports</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="weekly_reports" id="weekly_reports" 
+                           {% if notification_settings.weekly_reports %}checked{% endif %}
+                           class="sr-only peer">
+                    <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+                </label>
+            </div>
+            
+            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                <div class="flex items-center">
+                    <div class="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i data-lucide="bar-chart" class="w-4 h-4 text-purple-600"></i>
+                    </div>
+                    <span class="ml-3 text-sm font-medium text-gray-900">Monthly Reports</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="monthly_reports" id="monthly_reports" 
+                           {% if notification_settings.monthly_reports %}checked{% endif %}
+                           class="sr-only peer">
+                    <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Notifications -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">Business Notifications</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                <div class="flex items-center">
+                    <div class="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <i data-lucide="user-plus" class="w-4 h-4 text-blue-600"></i>
+                    </div>
+                    <span class="ml-3 text-sm font-medium text-gray-900">New Lead Notifications</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="lead_notifications" id="lead_notifications" 
+                           {% if notification_settings.lead_notifications %}checked{% endif %}
+                           class="sr-only peer">
+                    <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+                </label>
+            </div>
+            
+            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                <div class="flex items-center">
+                    <div class="h-8 w-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i data-lucide="file-text" class="w-4 h-4 text-yellow-600"></i>
+                    </div>
+                    <span class="ml-3 text-sm font-medium text-gray-900">Quotation Notifications</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="quotation_notifications" id="quotation_notifications" 
+                           {% if notification_settings.quotation_notifications %}checked{% endif %}
+                           class="sr-only peer">
+                    <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+                </label>
+            </div>
+            
+            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                <div class="flex items-center">
+                    <div class="h-8 w-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <i data-lucide="shopping-cart" class="w-4 h-4 text-green-600"></i>
+                    </div>
+                    <span class="ml-3 text-sm font-medium text-gray-900">Order Notifications</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="order_notifications" id="order_notifications" 
+                           {% if notification_settings.order_notifications %}checked{% endif %}
+                           class="sr-only peer">
+                    <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+                </label>
+            </div>
+            
+            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                <div class="flex items-center">
+                    <div class="h-8 w-8 bg-red-100 rounded-lg flex items-center justify-center">
+                        <i data-lucide="dollar-sign" class="w-4 h-4 text-red-600"></i>
+                    </div>
+                    <span class="ml-3 text-sm font-medium text-gray-900">Expense Notifications</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="expense_notifications" id="expense_notifications" 
+                           {% if notification_settings.expense_notifications %}checked{% endif %}
+                           class="sr-only peer">
+                    <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Notifications -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">System Notifications</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                <div class="flex items-center">
+                    <div class="h-8 w-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <i data-lucide="alert-triangle" class="w-4 h-4 text-orange-600"></i>
+                    </div>
+                    <span class="ml-3 text-sm font-medium text-gray-900">System Alerts</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="system_alerts" id="system_alerts" 
+                           {% if notification_settings.system_alerts %}checked{% endif %}
+                           class="sr-only peer">
+                    <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+                </label>
+            </div>
+            
+            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                <div class="flex items-center">
+                    <div class="h-8 w-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i data-lucide="database" class="w-4 h-4 text-purple-600"></i>
+                    </div>
+                    <span class="ml-3 text-sm font-medium text-gray-900">Backup Notifications</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="backup_notifications" id="backup_notifications" 
+                           class="sr-only peer">
+                    <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-600"></div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Schedule -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">Notification Schedule</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label for="notification_time" class="block text-sm font-medium text-gray-700 mb-2">Preferred Notification Time</label>
+                <select id="notification_time" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                    <option>9:00 AM</option>
+                    <option>10:00 AM</option>
+                    <option>11:00 AM</option>
+                    <option>12:00 PM</option>
+                    <option>1:00 PM</option>
+                    <option>2:00 PM</option>
+                    <option>3:00 PM</option>
+                    <option>4:00 PM</option>
+                    <option>5:00 PM</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="timezone" class="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
+                <select id="timezone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                    <option>UTC (Coordinated Universal Time)</option>
+                    <option>EST (Eastern Standard Time)</option>
+                    <option>CST (Central Standard Time)</option>
+                    <option>MST (Mountain Standard Time)</option>
+                    <option>PST (Pacific Standard Time)</option>
+                    <option>IST (India Standard Time)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Preview -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6">Notification Preview</h3>
+        <div class="space-y-4">
+            <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-start">
+                    <div class="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="bell" class="w-4 h-4 text-blue-600"></i>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <h4 class="text-sm font-medium text-gray-900">New Lead Notification</h4>
+                        <p class="text-sm text-gray-500 mt-1">A new lead has been added to the system: John Doe from ABC Company</p>
+                        <p class="text-xs text-gray-400 mt-2">2 minutes ago</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-start">
+                    <div class="h-8 w-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <h4 class="text-sm font-medium text-gray-900">Daily Report Ready</h4>
+                        <p class="text-sm text-gray-500 mt-1">Your daily activity report is ready for review</p>
+                        <p class="text-xs text-gray-400 mt-2">1 hour ago</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Section -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">Notification Tips</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Enable only the notifications you need to avoid information overload</li>
+                        <li>Set a preferred notification time to receive updates at convenient hours</li>
+                        <li>Email notifications are recommended for important business updates</li>
+                        <li>You can change these settings at any time</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function saveSettings() {
+    // Collect all checkbox values
+    const settings = {
+        email_notifications: document.getElementById('email_notifications').checked,
+        sms_notifications: document.getElementById('sms_notifications').checked,
+        daily_reports: document.getElementById('daily_reports').checked,
+        weekly_reports: document.getElementById('weekly_reports').checked,
+        monthly_reports: document.getElementById('monthly_reports').checked,
+        lead_notifications: document.getElementById('lead_notifications').checked,
+        quotation_notifications: document.getElementById('quotation_notifications').checked,
+        order_notifications: document.getElementById('order_notifications').checked,
+        expense_notifications: document.getElementById('expense_notifications').checked,
+        system_alerts: document.getElementById('system_alerts').checked,
+        backup_notifications: document.getElementById('backup_notifications').checked,
+        notification_time: document.getElementById('notification_time').value,
+        timezone: document.getElementById('timezone').value
+    };
+    
+    // This would typically make an AJAX call to save settings
+    console.log('Saving notification settings:', settings);
+    alert('Notification settings saved successfully!');
+}
+</script>
+{% endblock %}

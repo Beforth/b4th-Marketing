@@ -1,0 +1,355 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Vendor Management - Marketing Hub{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Vendor Management</h1>
+            <p class="text-gray-600">Manage exhibition vendors and service providers</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{% url 'marketing:exhibition_planning_interface' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+                <i data-lucide="calendar" class="w-4 h-4"></i>
+                <span>Exhibition Planning</span>
+            </a>
+            <a href="{% url 'marketing:visitor_database_management' %}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2">
+                <i data-lucide="database" class="w-4 h-4"></i>
+                <span>Visitor Database</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-4 rounded-lg shadow border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Vendors</p>
+                    <p class="text-2xl font-bold text-blue-600">{{ total_vendors }}</p>
+                </div>
+                <div class="bg-blue-100 p-2 rounded">
+                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-4 rounded-lg shadow border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Active Vendors</p>
+                    <p class="text-2xl font-bold text-green-600">{{ active_vendors }}</p>
+                </div>
+                <div class="bg-green-100 p-2 rounded">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-4 rounded-lg shadow border">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Average Rating</p>
+                    <p class="text-2xl font-bold text-orange-600">{{ avg_rating }}/5</p>
+                </div>
+                <div class="bg-orange-100 p-2 rounded">
+                    <i data-lucide="star" class="w-6 h-6 text-orange-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Vendor Form -->
+    <div class="bg-white p-6 rounded-lg shadow border">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Add New Vendor</h3>
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Vendor Name</label>
+                    <input type="text" name="vendor_name" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="e.g., ABC Stall Design">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Vendor Type</label>
+                    <select name="vendor_type" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select Vendor Type</option>
+                        <option value="Stall Design">Stall Design</option>
+                        <option value="Printing">Printing</option>
+                        <option value="Logistics">Logistics</option>
+                        <option value="Catering">Catering</option>
+                        <option value="Audio Visual">Audio Visual</option>
+                        <option value="Security">Security</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Contact Person</label>
+                    <input type="text" name="contact_person" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="e.g., John Smith">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <input type="email" name="email" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="e.g., john@vendor.com">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                    <input type="tel" name="phone" required 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           placeholder="e.g., +91-9876543210">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                    <select name="rating" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select Rating</option>
+                        <option value="5.0">5.0 - Excellent</option>
+                        <option value="4.5">4.5 - Very Good</option>
+                        <option value="4.0">4.0 - Good</option>
+                        <option value="3.5">3.5 - Satisfactory</option>
+                        <option value="3.0">3.0 - Average</option>
+                        <option value="2.5">2.5 - Below Average</option>
+                        <option value="2.0">2.0 - Poor</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                <textarea name="address" rows="2" 
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Complete address of the vendor..."></textarea>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Services Offered</label>
+                <textarea name="services" rows="3" 
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="List the services offered by this vendor..."></textarea>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">
+                    Add Vendor
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Vendor Categories -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Vendor Types Distribution -->
+        <div class="bg-white rounded-lg shadow border">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Vendor Types</h3>
+                <p class="text-sm text-gray-600">Distribution by service category</p>
+            </div>
+            <div class="p-6">
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-900">Stall Design</span>
+                        <span class="text-sm text-gray-500">1 vendor</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-blue-600 h-2 rounded-full" style="width: 33%"></div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-900">Printing</span>
+                        <span class="text-sm text-gray-500">1 vendor</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-green-600 h-2 rounded-full" style="width: 33%"></div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-900">Logistics</span>
+                        <span class="text-sm text-gray-500">1 vendor</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-orange-600 h-2 rounded-full" style="width: 33%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Rating Distribution -->
+        <div class="bg-white rounded-lg shadow border">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Rating Distribution</h3>
+                <p class="text-sm text-gray-600">Vendor performance ratings</p>
+            </div>
+            <div class="p-6">
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium text-gray-900">5.0</span>
+                            <div class="flex">
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                            </div>
+                        </div>
+                        <span class="text-sm text-gray-500">0 vendors</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium text-gray-900">4.5</span>
+                            <div class="flex">
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                <i data-lucide="star" class="w-4 h-4 text-gray-300"></i>
+                            </div>
+                        </div>
+                        <span class="text-sm text-gray-500">1 vendor</span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm font-medium text-gray-900">4.0</span>
+                            <div class="flex">
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                <i data-lucide="star" class="w-4 h-4 text-gray-300"></i>
+                            </div>
+                        </div>
+                        <span class="text-sm text-gray-500">1 vendor</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendors List -->
+    <div class="bg-white rounded-lg shadow border">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">All Vendors</h3>
+            <p class="text-sm text-gray-600">Complete vendor directory</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Services</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for vendor in vendors %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">{{ vendor.name }}</div>
+                                <div class="text-sm text-gray-500">{{ vendor.contact_person }}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ vendor.type }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ vendor.email }}</div>
+                            <div class="text-sm text-gray-500">{{ vendor.phone }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= vendor.rating %}
+                                            <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                        {% else %}
+                                            <i data-lucide="star" class="w-4 h-4 text-gray-300"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="ml-2 text-sm text-gray-900">{{ vendor.rating }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900">{{ vendor.services|truncatechars:50 }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if vendor.status == 'active' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <a href="#" class="text-blue-600 hover:text-blue-900">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </a>
+                                <a href="#" class="text-green-600 hover:text-green-900">
+                                    <i data-lucide="edit" class="w-4 h-4"></i>
+                                </a>
+                                <a href="#" class="text-purple-600 hover:text-purple-900">
+                                    <i data-lucide="phone" class="w-4 h-4"></i>
+                                </a>
+                                <a href="#" class="text-orange-600 hover:text-orange-900">
+                                    <i data-lucide="mail" class="w-4 h-4"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                            No vendors found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-format phone number
+    document.querySelector('input[name="phone"]').addEventListener('input', function() {
+        let value = this.value.replace(/\D/g, '');
+        if (value.length > 0) {
+            if (value.length <= 2) {
+                value = '+' + value;
+            } else if (value.length <= 7) {
+                value = '+' + value.substring(0, 2) + '-' + value.substring(2);
+            } else {
+                value = '+' + value.substring(0, 2) + '-' + value.substring(2, 7) + '-' + value.substring(7, 11);
+            }
+        }
+        this.value = value;
+    });
+</script>
+{% endblock %}

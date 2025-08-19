@@ -1,0 +1,318 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Advanced Export - Marketing Hub{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Advanced Data Export</h1>
+            <p class="text-gray-600">Export comprehensive data in multiple formats</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{% url 'marketing:progress_tracking_dashboard' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+                <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                <span>Progress Dashboard</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Export Configuration -->
+    <div class="bg-white p-6 rounded-lg shadow border">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Export Configuration</h3>
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Export Type -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-3">Export Type</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="export_type" value="sales" class="mr-3">
+                        <div>
+                            <div class="font-medium text-gray-900">Sales Data</div>
+                            <div class="text-sm text-gray-500">Quotations, negotiations, POs</div>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="export_type" value="production" class="mr-3">
+                        <div>
+                            <div class="font-medium text-gray-900">Production Data</div>
+                            <div class="text-sm text-gray-500">Manufacturing, QC, dispatch</div>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="export_type" value="visits" class="mr-3">
+                        <div>
+                            <div class="font-medium text-gray-900">Visit Data</div>
+                            <div class="text-sm text-gray-500">Customer visits, GPS tracking</div>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="export_type" value="leads" class="mr-3">
+                        <div>
+                            <div class="font-medium text-gray-900">Lead Data</div>
+                            <div class="text-sm text-gray-500">Lead generation, conversion</div>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="export_type" value="customers" class="mr-3">
+                        <div>
+                            <div class="font-medium text-gray-900">Customer Data</div>
+                            <div class="text-sm text-gray-500">Customer profiles, locations</div>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="export_type" value="comprehensive" class="mr-3">
+                        <div>
+                            <div class="font-medium text-gray-900">Comprehensive</div>
+                            <div class="text-sm text-gray-500">All data types combined</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Date Range -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-3">Date Range</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="date_range" value="last_7_days" class="mr-3">
+                        <div>
+                            <div class="font-medium text-gray-900">Last 7 Days</div>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="date_range" value="last_30_days" class="mr-3">
+                        <div>
+                            <div class="font-medium text-gray-900">Last 30 Days</div>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="date_range" value="this_month" class="mr-3">
+                        <div>
+                            <div class="font-medium text-gray-900">This Month</div>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="date_range" value="all_time" class="mr-3">
+                        <div>
+                            <div class="font-medium text-gray-900">All Time</div>
+                        </div>
+                    </label>
+                </div>
+                
+                <!-- Custom Date Range -->
+                <div class="mt-4 p-4 border border-gray-300 rounded-lg">
+                    <label class="flex items-center mb-3">
+                        <input type="radio" name="date_range" value="custom" class="mr-3">
+                        <span class="font-medium text-gray-900">Custom Date Range</span>
+                    </label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                            <input type="date" name="start_date" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                            <input type="date" name="end_date" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Export Format -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-3">Export Format</label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="format_type" value="excel" checked class="mr-3">
+                        <div>
+                            <div class="font-medium text-gray-900">Excel (.xlsx)</div>
+                            <div class="text-sm text-gray-500">Best for analysis</div>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="format_type" value="csv" class="mr-3">
+                        <div>
+                            <div class="font-medium text-gray-900">CSV (.csv)</div>
+                            <div class="text-sm text-gray-500">Universal format</div>
+                        </div>
+                    </label>
+                    
+                    <label class="flex items-center p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="format_type" value="pdf" class="mr-3">
+                        <div>
+                            <div class="font-medium text-gray-900">PDF (.pdf)</div>
+                            <div class="text-sm text-gray-500">For reports</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Additional Options -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-3">Additional Options</label>
+                <div class="space-y-3">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="include_charts" class="mr-3">
+                        <span class="text-sm text-gray-900">Include charts and graphs</span>
+                    </label>
+                    
+                    <label class="flex items-center">
+                        <input type="checkbox" name="include_summary" class="mr-3">
+                        <span class="text-sm text-gray-900">Include summary statistics</span>
+                    </label>
+                    
+                    <label class="flex items-center">
+                        <input type="checkbox" name="include_filters" class="mr-3">
+                        <span class="text-sm text-gray-900">Include applied filters</span>
+                    </label>
+                    
+                    <label class="flex items-center">
+                        <input type="checkbox" name="include_metadata" class="mr-3">
+                        <span class="text-sm text-gray-900">Include metadata and timestamps</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Export Button -->
+            <div class="flex justify-end space-x-3">
+                <button type="button" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 flex items-center space-x-2">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span>Generate Export</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Export History -->
+    <div class="bg-white rounded-lg shadow border">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Recent Exports</h3>
+            <p class="text-sm text-gray-600">Your recent export history</p>
+        </div>
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Export Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Range</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Format</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">Sales Data</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Last 30 Days</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">Excel</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Completed
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">2 hours ago</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a href="#" class="text-blue-600 hover:text-blue-900">
+                                        <i data-lucide="download" class="w-4 h-4"></i>
+                                    </a>
+                                    <a href="#" class="text-green-600 hover:text-green-900">
+                                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">Production Data</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">This Month</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">PDF</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    Processing
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">1 hour ago</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <button class="text-orange-600 hover:text-orange-900">
+                                        <i data-lucide="clock" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Tips -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h3 class="text-lg font-semibold text-blue-900 mb-3">Export Tips</h3>
+        <div class="space-y-2 text-sm text-blue-800">
+            <p>• <strong>Sales Data:</strong> Best for analyzing quotation-to-order conversion rates</p>
+            <p>• <strong>Production Data:</strong> Ideal for manufacturing efficiency reports</p>
+            <p>• <strong>Visit Data:</strong> Perfect for field team performance analysis</p>
+            <p>• <strong>Excel Format:</strong> Recommended for data analysis and pivot tables</p>
+            <p>• <strong>PDF Format:</strong> Best for sharing reports with stakeholders</p>
+            <p>• <strong>Large Exports:</strong> May take several minutes to process</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Handle custom date range visibility
+    document.querySelectorAll('input[name="date_range"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            const customDateRange = document.querySelector('input[name="date_range"][value="custom"]').closest('div').nextElementSibling;
+            if (this.value === 'custom') {
+                customDateRange.style.display = 'block';
+            } else {
+                customDateRange.style.display = 'none';
+            }
+        });
+    });
+    
+    // Set default values
+    document.querySelector('input[name="export_type"][value="sales"]').checked = true;
+    document.querySelector('input[name="date_range"][value="last_30_days"]').checked = true;
+    document.querySelector('input[name="format_type"][value="excel"]').checked = true;
+</script>
+{% endblock %}

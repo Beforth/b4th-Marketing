@@ -1,0 +1,212 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Exhibition Planning{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Exhibition Planning</h1>
+            <p class="text-gray-600">Plan and organize your exhibition events</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                New Plan
+            </button>
+        </div>
+    </div>
+
+    <!-- Planning Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Planned Events</p>
+                    <p class="text-2xl font-bold text-gray-900">8</p>
+                </div>
+                <div class="bg-blue-100 rounded-full p-3">
+                    <i data-lucide="calendar" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">In Progress</p>
+                    <p class="text-2xl font-bold text-gray-900">3</p>
+                </div>
+                <div class="bg-yellow-100 rounded-full p-3">
+                    <i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Completed</p>
+                    <p class="text-2xl font-bold text-gray-900">5</p>
+                </div>
+                <div class="bg-green-100 rounded-full p-3">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Budget</p>
+                    <p class="text-2xl font-bold text-gray-900">₹2.4M</p>
+                </div>
+                <div class="bg-purple-100 rounded-full p-3">
+                    <i data-lucide="dollar-sign" class="w-6 h-6 text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Planning Calendar -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-semibold text-gray-900">Planning Calendar</h2>
+            <div class="flex items-center gap-2">
+                <button class="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Month</button>
+                <button class="px-3 py-1 text-sm bg-purple-600 text-white rounded-lg">Week</button>
+                <button class="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Day</button>
+            </div>
+        </div>
+        
+        <!-- Placeholder for calendar -->
+        <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+            <div class="text-center">
+                <i data-lucide="calendar" class="w-12 h-12 text-gray-400 mx-auto mb-2"></i>
+                <p class="text-gray-500">Exhibition planning calendar will be displayed here</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Planning Tasks -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Upcoming Tasks -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6">Upcoming Tasks</h2>
+            
+            <div class="space-y-4">
+                <div class="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
+                    <div class="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-900">Book venue for Auto Expo</p>
+                        <p class="text-sm text-gray-600">Due: Dec 1, 2024</p>
+                        <p class="text-sm text-gray-500">Priority: High</p>
+                    </div>
+                    <button class="text-blue-600 hover:text-blue-700 text-sm">Complete</button>
+                </div>
+
+                <div class="flex items-start gap-3 p-4 bg-yellow-50 rounded-lg">
+                    <div class="w-2 h-2 bg-yellow-600 rounded-full mt-2"></div>
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-900">Design booth layout</p>
+                        <p class="text-sm text-gray-600">Due: Dec 5, 2024</p>
+                        <p class="text-sm text-gray-500">Priority: Medium</p>
+                    </div>
+                    <button class="text-yellow-600 hover:text-yellow-700 text-sm">Complete</button>
+                </div>
+
+                <div class="flex items-start gap-3 p-4 bg-green-50 rounded-lg">
+                    <div class="w-2 h-2 bg-green-600 rounded-full mt-2"></div>
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-900">Order promotional materials</p>
+                        <p class="text-sm text-gray-600">Due: Dec 8, 2024</p>
+                        <p class="text-sm text-gray-500">Priority: Low</p>
+                    </div>
+                    <button class="text-green-600 hover:text-green-700 text-sm">Complete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vendor Management -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6">Vendor Management</h2>
+            
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-900">Booth Construction</p>
+                        <p class="text-sm text-gray-600">ABC Exhibitions</p>
+                    </div>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Confirmed
+                    </span>
+                </div>
+
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-900">Catering Services</p>
+                        <p class="text-sm text-gray-600">XYZ Catering</p>
+                    </div>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        Pending
+                    </span>
+                </div>
+
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-900">Audio Visual</p>
+                        <p class="text-sm text-gray-600">Tech Solutions</p>
+                    </div>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        In Progress
+                    </span>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <button class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors">
+                    <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                    Add Vendor
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget Tracking -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-8">
+        <h2 class="text-lg font-semibold text-gray-900 mb-6">Budget Tracking</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center">
+                <p class="text-2xl font-bold text-green-600">₹1.8M</p>
+                <p class="text-sm text-gray-600">Allocated</p>
+            </div>
+            <div class="text-center">
+                <p class="text-2xl font-bold text-blue-600">₹1.2M</p>
+                <p class="text-sm text-gray-600">Spent</p>
+            </div>
+            <div class="text-center">
+                <p class="text-2xl font-bold text-purple-600">₹600K</p>
+                <p class="text-sm text-gray-600">Remaining</p>
+            </div>
+        </div>
+
+        <!-- Budget Progress Bar -->
+        <div class="mt-6">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700">Budget Utilization</span>
+                <span class="text-sm text-gray-600">67%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-purple-600 h-2 rounded-full" style="width: 67%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
+{% endblock %}

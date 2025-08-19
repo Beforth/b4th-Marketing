@@ -1,0 +1,143 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}URS Evaluation - Marketing Hub{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">URS Evaluation</h1>
+                <p class="text-gray-600 mt-1">Record User Requirement Specification for customer projects</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="{% url 'marketing:urs_list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                    Back to URS List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- URS Evaluation Form -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Customer Selection -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="customer" class="block text-sm font-medium text-gray-700 mb-2">Customer *</label>
+                    <select name="customer" id="customer" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select Customer</option>
+                        {% for customer in customers %}
+                        <option value="{{ customer.id }}">{{ customer.name }} - {{ customer.contact_person }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="project_name" class="block text-sm font-medium text-gray-700 mb-2">Project Name *</label>
+                    <input type="text" name="project_name" id="project_name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter project name">
+                </div>
+            </div>
+
+            <!-- Requirement Details -->
+            <div>
+                <label for="requirement_details" class="block text-sm font-medium text-gray-700 mb-2">Requirement Details *</label>
+                <textarea name="requirement_details" id="requirement_details" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Describe the customer's requirements in detail..."></textarea>
+            </div>
+
+            <!-- Technical Specifications -->
+            <div>
+                <label for="technical_specs" class="block text-sm font-medium text-gray-700 mb-2">Technical Specifications</label>
+                <textarea name="technical_specs" id="technical_specs" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter technical specifications, dimensions, materials, etc..."></textarea>
+            </div>
+
+            <!-- Site Requirements -->
+            <div>
+                <label for="site_requirements" class="block text-sm font-medium text-gray-700 mb-2">Site Requirements</label>
+                <textarea name="site_requirements" id="site_requirements" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Site conditions, space requirements, installation needs..."></textarea>
+            </div>
+
+            <!-- Timeline and Budget -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="timeline" class="block text-sm font-medium text-gray-700 mb-2">Project Timeline</label>
+                    <input type="text" name="timeline" id="timeline" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., 3 months, Q2 2024">
+                </div>
+                
+                <div>
+                    <label for="budget_range" class="block text-sm font-medium text-gray-700 mb-2">Budget Range</label>
+                    <input type="text" name="budget_range" id="budget_range" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., ₹5-10 Lakhs">
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+                <button type="button" onclick="history.back()" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md shadow-sm text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    Create URS
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Help Section -->
+    <div class="bg-blue-50 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-blue-900 mb-3">URS Evaluation Guidelines</h3>
+        <div class="text-sm text-blue-800 space-y-2">
+            <p><strong>Requirement Details:</strong> Capture all functional and non-functional requirements clearly.</p>
+            <p><strong>Technical Specifications:</strong> Include dimensions, materials, performance criteria, and standards.</p>
+            <p><strong>Site Requirements:</strong> Document installation space, power requirements, environmental conditions.</p>
+            <p><strong>Timeline:</strong> Be realistic about project duration and milestones.</p>
+            <p><strong>Budget Range:</strong> Provide a reasonable range based on project scope and complexity.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-save draft functionality
+    const form = document.querySelector('form');
+    const formData = new FormData(form);
+    
+    // Save form data to localStorage every 30 seconds
+    setInterval(function() {
+        const formElements = form.elements;
+        const draftData = {};
+        
+        for (let element of formElements) {
+            if (element.name && element.value) {
+                draftData[element.name] = element.value;
+            }
+        }
+        
+        localStorage.setItem('urs_draft', JSON.stringify(draftData));
+    }, 30000);
+    
+    // Load draft data on page load
+    const savedDraft = localStorage.getItem('urs_draft');
+    if (savedDraft) {
+        const draftData = JSON.parse(savedDraft);
+        for (let fieldName in draftData) {
+            const element = form.elements[fieldName];
+            if (element) {
+                element.value = draftData[fieldName];
+            }
+        }
+    }
+    
+    // Clear draft on successful submission
+    form.addEventListener('submit', function() {
+        localStorage.removeItem('urs_draft');
+    });
+});
+</script>
+{% endblock %}

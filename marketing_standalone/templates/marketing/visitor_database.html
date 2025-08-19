@@ -1,0 +1,261 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Visitor Database{% endblock %}
+
+{% block content %}
+<div class="p-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Visitor Database</h1>
+            <p class="text-gray-600">Manage and track exhibition visitors</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                <i data-lucide="download" class="w-4 h-4 inline mr-2"></i>
+                Export Data
+            </button>
+            <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                Add Visitor
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Visitors</p>
+                    <p class="text-2xl font-bold text-gray-900">1,247</p>
+                </div>
+                <div class="bg-blue-100 rounded-full p-3">
+                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">New This Month</p>
+                    <p class="text-2xl font-bold text-gray-900">89</p>
+                </div>
+                <div class="bg-green-100 rounded-full p-3">
+                    <i data-lucide="user-plus" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Qualified Leads</p>
+                    <p class="text-2xl font-bold text-gray-900">234</p>
+                </div>
+                <div class="bg-purple-100 rounded-full p-3">
+                    <i data-lucide="target" class="w-6 h-6 text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Conversion Rate</p>
+                    <p class="text-2xl font-bold text-gray-900">18.7%</p>
+                </div>
+                <div class="bg-orange-100 rounded-full p-3">
+                    <i data-lucide="trending-up" class="w-6 h-6 text-orange-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+        <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+                <input type="text" placeholder="Search visitors..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+            </div>
+            <div class="flex gap-2">
+                <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <option>All Exhibitions</option>
+                    <option>Auto Expo 2024</option>
+                    <option>Tech Innovation Expo</option>
+                    <option>Manufacturing Summit</option>
+                </select>
+                <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <option>All Status</option>
+                    <option>New</option>
+                    <option>Qualified</option>
+                    <option>Contacted</option>
+                    <option>Converted</option>
+                </select>
+                <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <option>All Industries</option>
+                    <option>Automotive</option>
+                    <option>Technology</option>
+                    <option>Manufacturing</option>
+                    <option>Healthcare</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visitors List -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-200">
+                        <th class="text-left py-4 px-6 font-medium text-gray-700">Visitor</th>
+                        <th class="text-left py-4 px-6 font-medium text-gray-700">Company</th>
+                        <th class="text-left py-4 px-6 font-medium text-gray-700">Exhibition</th>
+                        <th class="text-left py-4 px-6 font-medium text-gray-700">Industry</th>
+                        <th class="text-left py-4 px-6 font-medium text-gray-700">Status</th>
+                        <th class="text-left py-4 px-6 font-medium text-gray-700">Contact Info</th>
+                        <th class="text-left py-4 px-6 font-medium text-gray-700">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-4 px-6">
+                            <div>
+                                <p class="font-medium text-gray-900">Rajesh Kumar</p>
+                                <p class="text-sm text-gray-500">Product Manager</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div>
+                                <p class="font-medium text-gray-900">Tata Motors</p>
+                                <p class="text-sm text-gray-500">Automotive</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                Auto Expo 2024
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-gray-900">Automotive</td>
+                        <td class="py-4 px-6">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Qualified
+                            </span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="text-sm">
+                                <p class="text-gray-900">rajesh.kumar@tatamotors.com</p>
+                                <p class="text-gray-500">+91 98765 43210</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-2">
+                                <button class="text-purple-600 hover:text-purple-700 text-sm font-medium">View</button>
+                                <button class="text-blue-600 hover:text-blue-700 text-sm font-medium">Edit</button>
+                                <button class="text-green-600 hover:text-green-700 text-sm font-medium">Contact</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-4 px-6">
+                            <div>
+                                <p class="font-medium text-gray-900">Priya Sharma</p>
+                                <p class="text-sm text-gray-500">Procurement Head</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div>
+                                <p class="font-medium text-gray-900">Tech Solutions Ltd</p>
+                                <p class="text-sm text-gray-500">Technology</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                Tech Innovation Expo
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-gray-900">Technology</td>
+                        <td class="py-4 px-6">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Contacted
+                            </span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="text-sm">
+                                <p class="text-gray-900">priya.sharma@techsolutions.com</p>
+                                <p class="text-gray-500">+91 87654 32109</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-2">
+                                <button class="text-purple-600 hover:text-purple-700 text-sm font-medium">View</button>
+                                <button class="text-blue-600 hover:text-blue-700 text-sm font-medium">Edit</button>
+                                <button class="text-green-600 hover:text-green-700 text-sm font-medium">Contact</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="py-4 px-6">
+                            <div>
+                                <p class="font-medium text-gray-900">Amit Patel</p>
+                                <p class="text-sm text-gray-500">Operations Director</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div>
+                                <p class="font-medium text-gray-900">Manufacturing Corp</p>
+                                <p class="text-sm text-gray-500">Manufacturing</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                Manufacturing Summit
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-gray-900">Manufacturing</td>
+                        <td class="py-4 px-6">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                New
+                            </span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="text-sm">
+                                <p class="text-gray-900">amit.patel@manufacturingcorp.com</p>
+                                <p class="text-gray-500">+91 76543 21098</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-2">
+                                <button class="text-purple-600 hover:text-purple-700 text-sm font-medium">View</button>
+                                <button class="text-blue-600 hover:text-blue-700 text-sm font-medium">Edit</button>
+                                <button class="text-green-600 hover:text-green-700 text-sm font-medium">Contact</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between mt-6">
+        <div class="text-sm text-gray-700">
+            Showing 1 to 10 of 1,247 results
+        </div>
+        <div class="flex items-center gap-2">
+            <button class="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Previous</button>
+            <button class="px-3 py-1 text-sm bg-purple-600 text-white rounded-lg">1</button>
+            <button class="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">2</button>
+            <button class="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">3</button>
+            <button class="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Next</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
+{% endblock %}

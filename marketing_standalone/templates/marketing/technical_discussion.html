@@ -1,0 +1,203 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Record Technical Discussion - Marketing Hub{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Record Technical Discussion</h1>
+                <p class="text-gray-600 mt-1">Record technical discussions with customers</p>
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="{% url 'marketing:technical_discussion_list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                    Back to Discussions
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technical Discussion Form -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Quotation Selection -->
+            <div>
+                <label for="quotation" class="block text-sm font-medium text-gray-700 mb-2">Select Quotation *</label>
+                <select name="quotation" id="quotation" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="">Select Shared Quotation</option>
+                    {% for quotation in quotations %}
+                    <option value="{{ quotation.id }}" data-customer="{{ quotation.urs.customer.name }}" data-project="{{ quotation.urs.project_name }}">
+                        {{ quotation.quotation_number }} - {{ quotation.urs.project_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <p class="mt-1 text-sm text-gray-500">Only shared quotations are available for technical discussions</p>
+            </div>
+
+            <!-- Discussion Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="discussion_date" class="block text-sm font-medium text-gray-700 mb-2">Discussion Date *</label>
+                    <input type="datetime-local" name="discussion_date" id="discussion_date" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
+                <div>
+                    <label for="discussion_type" class="block text-sm font-medium text-gray-700 mb-2">Discussion Type *</label>
+                    <select name="discussion_type" id="discussion_type" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select Type</option>
+                        <option value="telephonic">Telephonic</option>
+                        <option value="in_person">In Person</option>
+                        <option value="video">Video Call</option>
+                        <option value="email">Email</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Participants -->
+            <div>
+                <label for="participants" class="block text-sm font-medium text-gray-700 mb-2">Participants *</label>
+                <textarea name="participants" id="participants" rows="2" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="List all participants (customer team, our team)"></textarea>
+            </div>
+
+            <!-- Discussion Points -->
+            <div>
+                <label for="discussion_points" class="block text-sm font-medium text-gray-700 mb-2">Discussion Points *</label>
+                <textarea name="discussion_points" id="discussion_points" rows="4" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="List all points discussed during the meeting..."></textarea>
+            </div>
+
+            <!-- Decisions Made -->
+            <div>
+                <label for="decisions_made" class="block text-sm font-medium text-gray-700 mb-2">Decisions Made</label>
+                <textarea name="decisions_made" id="decisions_made" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Record any decisions or agreements made..."></textarea>
+            </div>
+
+            <!-- Action Items -->
+            <div>
+                <label for="action_items" class="block text-sm font-medium text-gray-700 mb-2">Action Items</label>
+                <textarea name="action_items" id="action_items" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="List action items with responsible persons and deadlines..."></textarea>
+            </div>
+
+            <!-- Next Follow-up -->
+            <div>
+                <label for="next_follow_up" class="block text-sm font-medium text-gray-700 mb-2">Next Follow-up Date</label>
+                <input type="datetime-local" name="next_follow_up" id="next_follow_up" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+                <button type="button" onclick="history.back()" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md shadow-sm text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    Record Discussion
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Help Section -->
+    <div class="bg-blue-50 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-blue-900 mb-3">Technical Discussion Guidelines</h3>
+        <div class="text-sm text-blue-800 space-y-2">
+            <p><strong>Discussion Points:</strong> Cover all technical aspects, specifications, and customer requirements.</p>
+            <p><strong>Decisions Made:</strong> Document any agreements, approvals, or changes to the original proposal.</p>
+            <p><strong>Action Items:</strong> Assign responsibilities and set clear deadlines for follow-up actions.</p>
+            <p><strong>Next Follow-up:</strong> Schedule the next meeting or discussion to maintain momentum.</p>
+            <p><strong>Participants:</strong> Include all key stakeholders from both customer and company sides.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const discussionDateInput = document.getElementById('discussion_date');
+    const nextFollowUpInput = document.getElementById('next_follow_up');
+    
+    // Set default discussion date to current date and time
+    const now = new Date();
+    const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    discussionDateInput.value = localDateTime;
+    
+    // Auto-set next follow-up date (2-3 days later as per process)
+    const nextFollowUp = new Date(now.getTime() + (3 * 24 * 60 * 60 * 1000)); // 3 days later
+    const nextFollowUpDateTime = new Date(nextFollowUp.getTime() - nextFollowUp.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    nextFollowUpInput.value = nextFollowUpDateTime;
+    
+    // Auto-save draft functionality
+    const form = document.querySelector('form');
+    
+    setInterval(function() {
+        const formElements = form.elements;
+        const draftData = {};
+        
+        for (let element of formElements) {
+            if (element.name && element.value) {
+                draftData[element.name] = element.value;
+            }
+        }
+        
+        localStorage.setItem('technical_discussion_draft', JSON.stringify(draftData));
+    }, 30000);
+    
+    // Load draft data on page load
+    const savedDraft = localStorage.getItem('technical_discussion_draft');
+    if (savedDraft) {
+        const draftData = JSON.parse(savedDraft);
+        for (let fieldName in draftData) {
+            const element = form.elements[fieldName];
+            if (element) {
+                element.value = draftData[fieldName];
+            }
+        }
+    }
+    
+    // Clear draft on successful submission
+    form.addEventListener('submit', function() {
+        localStorage.removeItem('technical_discussion_draft');
+    });
+    
+    // Discussion type change handler
+    const discussionTypeSelect = document.getElementById('discussion_type');
+    discussionTypeSelect.addEventListener('change', function() {
+        const type = this.value;
+        const participantsField = document.getElementById('participants');
+        
+        // Auto-suggest participants based on discussion type
+        if (type === 'telephonic' || type === 'video') {
+            participantsField.placeholder = "Customer: [Name, Designation]\nOur Team: [Name, Designation]\nExample: John Doe (Technical Manager), Jane Smith (Sales Engineer)";
+        } else if (type === 'in_person') {
+            participantsField.placeholder = "Customer: [Name, Designation, Company]\nOur Team: [Name, Designation]\nLocation: [Meeting Venue]";
+        } else if (type === 'email') {
+            participantsField.placeholder = "From: [Name, Email]\nTo: [Name, Email]\nCC: [Names, Emails]";
+        }
+    });
+    
+    // Auto-populate discussion points template
+    const discussionPointsField = document.getElementById('discussion_points');
+    if (!discussionPointsField.value) {
+        discussionPointsField.value = `1. Technical specifications review
+2. Customer requirements clarification
+3. Design modifications discussion
+4. Timeline and delivery schedule
+5. Quality standards and testing requirements
+6. Installation and commissioning details`;
+    }
+    
+    // Auto-populate action items template
+    const actionItemsField = document.getElementById('action_items');
+    if (!actionItemsField.value) {
+        actionItemsField.value = `1. [Action Item] - [Responsible Person] - [Deadline]
+2. [Action Item] - [Responsible Person] - [Deadline]
+3. [Action Item] - [Responsible Person] - [Deadline]`;
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,416 @@
+<!-- Dashboard Component Example -->
+<!-- This shows the complete dashboard design system used in the HR system -->
+
+<div class="mx-auto w-full p-2 md:p-4 xl:p-2">
+    <!-- Modern Header with Greeting -->
+    <div class="mb-6 greeting-fade">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">
+                    <span id="greeting-text"></span><span class="typing-cursor">|</span>
+                </h1>
+                <p class="text-sm text-gray-600" id="current-date"></p>
+                <p class="text-xs text-blue-600 mt-1 italic" id="motivational-message"></p>
+            </div>
+            <div class="flex items-center gap-3">
+                <!-- Search Bar -->
+                <div class="relative">
+                    <input type="text" placeholder="Search..." 
+                           class="w-64 rounded-lg border border-gray-200 bg-white px-4 py-2 pl-10 text-sm focus:border-brand-500 focus:outline-none">
+                    <i data-lucide="search" class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"></i>
+                </div>
+                <!-- Notifications Dropdown -->
+                <div class="relative" x-data="{ notificationsOpen: false }">
+                    <button @click="notificationsOpen = !notificationsOpen" 
+                            class="relative rounded-lg p-2 text-gray-600 hover:bg-gray-100 transition-colors">
+                        <i data-lucide="bell" class="h-5 w-5"></i>
+                        <span id="notification-badge" class="notification-badge absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white hidden">3</span>
+                    </button>
+                    
+                    <!-- Notifications Dropdown Menu -->
+                    <div x-show="notificationsOpen" 
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 scale-95"
+                         x-transition:enter-end="opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 scale-100"
+                         x-transition:leave-end="opacity-0 scale-95"
+                         @click.away="notificationsOpen = false"
+                         class="absolute right-0 top-full z-50 mt-2 w-80 rounded-lg border border-gray-200 bg-white shadow-lg">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-sm font-semibold text-gray-900">Notifications</h3>
+                                <button id="mark-all-read-btn" class="text-xs text-brand-600 hover:text-brand-700">Mark all as read</button>
+                            </div>
+                            <div id="notifications-container" class="space-y-3 max-h-64 overflow-y-auto">
+                                <!-- Sample notifications -->
+                                <div class="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50">
+                                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+                                        <i data-lucide="user-plus" class="text-blue-600 h-4 w-4"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900">Sample notification</p>
+                                        <p class="text-xs text-gray-600">This is a sample notification message</p>
+                                        <p class="text-xs text-gray-400">2 minutes ago</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50">
+                                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                                        <i data-lucide="check-circle" class="text-green-600 h-4 w-4"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900">Sample success</p>
+                                        <p class="text-xs text-gray-600">This is a sample success message</p>
+                                        <p class="text-xs text-gray-400">15 minutes ago</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50">
+                                    <div class="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100">
+                                        <i data-lucide="alert-triangle" class="text-yellow-600 h-4 w-4"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900">Sample warning</p>
+                                        <p class="text-xs text-gray-600">This is a sample warning message</p>
+                                        <p class="text-xs text-gray-400">1 hour ago</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 mb-6">
+        <!-- Total Records -->
+        <div class="stat-card rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-600">Total Records</p>
+                    <p class="text-xl font-bold text-gray-900">0</p>
+                    <p class="text-xs text-blue-600 mt-1">+0% from last month</p>
+                </div>
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
+                    <i data-lucide="file-text" class="text-blue-600 h-5 w-5"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Records -->
+        <div class="stat-card rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-600">Active Records</p>
+                    <p class="text-xl font-bold text-green-600">0</p>
+                    <p class="text-xs text-green-600 mt-1">0% of total</p>
+                </div>
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50">
+                    <i data-lucide="check-circle" class="text-green-600 h-5 w-5"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Records -->
+        <div class="stat-card rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-600">Pending Records</p>
+                    <p class="text-xl font-bold text-yellow-600">0</p>
+                    <p class="text-xs text-yellow-600 mt-1">No pending items</p>
+                </div>
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-50">
+                    <i data-lucide="clock" class="text-yellow-600 h-5 w-5"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inactive Records -->
+        <div class="stat-card rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-gray-600">Inactive Records</p>
+                    <p class="text-xl font-bold text-red-600">0</p>
+                    <p class="text-xs text-red-600 mt-1">0% from last month</p>
+                </div>
+                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50">
+                    <i data-lucide="x-circle" class="text-red-600 h-5 w-5"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Recent Activity -->
+        <div class="lg:col-span-2">
+            <div class="card-hover rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Recent Activity</h3>
+                    <p class="text-sm text-gray-600">Latest updates and changes</p>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+                                <i data-lucide="plus" class="text-blue-600 h-4 w-4"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">Sample activity</p>
+                                <p class="text-xs text-gray-600">Sample activity description</p>
+                                <p class="text-xs text-gray-400">2 minutes ago</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                                <i data-lucide="check" class="text-green-600 h-4 w-4"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">Sample update</p>
+                                <p class="text-xs text-gray-600">Sample update description</p>
+                                <p class="text-xs text-gray-400">15 minutes ago</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-100">
+                                <i data-lucide="alert-triangle" class="text-yellow-600 h-4 w-4"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">Sample pending</p>
+                                <p class="text-xs text-gray-600">Sample pending description</p>
+                                <p class="text-xs text-gray-400">1 hour ago</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100">
+                                <i data-lucide="settings" class="text-purple-600 h-4 w-4"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">Sample system</p>
+                                <p class="text-xs text-gray-600">Sample system description</p>
+                                <p class="text-xs text-gray-400">2 hours ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="lg:col-span-1">
+            <div class="card-hover rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Quick Actions</h3>
+                    <p class="text-sm text-gray-600">Common tasks and shortcuts</p>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-3">
+                        <a href="/create/" class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
+                                <i data-lucide="plus" class="text-blue-600 h-4 w-4"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Create New Record</p>
+                                <p class="text-xs text-gray-600">Add a new record to the system</p>
+                            </div>
+                        </a>
+                        
+                        <a href="/import/" class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
+                                <i data-lucide="upload" class="text-green-600 h-4 w-4"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Import Data</p>
+                                <p class="text-xs text-gray-600">Bulk import from CSV/Excel</p>
+                            </div>
+                        </a>
+                        
+                        <a href="/reports/" class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
+                                <i data-lucide="bar-chart-3" class="text-purple-600 h-4 w-4"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">Generate Report</p>
+                                <p class="text-xs text-gray-600">Create detailed reports</p>
+                            </div>
+                        </a>
+                        
+                        <a href="/settings/" class="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100">
+                                <i data-lucide="settings" class="text-gray-600 h-4 w-4"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">System Settings</p>
+                                <p class="text-xs text-gray-600">Configure system preferences</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <!-- Upcoming Events -->
+        <div class="card-hover rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Upcoming Events</h3>
+                <p class="text-sm text-gray-600">Scheduled activities and deadlines</p>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-red-100">
+                            <span class="text-red-600 text-xs font-bold">15</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-900">Monthly Review</p>
+                            <p class="text-xs text-gray-600">Team performance review meeting</p>
+                        </div>
+                        <span class="text-xs text-gray-400">Today</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
+                            <span class="text-blue-600 text-xs font-bold">18</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-900">Data Backup</p>
+                            <p class="text-xs text-gray-600">Automated system backup</p>
+                        </div>
+                        <span class="text-xs text-gray-400">3 days</span>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                            <span class="text-green-600 text-xs font-bold">25</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-gray-900">System Update</p>
+                            <p class="text-xs text-gray-600">Scheduled maintenance window</p>
+                        </div>
+                        <span class="text-xs text-gray-400">10 days</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status -->
+        <div class="card-hover rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">System Status</h3>
+                <p class="text-sm text-gray-600">Current system health and performance</p>
+            </div>
+            <div class="p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-700">Database</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Online
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-700">API Services</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Operational
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-700">Storage</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            75% Used
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-700">Memory</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Normal
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-700">CPU Usage</span>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            45%
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Greeting and motivational message system
+function updateGreeting() {
+    const greetingElement = document.getElementById('greeting-text');
+    const currentDateElement = document.getElementById('current-date');
+    const motivationalElement = document.getElementById('motivational-message');
+    
+    if (greetingElement && currentDateElement && motivationalElement) {
+        const now = new Date();
+        const hour = now.getHours();
+        
+        // Set greeting based on time
+        let greeting = '';
+        if (hour < 12) {
+            greeting = 'Good Morning';
+        } else if (hour < 17) {
+            greeting = 'Good Afternoon';
+        } else {
+            greeting = 'Good Evening';
+        }
+        
+        greetingElement.textContent = greeting + ', User!';
+        
+        // Set current date
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        currentDateElement.textContent = now.toLocaleDateString('en-US', dateOptions);
+        
+        // Set motivational message
+        const messages = [
+            "Keep pushing forward! 🚀",
+            "You're doing great! 💪",
+            "Every step counts! 👣",
+            "Stay focused and productive! 🎯",
+            "Make today amazing! ✨"
+        ];
+        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+        motivationalElement.textContent = randomMessage;
+    }
+}
+
+// Initialize greeting
+document.addEventListener('DOMContentLoaded', function() {
+    updateGreeting();
+    
+    // Update greeting every hour
+    setInterval(updateGreeting, 3600000);
+});
+
+// Notification system
+function showNotificationBadge(count) {
+    const badge = document.getElementById('notification-badge');
+    if (badge) {
+        if (count > 0) {
+            badge.textContent = count;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    }
+}
+
+// Initialize notification badge
+document.addEventListener('DOMContentLoaded', function() {
+    showNotificationBadge(3); // Show 3 notifications
+});
+</script>

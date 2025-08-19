@@ -1,0 +1,282 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Daily Reports - Marketing Hub{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Daily Reports</h1>
+            <p class="text-gray-600">Daily activity summary and performance metrics for {{ today|date:"F d, Y" }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'marketing:monthly_reports' %}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <i data-lucide="calendar" class="w-4 h-4"></i>
+                Monthly Reports
+            </a>
+            <a href="{% url 'marketing:export_reports' %}" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 transition-colors">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Export Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Daily Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">New Customers</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ daily_stats.new_customers }}</p>
+                </div>
+                <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">New Leads</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ daily_stats.new_leads }}</p>
+                </div>
+                <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="user-plus" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">New Quotations</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ daily_stats.new_quotations }}</p>
+                </div>
+                <div class="h-12 w-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="file-text" class="w-6 h-6 text-yellow-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">New Purchase Orders</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ daily_stats.new_purchase_orders }}</p>
+                </div>
+                <div class="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="shopping-cart" class="w-6 h-6 text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">New Work Orders</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ daily_stats.new_work_orders }}</p>
+                </div>
+                <div class="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="clipboard-list" class="w-6 h-6 text-orange-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Completed Manufacturing</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ daily_stats.completed_manufacturing }}</p>
+                </div>
+                <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">New Visits</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ daily_stats.new_visits }}</p>
+                </div>
+                <div class="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="map-pin" class="w-6 h-6 text-indigo-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Pending Expenses</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ daily_stats.pending_expenses }}</p>
+                </div>
+                <div class="h-12 w-12 bg-red-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="alert-circle" class="w-6 h-6 text-red-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">Recent Activities Today</h3>
+                <span class="text-sm text-gray-500">{{ today|date:"M d, Y" }}</span>
+            </div>
+        </div>
+        
+        {% if recent_activities %}
+            <div class="divide-y divide-gray-200">
+                {% for activity in recent_activities %}
+                <div class="px-6 py-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0">
+                            {% if activity.color == 'blue' %}
+                                <div class="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="{{ activity.icon }}" class="w-5 h-5 text-blue-600"></i>
+                                </div>
+                            {% elif activity.color == 'green' %}
+                                <div class="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="{{ activity.icon }}" class="w-5 h-5 text-green-600"></i>
+                                </div>
+                            {% elif activity.color == 'yellow' %}
+                                <div class="h-10 w-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="{{ activity.icon }}" class="w-5 h-5 text-yellow-600"></i>
+                                </div>
+                            {% elif activity.color == 'purple' %}
+                                <div class="h-10 w-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="{{ activity.icon }}" class="w-5 h-5 text-purple-600"></i>
+                                </div>
+                            {% elif activity.color == 'orange' %}
+                                <div class="h-10 w-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="{{ activity.icon }}" class="w-5 h-5 text-orange-600"></i>
+                                </div>
+                            {% elif activity.color == 'indigo' %}
+                                <div class="h-10 w-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="{{ activity.icon }}" class="w-5 h-5 text-indigo-600"></i>
+                                </div>
+                            {% else %}
+                                <div class="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                                    <i data-lucide="{{ activity.icon }}" class="w-5 h-5 text-gray-600"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900">{{ activity.title }}</p>
+                            <p class="text-sm text-gray-500">{{ activity.description }}</p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span class="text-sm text-gray-500">{{ activity.time|time:"H:i" }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <i data-lucide="activity" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No activities today</h3>
+                <p class="text-gray-500">No new activities have been recorded for today.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Daily Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Sales Pipeline Summary -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Sales Pipeline Summary</h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">New Quotations</span>
+                    <span class="text-sm font-medium text-gray-900">{{ daily_stats.new_quotations }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">New Purchase Orders</span>
+                    <span class="text-sm font-medium text-gray-900">{{ daily_stats.new_purchase_orders }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Conversion Rate</span>
+                    <span class="text-sm font-medium text-gray-900">
+                        {% if daily_stats.new_quotations > 0 %}
+                            {{ daily_stats.new_purchase_orders|floatformat:1 }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Production Summary -->
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Production Summary</h3>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">New Work Orders</span>
+                    <span class="text-sm font-medium text-gray-900">{{ daily_stats.new_work_orders }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Completed Manufacturing</span>
+                    <span class="text-sm font-medium text-gray-900">{{ daily_stats.completed_manufacturing }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Completion Rate</span>
+                    <span class="text-sm font-medium text-gray-900">
+                        {% if daily_stats.new_work_orders > 0 %}
+                            {{ daily_stats.completed_manufacturing|floatformat:1 }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="{% url 'marketing:customer_list' %}" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                    <i data-lucide="users" class="w-5 h-5 text-blue-600"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-900">View All Customers</p>
+                    <p class="text-sm text-gray-500">Manage customer database</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'marketing:lead_list' %}" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                    <i data-lucide="user-plus" class="w-5 h-5 text-green-600"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-900">View All Leads</p>
+                    <p class="text-sm text-gray-500">Track lead pipeline</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'marketing:quotation_list' %}" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div class="h-10 w-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-4">
+                    <i data-lucide="file-text" class="w-5 h-5 text-yellow-600"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-900">View All Quotations</p>
+                    <p class="text-sm text-gray-500">Manage sales pipeline</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
