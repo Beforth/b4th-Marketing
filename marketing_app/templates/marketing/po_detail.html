@@ -1,0 +1,199 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Purchase Order Detail - Marketing Hub{% endblock %}
+
+{% block content %}
+<div class="mx-auto w-full p-2 md:p-4 xl:p-2">
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">{{ purchase_order.po_number }}</h1>
+                <p class="text-sm text-gray-600">Purchase Order Details</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="{% url 'marketing:po_list' %}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Back to Purchase Orders
+                </a>
+                <a href="#" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 transition-colors">
+                    <i data-lucide="edit" class="w-4 h-4"></i>
+                    Edit PO
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- PO Information -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Information -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Basic Details -->
+            <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Basic Information</h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">PO Number</label>
+                            <p class="text-sm text-gray-900">{{ purchase_order.po_number }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                {% if purchase_order.status == 'received' %}bg-green-100 text-green-800
+                                {% elif purchase_order.status == 'verified' %}bg-blue-100 text-blue-800
+                                {% elif purchase_order.status == 'approved' %}bg-purple-100 text-purple-800
+                                {% elif purchase_order.status == 'in_production' %}bg-orange-100 text-orange-800
+                                {% elif purchase_order.status == 'completed' %}bg-indigo-100 text-indigo-800
+                                {% elif purchase_order.status == 'dispatched' %}bg-yellow-100 text-yellow-800
+                                {% elif purchase_order.status == 'delivered' %}bg-green-100 text-green-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ purchase_order.get_status_display }}
+                            </span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Customer</label>
+                            <p class="text-sm text-gray-900">{{ purchase_order.customer.name }}</p>
+                            <p class="text-sm text-gray-500">{{ purchase_order.customer.contact_person }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
+                            <p class="text-sm text-gray-900 font-semibold">₹{{ purchase_order.total_amount|floatformat:2 }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Received Date</label>
+                            <p class="text-sm text-gray-900">{{ purchase_order.received_date|date:"M d, Y" }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Delivery Date</label>
+                            <p class="text-sm text-gray-900">{{ purchase_order.delivery_date|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Information -->
+            <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Payment Information</h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                            <p class="text-sm text-gray-900">{{ purchase_order.get_payment_method_display|default:"Not specified" }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Payment Terms</label>
+                            <p class="text-sm text-gray-900">{{ purchase_order.payment_terms|default:"Not specified" }}</p>
+                        </div>
+                    </div>
+                    {% if purchase_order.payment_terms_declared %}
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Payment Terms Declared by Customer</label>
+                        <p class="text-sm text-gray-900">{{ purchase_order.payment_terms_declared }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Special Requirements -->
+            {% if purchase_order.special_requirements %}
+            <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Special Requirements</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-sm text-gray-900">{{ purchase_order.special_requirements }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Actions -->
+            <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Actions</h3>
+                </div>
+                <div class="p-6 space-y-3">
+                    <a href="#" class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 transition-colors">
+                        <i data-lucide="edit" class="w-4 h-4"></i>
+                        Edit PO
+                    </a>
+                    <a href="#" class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        Download PDF
+                    </a>
+                    <a href="{% url 'marketing:payment_followup_create' purchase_order.id %}" class="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors">
+                        <i data-lucide="credit-card" class="w-4 h-4"></i>
+                        Payment Follow-up
+                    </a>
+                </div>
+            </div>
+
+            <!-- Related Information -->
+            <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Related Information</h3>
+                </div>
+                <div class="p-6 space-y-4">
+                    {% if purchase_order.quotation %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Quotation</label>
+                        <a href="#" class="text-sm text-brand-600 hover:text-brand-900">{{ purchase_order.quotation.quotation_number }}</a>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Work Orders</label>
+                        <p class="text-sm text-gray-900">{{ purchase_order.workorder_set.count }} orders</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Created By</label>
+                        <p class="text-sm text-gray-900">{{ purchase_order.created_by.get_full_name|default:purchase_order.created_by.username }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Created At</label>
+                        <p class="text-sm text-gray-900">{{ purchase_order.created_at|date:"M d, Y H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Follow-ups -->
+            {% if purchase_order.payment_followups.exists %}
+            <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Payment Follow-ups</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-3">
+                        {% for followup in purchase_order.payment_followups.all|slice:":3" %}
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ followup.get_payment_method_display }}</p>
+                                <p class="text-xs text-gray-500">{{ followup.follow_up_date|date:"M d, Y" }}</p>
+                            </div>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                                {% if followup.status == 'completed' %}bg-green-100 text-green-800
+                                {% elif followup.status == 'in_progress' %}bg-blue-100 text-blue-800
+                                {% elif followup.status == 'overdue' %}bg-red-100 text-red-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ followup.get_status_display }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                        {% if purchase_order.payment_followups.count > 3 %}
+                        <a href="#" class="text-sm text-brand-600 hover:text-brand-900">View all {{ purchase_order.payment_followups.count }} follow-ups</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

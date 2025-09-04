@@ -1,0 +1,184 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Quotation Revision Timeline{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Revision Timeline</h1>
+            <p class="text-gray-600">{{ quotation.quotation_number }} - {{ quotation.customer.name }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'marketing:create_quotation_revision' quotation.id %}" class="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors">
+                <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                Create Revision
+            </a>
+            <a href="{% url 'marketing:quotation_detail' quotation.id %}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4 inline mr-2"></i>
+                Back to Quotation
+            </a>
+        </div>
+    </div>
+
+    <!-- Quotation Summary -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="text-center">
+                <p class="text-sm text-gray-600">Current Version</p>
+                <p class="text-2xl font-bold text-gray-900">v{{ quotation.version }}</p>
+            </div>
+            <div class="text-center">
+                <p class="text-sm text-gray-600">Total Revisions</p>
+                <p class="text-2xl font-bold text-blue-600">{{ quotation.total_revisions }}</p>
+            </div>
+            <div class="text-center">
+                <p class="text-sm text-gray-600">Current Amount</p>
+                <p class="text-2xl font-bold text-green-600">₹{{ quotation.total_amount|floatformat:0 }}</p>
+            </div>
+            <div class="text-center">
+                <p class="text-sm text-gray-600">Status</p>
+                <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full
+                    {% if quotation.status == 'accepted' %}bg-green-100 text-green-800
+                    {% elif quotation.status == 'revised' %}bg-yellow-100 text-yellow-800
+                    {% elif quotation.status == 'sent' %}bg-blue-100 text-blue-800
+                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                    {{ quotation.get_status_display }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revision Timeline -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Revision Timeline</h3>
+        </div>
+        <div class="p-6">
+            {% if revisions %}
+            <div class="flow-root">
+                <ul class="-mb-8">
+                    {% for revision in revisions %}
+                    <li>
+                        <div class="relative pb-8">
+                            {% if not forloop.last %}
+                            <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                            {% endif %}
+                            <div class="relative flex space-x-3">
+                                <div>
+                                    <span class="h-8 w-8 rounded-full bg-brand-100 flex items-center justify-center ring-8 ring-white">
+                                        <i data-lucide="edit" class="h-4 w-4 text-brand-600"></i>
+                                    </span>
+                                </div>
+                                <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                    <div>
+                                        <p class="text-sm text-gray-500">
+                                            <span class="font-medium text-gray-900">Revision {{ revision.revision_number }}</span>
+                                            by {{ revision.created_by.get_full_name|default:revision.created_by.username }}
+                                        </p>
+                                        <p class="text-sm text-gray-500">{{ revision.revision_date|date:"M d, Y H:i" }}</p>
+                                        <div class="mt-2">
+                                            <p class="text-sm text-gray-900">
+                                                <strong>Reason:</strong> {{ revision.get_revision_reason_display }}
+                                            </p>
+                                            <p class="text-sm text-gray-900">
+                                                <strong>Amount Change:</strong> 
+                                                ₹{{ revision.previous_amount|floatformat:0 }} → ₹{{ revision.new_amount|floatformat:0 }}
+                                                {% if revision.new_amount > revision.previous_amount %}
+                                                    <span class="text-red-600">(+₹{{ revision.new_amount|add:revision.previous_amount|floatformat:0 }})</span>
+                                                {% else %}
+                                                    <span class="text-green-600">(-₹{{ revision.previous_amount|add:revision.new_amount|floatformat:0 }})</span>
+                                                {% endif %}
+                                            </p>
+                                            {% if revision.changes_summary %}
+                                            <p class="text-sm text-gray-700 mt-1">
+                                                <strong>Summary:</strong> {{ revision.changes_summary }}
+                                            </p>
+                                            {% endif %}
+                                            {% if revision.negotiation %}
+                                            <p class="text-sm text-blue-600 mt-1">
+                                                <i data-lucide="message-square" class="w-4 h-4 inline mr-1"></i>
+                                                Linked to negotiation on {{ revision.negotiation.negotiation_date|date:"M d, Y" }}
+                                            </p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                            v{{ revision.revision_number }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+                <i data-lucide="file-text" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No Revisions Yet</h3>
+                <p class="text-gray-600">This quotation hasn't been revised yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Related Negotiations -->
+    {% if negotiations %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Related Negotiations</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Initial Offer</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Final Offer</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revisions</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Outcome</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for negotiation in negotiations %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ negotiation.negotiation_date|date:"M d, Y" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ negotiation.get_negotiation_type_display }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ₹{{ negotiation.initial_offer|floatformat:0 }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ₹{{ negotiation.final_offer|floatformat:0|default:"N/A" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                {{ negotiation.revision_count }} revisions
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                {% if negotiation.outcome == 'successful' %}bg-green-100 text-green-800
+                                {% elif negotiation.outcome == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ negotiation.get_outcome_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

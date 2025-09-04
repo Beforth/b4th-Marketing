@@ -1,0 +1,241 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Region-wise Targets{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Region-wise Targets</h1>
+            <p class="text-gray-600">Machine-wise sales targets and achievements by region</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                <option>Current Quarter</option>
+                <option>Last Quarter</option>
+                <option>Year to Date</option>
+            </select>
+            <button class="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors">
+                <i data-lucide="download" class="w-4 h-4 inline mr-2"></i>
+                Export Report
+            </button>
+        </div>
+    </div>
+
+    <!-- Overall Performance Summary -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-semibold text-gray-900">Overall Performance</h3>
+            <div class="text-right">
+                <p class="text-sm text-gray-600">Target vs Achievement</p>
+                <p class="text-2xl font-bold text-gray-900">{{ achievement_percentage|floatformat:1 }}%</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center">
+                <p class="text-sm text-gray-600">Total Target</p>
+                <p class="text-xl font-bold text-gray-900">₹{{ total_target|floatformat:0 }}</p>
+            </div>
+            <div class="text-center">
+                <p class="text-sm text-gray-600">Total Achieved</p>
+                <p class="text-xl font-bold text-green-600">₹{{ total_achieved|floatformat:0 }}</p>
+            </div>
+            <div class="text-center">
+                <p class="text-sm text-gray-600">Remaining</p>
+                <p class="text-xl font-bold text-orange-600">₹{{ total_target|add:total_achieved|floatformat:0 }}</p>
+            </div>
+        </div>
+        <div class="mt-4">
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-green-600 h-2 rounded-full" style="width: {{ achievement_percentage }}%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Region-wise Breakdown -->
+    <div class="space-y-6">
+        {% for region_data in machine_sales %}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">{{ region_data.region.name }}</h3>
+                    <p class="text-sm text-gray-600">{{ region_data.quotation_count }} quotations • ₹{{ region_data.total_sales|floatformat:0 }} total sales</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-600">Region Performance</p>
+                    <p class="text-xl font-bold text-gray-900">85%</p>
+                </div>
+            </div>
+
+            <!-- Machine-wise Sales -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                {% for machine in region_data.machines %}
+                <div class="p-4 border border-gray-200 rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-sm font-medium text-gray-900">{{ machine.name }}</h4>
+                        <span class="text-xs text-gray-500">{{ machine.count }} units</span>
+                    </div>
+                    <p class="text-lg font-bold text-green-600">₹{{ machine.sales|floatformat:0 }}</p>
+                    <div class="mt-2">
+                        <div class="w-full bg-gray-200 rounded-full h-1">
+                            <div class="bg-blue-600 h-1 rounded-full" style="width: 75%"></div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Region Details Table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Machine Type</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Target</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Achieved</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Units Sold</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Performance</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for machine in region_data.machines %}
+                        <tr>
+                            <td class="px-4 py-2 text-sm font-medium text-gray-900">{{ machine.name }}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900">₹{{ machine.sales|add:50000|floatformat:0 }}</td>
+                            <td class="px-4 py-2 text-sm text-green-600">₹{{ machine.sales|floatformat:0 }}</td>
+                            <td class="px-4 py-2 text-sm text-gray-900">{{ machine.count }}</td>
+                            <td class="px-4 py-2 text-sm">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    75%
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+            <i data-lucide="map-pin" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No Regional Data Available</h3>
+            <p class="text-gray-600">Regional targets and machine-wise sales data will appear here once configured.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Machine Performance Summary -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Machine Performance Summary</h3>
+            <button class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                <i data-lucide="filter" class="w-4 h-4 inline mr-2"></i>
+                Filter
+            </button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Machine Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Sales</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Units Sold</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg. Price</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Top Region</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                    <i data-lucide="cpu" class="w-4 h-4 text-blue-600"></i>
+                                </div>
+                                <div class="text-sm font-medium text-gray-900">Machine Type A</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹450,000</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">15</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹30,000</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">North Region</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                90%
+                            </span>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                    <i data-lucide="settings" class="w-4 h-4 text-green-600"></i>
+                                </div>
+                                <div class="text-sm font-medium text-gray-900">Machine Type B</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹600,000</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">9</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹66,667</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">South Region</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                75%
+                            </span>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                    <i data-lucide="zap" class="w-4 h-4 text-purple-600"></i>
+                                </div>
+                                <div class="text-sm font-medium text-gray-900">Machine Type C</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹700,000</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">21</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹33,333</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">East Region</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                85%
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Action Items -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Action Items & Recommendations</h3>
+        <div class="space-y-4">
+            <div class="flex items-start p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-600 mr-3 mt-0.5"></i>
+                <div>
+                    <h4 class="text-sm font-medium text-yellow-800">Machine Type B Performance</h4>
+                    <p class="text-sm text-yellow-700">Consider increasing marketing efforts in South Region to improve Machine Type B sales performance.</p>
+                </div>
+            </div>
+            <div class="flex items-start p-4 bg-green-50 border border-green-200 rounded-lg">
+                <i data-lucide="check-circle" class="w-5 h-5 text-green-600 mr-3 mt-0.5"></i>
+                <div>
+                    <h4 class="text-sm font-medium text-green-800">Machine Type A Success</h4>
+                    <p class="text-sm text-green-700">Machine Type A is performing exceptionally well in North Region. Consider expanding to other regions.</p>
+                </div>
+            </div>
+            <div class="flex items-start p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <i data-lucide="info" class="w-5 h-5 text-blue-600 mr-3 mt-0.5"></i>
+                <div>
+                    <h4 class="text-sm font-medium text-blue-800">Target Adjustment</h4>
+                    <p class="text-sm text-blue-700">Overall performance is at {{ achievement_percentage|floatformat:1 }}%. Review and adjust targets for next quarter.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

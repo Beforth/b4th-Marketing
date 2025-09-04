@@ -1,0 +1,211 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Create Quotation - Marketing Hub{% endblock %}
+
+{% block content %}
+<div class="mx-auto w-full p-2 md:p-4 xl:p-2">
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Create Quotation</h1>
+                <p class="text-sm text-gray-600">Generate quotation for approved URS</p>
+            </div>
+            <a href="{% url 'marketing:quotation_list' %}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Back to Quotations
+            </a>
+        </div>
+    </div>
+
+    <!-- Quotation Form -->
+    <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <form method="post" enctype="multipart/form-data" class="p-6 space-y-6">
+            {% csrf_token %}
+            
+            <!-- URS Selection -->
+            <div>
+                <label for="urs" class="block text-sm font-medium text-gray-700 mb-2">
+                    Select URS <span class="text-red-500">*</span>
+                </label>
+                <select name="urs" id="urs" required class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                    <option value="">Select Approved URS</option>
+                    {% for urs in urs_list %}
+                    <option value="{{ urs.id }}" data-customer="{{ urs.customer.name }}" data-project="{{ urs.project_name }}">
+                        {{ urs.project_name }} - {{ urs.customer.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <p class="mt-1 text-sm text-gray-500">Only approved URS evaluations are available for quotation</p>
+            </div>
+
+            <!-- Quotation Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="quotation_number" class="block text-sm font-medium text-gray-700 mb-2">
+                        Quotation Number <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="quotation_number" id="quotation_number" required 
+                           class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" 
+                           placeholder="e.g., QT-2024-001">
+                </div>
+                
+                <div>
+                    <label for="total_amount" class="block text-sm font-medium text-gray-700 mb-2">
+                        Total Amount (₹) <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" name="total_amount" id="total_amount" step="0.01" required 
+                           class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" 
+                           placeholder="0.00">
+                </div>
+            </div>
+
+            <!-- Validity and Terms -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="validity_period" class="block text-sm font-medium text-gray-700 mb-2">Validity Period</label>
+                    <input type="text" name="validity_period" id="validity_period" 
+                           class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" 
+                           placeholder="e.g., 30 days, 3 months">
+                </div>
+                
+                <div>
+                    <label for="delivery_terms" class="block text-sm font-medium text-gray-700 mb-2">Delivery Terms</label>
+                    <select name="delivery_terms" id="delivery_terms" 
+                            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                        <option value="">Select Delivery Terms</option>
+                        <option value="ex_works">Ex Works</option>
+                        <option value="fob">FOB</option>
+                        <option value="cif">CIF</option>
+                        <option value="dap">DAP</option>
+                        <option value="ddp">DDP</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Payment Terms -->
+            <div>
+                <label for="payment_terms" class="block text-sm font-medium text-gray-700 mb-2">Payment Terms</label>
+                <textarea name="payment_terms" id="payment_terms" rows="3" 
+                          class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" 
+                          placeholder="e.g., 50% advance, 50% on delivery"></textarea>
+            </div>
+
+            <!-- Technical Specifications -->
+            <div>
+                <label for="technical_specs" class="block text-sm font-medium text-gray-700 mb-2">Technical Specifications</label>
+                <textarea name="technical_specs" id="technical_specs" rows="4" 
+                          class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" 
+                          placeholder="Enter technical specifications, materials, standards..."></textarea>
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div>
+                <label for="terms_conditions" class="block text-sm font-medium text-gray-700 mb-2">Terms & Conditions</label>
+                <textarea name="terms_conditions" id="terms_conditions" rows="6" 
+                          class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" 
+                          placeholder="Enter terms and conditions..."></textarea>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+                <a href="{% url 'marketing:quotation_list' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="px-6 py-2 bg-brand-600 text-white rounded-lg shadow-sm text-sm font-medium hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2">
+                    Create Quotation
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Help Section -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+        <h4 class="font-medium text-blue-900 mb-2">Quotation Guidelines</h4>
+        <ul class="text-sm text-blue-800 space-y-1">
+            <li>• <strong>Quotation Number:</strong> Use a consistent numbering system (e.g., QT-YYYY-XXX)</li>
+            <li>• <strong>Total Amount:</strong> Include all costs including taxes, transportation, and installation if applicable</li>
+            <li>• <strong>Validity Period:</strong> Specify how long the quotation remains valid</li>
+            <li>• <strong>Payment Terms:</strong> Clearly define payment schedule and methods</li>
+            <li>• <strong>Delivery Terms:</strong> Specify who bears transportation and insurance costs</li>
+            <li>• <strong>Technical Specifications:</strong> Include all relevant technical details and standards</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ursSelect = document.getElementById('urs');
+    const totalAmountInput = document.getElementById('total_amount');
+    
+    // Auto-generate quotation number
+    function generateQuotationNumber() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        return `QT-${year}${month}${day}-${random}`;
+    }
+    
+    // Set default quotation number
+    document.getElementById('quotation_number').value = generateQuotationNumber();
+    
+    // Auto-save draft functionality
+    const form = document.querySelector('form');
+    
+    setInterval(function() {
+        const formElements = form.elements;
+        const draftData = {};
+        
+        for (let element of formElements) {
+            if (element.name && element.value) {
+                draftData[element.name] = element.value;
+            }
+        }
+        
+        localStorage.setItem('quotation_draft', JSON.stringify(draftData));
+    }, 30000);
+    
+    // Load draft data on page load
+    const savedDraft = localStorage.getItem('quotation_draft');
+    if (savedDraft) {
+        const draftData = JSON.parse(savedDraft);
+        for (let fieldName in draftData) {
+            const element = form.elements[fieldName];
+            if (element && fieldName !== 'quotation_number') { // Don't overwrite auto-generated number
+                element.value = draftData[fieldName];
+            }
+        }
+    }
+    
+    // Clear draft on successful submission
+    form.addEventListener('submit', function() {
+        localStorage.removeItem('quotation_draft');
+    });
+    
+    // Format currency input
+    totalAmountInput.addEventListener('blur', function() {
+        if (this.value) {
+            const value = parseFloat(this.value);
+            if (!isNaN(value)) {
+                this.value = value.toFixed(2);
+            }
+        }
+    });
+    
+    // Auto-populate terms and conditions template
+    const termsConditions = document.getElementById('terms_conditions');
+    if (!termsConditions.value) {
+        termsConditions.value = `1. This quotation is valid for the period specified above.
+2. Payment terms are as specified in this quotation.
+3. Delivery will be made as per the agreed terms.
+4. Warranty and after-sales service terms apply as per standard policy.
+5. Any changes to specifications may affect pricing and delivery timeline.
+6. Force majeure conditions apply as per standard terms.`;
+    }
+});
+</script>
+{% endblock %}

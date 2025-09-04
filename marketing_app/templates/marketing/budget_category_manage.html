@@ -1,0 +1,195 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Budget Categories{% endblock %}
+
+{% block content %}
+<div class="mx-auto w-full p-2 md:p-4 xl:p-2">
+    <!-- Header -->
+    <div class="mb-4">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Budget Categories</h1>
+                <p class="text-sm text-gray-600">Manage exhibition budget categories</p>
+            </div>
+            <button onclick="openCreateModal()" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm transition">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Add Category
+            </button>
+        </div>
+    </div>
+
+    <!-- Categories List -->
+    <div class="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for category in categories %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ category.name }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ category.get_category_type_display }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="text-sm text-gray-900 max-w-xs truncate">{{ category.description|default:"No description" }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                {% if category.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                                {% if category.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <button onclick="editCategory({{ category.id }}, '{{ category.name }}', '{{ category.category_type }}', '{{ category.description }}', {{ category.is_active|yesno:"true,false" }})" 
+                                        class="text-blue-600 hover:text-blue-900">
+                                    <i data-lucide="edit" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="toggleStatus({{ category.id }}, {{ category.is_active|yesno:"false,true" }})" 
+                                        class="{% if category.is_active %}text-red-600 hover:text-red-900{% else %}text-green-600 hover:text-green-900{% endif %}">
+                                    <i data-lucide="{% if category.is_active %}pause{% else %}play{% endif %}" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                            No budget categories found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Create/Edit Modal -->
+<div id="categoryModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 id="modalTitle" class="text-lg font-semibold text-gray-900">Add Budget Category</h3>
+            </div>
+            <form id="categoryForm" method="post" class="p-6">
+                {% csrf_token %}
+                <input type="hidden" id="categoryId" name="category_id">
+                <input type="hidden" id="action" name="action" value="create">
+                
+                <div class="space-y-4">
+                    <div>
+                        <label for="categoryName" class="block text-sm font-medium text-gray-700 mb-2">
+                            Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="categoryName" name="name" required
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               placeholder="Enter category name">
+                    </div>
+                    
+                    <div>
+                        <label for="categoryType" class="block text-sm font-medium text-gray-700 mb-2">
+                            Type <span class="text-red-500">*</span>
+                        </label>
+                        <select id="categoryType" name="category_type" required
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                            <option value="">Select Type</option>
+                            <option value="trade_show">Trade Show</option>
+                            <option value="industry_exhibition">Industry Exhibition</option>
+                            <option value="regional_exhibition">Regional Exhibition</option>
+                            <option value="international_exhibition">International Exhibition</option>
+                            <option value="local_event">Local Event</option>
+                            <option value="conference">Conference</option>
+                            <option value="seminar">Seminar</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="categoryDescription" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <textarea id="categoryDescription" name="description" rows="3"
+                                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                  placeholder="Optional description..."></textarea>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <input type="checkbox" id="categoryActive" name="is_active" checked
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="categoryActive" class="ml-2 block text-sm text-gray-900">
+                            Active
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                        <i data-lucide="save" class="w-4 h-4 inline mr-2"></i> Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function openCreateModal() {
+    document.getElementById('modalTitle').textContent = 'Add Budget Category';
+    document.getElementById('categoryForm').reset();
+    document.getElementById('categoryId').value = '';
+    document.getElementById('action').value = 'create';
+    document.getElementById('categoryActive').checked = true;
+    document.getElementById('categoryModal').classList.remove('hidden');
+}
+
+function editCategory(id, name, type, description, isActive) {
+    document.getElementById('modalTitle').textContent = 'Edit Budget Category';
+    document.getElementById('categoryId').value = id;
+    document.getElementById('categoryName').value = name;
+    document.getElementById('categoryType').value = type;
+    document.getElementById('categoryDescription').value = description;
+    document.getElementById('categoryActive').checked = isActive;
+    document.getElementById('action').value = 'update';
+    document.getElementById('categoryModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('categoryModal').classList.add('hidden');
+}
+
+function toggleStatus(id, newStatus) {
+    if (confirm('Are you sure you want to change the status of this category?')) {
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.innerHTML = `
+            {% csrf_token %}
+            <input type="hidden" name="category_id" value="${id}">
+            <input type="hidden" name="action" value="toggle_status">
+            <input type="hidden" name="is_active" value="${newStatus}">
+        `;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Close modal when clicking outside
+document.getElementById('categoryModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+</script>
+{% endblock %}

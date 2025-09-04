@@ -1,0 +1,211 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Create QC Record - Marketing Hub{% endblock %}
+
+{% block content %}
+<div class="mx-auto w-full p-2 md:p-4 xl:p-2">
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Create QC Record</h1>
+                <p class="text-sm text-gray-600">Create a new quality control record</p>
+            </div>
+            <a href="{% url 'marketing:qc_tracking' %}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Back to QC Tracking
+            </a>
+        </div>
+    </div>
+
+    <!-- QC Record Form -->
+    <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <form method="post" enctype="multipart/form-data" class="p-6 space-y-6">
+            {% csrf_token %}
+            
+            <!-- Basic Information -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="qc_number" class="block text-sm font-medium text-gray-700 mb-2">
+                        QC Number <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="qc_number" id="qc_number" required 
+                           class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" 
+                           placeholder="e.g., QC-2024-001">
+                </div>
+                
+                <div>
+                    <label for="manufacturing" class="block text-sm font-medium text-gray-700 mb-2">
+                        Manufacturing Batch <span class="text-red-500">*</span>
+                    </label>
+                    <select name="manufacturing" id="manufacturing" required 
+                            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                        <option value="">Select Manufacturing Batch</option>
+                        {% for manufacturing in manufacturing_records %}
+                        <option value="{{ manufacturing.id }}">{{ manufacturing.batch_number }} - {{ manufacturing.work_order.purchase_order.customer.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Inspection Details -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="inspection_type" class="block text-sm font-medium text-gray-700 mb-2">
+                        Inspection Type <span class="text-red-500">*</span>
+                    </label>
+                    <select name="inspection_type" id="inspection_type" required 
+                            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                        <option value="">Select Inspection Type</option>
+                        <option value="visual">Visual Inspection</option>
+                        <option value="dimensional">Dimensional Check</option>
+                        <option value="functional">Functional Test</option>
+                        <option value="material">Material Test</option>
+                        <option value="final">Final Inspection</option>
+                        <option value="incoming">Incoming Inspection</option>
+                        <option value="process">Process Inspection</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="qc_date" class="block text-sm font-medium text-gray-700 mb-2">
+                        QC Date <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" name="qc_date" id="qc_date" required 
+                           class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                </div>
+            </div>
+
+            <!-- Inspector and Status -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="inspector" class="block text-sm font-medium text-gray-700 mb-2">Inspector</label>
+                    <select name="inspector" id="inspector" 
+                            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                        <option value="">Select Inspector (Optional)</option>
+                        {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select name="status" id="status" 
+                            class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                        <option value="pending" selected>Pending</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="passed">Passed</option>
+                        <option value="failed">Failed</option>
+                        <option value="rework">Rework</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Test Results -->
+            <div>
+                <label for="test_results" class="block text-sm font-medium text-gray-700 mb-2">Test Results</label>
+                <textarea name="test_results" id="test_results" rows="4" 
+                          class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" 
+                          placeholder="Enter detailed test results, measurements, and observations..."></textarea>
+            </div>
+
+            <!-- Defects Found -->
+            <div>
+                <label for="defects_found" class="block text-sm font-medium text-gray-700 mb-2">Defects Found</label>
+                <textarea name="defects_found" id="defects_found" rows="3" 
+                          class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" 
+                          placeholder="Describe any defects, non-conformities, or issues found..."></textarea>
+            </div>
+
+            <!-- Corrective Actions -->
+            <div>
+                <label for="corrective_actions" class="block text-sm font-medium text-gray-700 mb-2">Corrective Actions</label>
+                <textarea name="corrective_actions" id="corrective_actions" rows="3" 
+                          class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" 
+                          placeholder="Describe corrective actions taken or recommended..."></textarea>
+            </div>
+
+            <!-- Notes -->
+            <div>
+                <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">Additional Notes</label>
+                <textarea name="notes" id="notes" rows="3" 
+                          class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" 
+                          placeholder="Enter any additional notes or comments..."></textarea>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+                <a href="{% url 'marketing:qc_tracking' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="px-6 py-2 bg-brand-600 text-white rounded-lg shadow-sm text-sm font-medium hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2">
+                    Create QC Record
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Help Section -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+        <h4 class="font-medium text-blue-900 mb-2">QC Record Guidelines</h4>
+        <ul class="text-sm text-blue-800 space-y-1">
+            <li>• <strong>QC Number:</strong> Use a consistent numbering system (e.g., QC-YYYY-XXX)</li>
+            <li>• <strong>Manufacturing Batch:</strong> Select the batch being inspected</li>
+            <li>• <strong>Inspection Type:</strong> Choose the appropriate type of inspection</li>
+            <li>• <strong>Test Results:</strong> Record all measurements, observations, and test data</li>
+            <li>• <strong>Defects Found:</strong> Document any non-conformities or quality issues</li>
+            <li>• <strong>Corrective Actions:</strong> Specify actions taken to address issues</li>
+            <li>• <strong>Status:</strong> Update status based on inspection results</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-generate QC number
+    function generateQCNumber() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        return `QC-${year}${month}${day}-${random}`;
+    }
+    
+    // Set default QC number
+    document.getElementById('qc_number').value = generateQCNumber();
+    
+    // Set default QC date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('qc_date').value = today;
+    
+    // Auto-populate test results based on inspection type
+    document.getElementById('inspection_type').addEventListener('change', function() {
+        const inspectionType = this.value;
+        const testResults = document.getElementById('test_results');
+        
+        if (!testResults.value) {
+            switch(inspectionType) {
+                case 'visual':
+                    testResults.value = 'Visual inspection completed. Check for:\n- Surface finish\n- Color consistency\n- Physical damage\n- Assembly completeness';
+                    break;
+                case 'dimensional':
+                    testResults.value = 'Dimensional measurements:\n- Length: ___ mm\n- Width: ___ mm\n- Height: ___ mm\n- Tolerance: ±___ mm';
+                    break;
+                case 'functional':
+                    testResults.value = 'Functional testing:\n- Performance: ___\n- Efficiency: ___%\n- Operating parameters: ___\n- Test duration: ___ hours';
+                    break;
+                case 'material':
+                    testResults.value = 'Material testing:\n- Material grade: ___\n- Hardness: ___ HRC\n- Tensile strength: ___ MPa\n- Chemical composition: ___';
+                    break;
+                case 'final':
+                    testResults.value = 'Final inspection completed:\n- All previous tests passed\n- Packaging verified\n- Documentation complete\n- Ready for dispatch';
+                    break;
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

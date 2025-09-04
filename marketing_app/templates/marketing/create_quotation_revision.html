@@ -1,0 +1,190 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Create Quotation Revision{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Create Quotation Revision</h1>
+            <p class="text-gray-600">{{ quotation.quotation_number }} - {{ quotation.customer.name }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'marketing:quotation_revision_timeline' quotation.id %}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4 inline mr-2"></i>
+                Back to Timeline
+            </a>
+        </div>
+    </div>
+
+    <!-- Current Quotation Info -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Current Quotation Details</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <p class="text-sm text-gray-600">Current Version</p>
+                <p class="text-xl font-bold text-gray-900">v{{ quotation.version }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Current Amount</p>
+                <p class="text-xl font-bold text-green-600">₹{{ quotation.total_amount|floatformat:0 }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Status</p>
+                <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full
+                    {% if quotation.status == 'accepted' %}bg-green-100 text-green-800
+                    {% elif quotation.status == 'revised' %}bg-yellow-100 text-yellow-800
+                    {% elif quotation.status == 'sent' %}bg-blue-100 text-blue-800
+                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                    {{ quotation.get_status_display }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revision Form -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Revision Reason -->
+                <div>
+                    <label for="revision_reason" class="block text-sm font-medium text-gray-700 mb-2">
+                        Revision Reason <span class="text-red-500">*</span>
+                    </label>
+                    <select name="revision_reason" id="revision_reason" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                        <option value="">Select reason...</option>
+                        <option value="price_adjustment">Price Adjustment</option>
+                        <option value="specification_change">Specification Change</option>
+                        <option value="terms_modification">Terms Modification</option>
+                        <option value="customer_request">Customer Request</option>
+                        <option value="market_conditions">Market Conditions</option>
+                        <option value="competitor_response">Competitor Response</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <!-- New Amount -->
+                <div>
+                    <label for="new_amount" class="block text-sm font-medium text-gray-700 mb-2">
+                        New Amount <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">₹</span>
+                        </div>
+                        <input type="number" name="new_amount" id="new_amount" required step="0.01" min="0"
+                               value="{{ quotation.total_amount }}"
+                               class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Link to Negotiation -->
+            {% if negotiations %}
+            <div>
+                <label for="negotiation_id" class="block text-sm font-medium text-gray-700 mb-2">
+                    Link to Negotiation (Optional)
+                </label>
+                <select name="negotiation_id" id="negotiation_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                    <option value="">No negotiation link</option>
+                    {% for negotiation in negotiations %}
+                    <option value="{{ negotiation.id }}">
+                        {{ negotiation.get_negotiation_type_display }} - {{ negotiation.negotiation_date|date:"M d, Y" }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+
+            <!-- Changes Summary -->
+            <div>
+                <label for="changes_summary" class="block text-sm font-medium text-gray-700 mb-2">
+                    Changes Summary <span class="text-red-500">*</span>
+                </label>
+                <textarea name="changes_summary" id="changes_summary" rows="4" required
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          placeholder="Describe the changes made in this revision..."></textarea>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
+                <a href="{% url 'marketing:quotation_revision_timeline' quotation.id %}" 
+                   class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500">
+                    Create Revision
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Revision Guidelines -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-blue-900 mb-3">Revision Guidelines</h3>
+        <ul class="space-y-2 text-sm text-blue-800">
+            <li><strong>Price Adjustments:</strong> Document the reason for price changes and any market factors.</li>
+            <li><strong>Specification Changes:</strong> Clearly describe any modifications to product specifications.</li>
+            <li><strong>Terms Modification:</strong> Explain changes to payment or delivery terms.</li>
+            <li><strong>Customer Requests:</strong> Note specific customer requirements that led to the revision.</li>
+            <li><strong>Negotiation Links:</strong> Link revisions to specific negotiations for better tracking.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const newAmountInput = document.getElementById('new_amount');
+    const currentAmount = {{ quotation.total_amount }};
+    
+    // Calculate and display amount change
+    newAmountInput.addEventListener('input', function() {
+        const newAmount = parseFloat(this.value) || 0;
+        const difference = newAmount - currentAmount;
+        
+        // You can add visual feedback here if needed
+        if (difference > 0) {
+            this.style.borderColor = '#ef4444'; // Red for increase
+        } else if (difference < 0) {
+            this.style.borderColor = '#10b981'; // Green for decrease
+        } else {
+            this.style.borderColor = '#d1d5db'; // Gray for no change
+        }
+    });
+    
+    // Auto-save draft
+    const form = document.querySelector('form');
+    const formData = new FormData(form);
+    
+    form.addEventListener('input', function() {
+        const draftData = {
+            revision_reason: document.getElementById('revision_reason').value,
+            new_amount: document.getElementById('new_amount').value,
+            changes_summary: document.getElementById('changes_summary').value,
+            negotiation_id: document.getElementById('negotiation_id').value
+        };
+        localStorage.setItem('quotation_revision_draft', JSON.stringify(draftData));
+    });
+    
+    // Load draft on page load
+    const savedDraft = localStorage.getItem('quotation_revision_draft');
+    if (savedDraft) {
+        const draft = JSON.parse(savedDraft);
+        document.getElementById('revision_reason').value = draft.revision_reason || '';
+        document.getElementById('new_amount').value = draft.new_amount || '';
+        document.getElementById('changes_summary').value = draft.changes_summary || '';
+        document.getElementById('negotiation_id').value = draft.negotiation_id || '';
+    }
+    
+    // Clear draft on successful submission
+    form.addEventListener('submit', function() {
+        localStorage.removeItem('quotation_revision_draft');
+    });
+});
+</script>
+{% endblock %}

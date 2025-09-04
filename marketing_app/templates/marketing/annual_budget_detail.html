@@ -1,0 +1,213 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Budget Detail - {{ budget.year }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Annual Budget {{ budget.year }}</h1>
+            <p class="text-gray-600 mt-1">Budget details and allocation breakdown</p>
+        </div>
+        <div class="flex space-x-3">
+            {% if budget.status == 'draft' %}
+            <a href="{% url 'marketing:annual_budget_approve' budget.id %}" class="btn-primary">
+                <i data-lucide="check" class="w-4 h-4"></i> Submit for Approval
+            </a>
+            {% endif %}
+            <a href="{% url 'marketing:annual_budget_list' %}" class="btn-outline">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Budget Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-blue-100 rounded-lg">
+                    <i data-lucide="dollar-sign" class="w-8 h-8 text-blue-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Budget</p>
+                    <p class="text-2xl font-bold text-gray-900">₹{{ budget.total_budget|floatformat:0 }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-green-100 rounded-lg">
+                    <i data-lucide="trending-up" class="w-8 h-8 text-green-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Allocated</p>
+                    <p class="text-2xl font-bold text-gray-900">₹{{ budget.allocated_budget|floatformat:0 }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-orange-100 rounded-lg">
+                    <i data-lucide="activity" class="w-8 h-8 text-orange-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Spent</p>
+                    <p class="text-2xl font-bold text-gray-900">₹{{ budget.spent_budget|floatformat:0 }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center">
+                <div class="p-3 bg-purple-100 rounded-lg">
+                    <i data-lucide="percent" class="w-8 h-8 text-purple-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Utilization</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ budget.utilization_percentage|floatformat:1 }}%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget Information -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Basic Information -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-600">Year:</span>
+                    <span class="text-sm text-gray-900">{{ budget.year }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-600">Status:</span>
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                        {% if budget.status == 'approved' %}bg-green-100 text-green-800
+                        {% elif budget.status == 'pending' %}bg-yellow-100 text-yellow-800
+                        {% elif budget.status == 'rejected' %}bg-red-100 text-red-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ budget.get_status_display }}
+                    </span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-600">Created by:</span>
+                    <span class="text-sm text-gray-900">{{ budget.created_by.get_full_name|default:budget.created_by.username }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-600">Created at:</span>
+                    <span class="text-sm text-gray-900">{{ budget.created_at|date:"M d, Y" }}</span>
+                </div>
+                {% if budget.approved_by %}
+                <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-600">Approved by:</span>
+                    <span class="text-sm text-gray-900">{{ budget.approved_by.get_full_name|default:budget.approved_by.username }}</span>
+                </div>
+                {% endif %}
+                {% if budget.approved_at %}
+                <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-600">Approved at:</span>
+                    <span class="text-sm text-gray-900">{{ budget.approved_at|date:"M d, Y" }}</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Budget Summary -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Budget Summary</h3>
+            <div class="space-y-4">
+                <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-600">Total Budget:</span>
+                    <span class="text-sm text-gray-900">₹{{ budget.total_budget|floatformat:0 }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-600">Allocated:</span>
+                    <span class="text-sm text-gray-900">₹{{ budget.allocated_budget|floatformat:0 }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-600">Spent:</span>
+                    <span class="text-sm text-gray-900">₹{{ budget.spent_budget|floatformat:0 }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-600">Remaining:</span>
+                    <span class="text-sm text-gray-900">₹{{ budget.remaining_budget|floatformat:0 }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-600">Allocation %:</span>
+                    <span class="text-sm text-gray-900">{{ budget.allocation_percentage|floatformat:1 }}%</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-sm font-medium text-gray-600">Utilization %:</span>
+                    <span class="text-sm text-gray-900">{{ budget.utilization_percentage|floatformat:1 }}%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Allocations -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Category Allocations</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Allocated</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Spent</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remaining</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utilization</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for allocation in budget.allocations.all %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ allocation.category.name }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">{{ allocation.category.get_category_type_display }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">₹{{ allocation.allocated_amount|floatformat:0 }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">₹{{ allocation.spent_amount|floatformat:0 }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">₹{{ allocation.remaining_amount|floatformat:0 }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                    <div class="bg-blue-600 h-2 rounded-full" style="width: {{ allocation.utilization_percentage }}%"></div>
+                                </div>
+                                <span class="text-sm text-gray-900">{{ allocation.utilization_percentage|floatformat:1 }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            No category allocations found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Notes -->
+    {% if budget.notes %}
+    <div class="mt-8 bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Notes</h3>
+        <p class="text-gray-700">{{ budget.notes }}</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Create Annual Budget{% endblock %}
+
+{% block content %}
+<div class="mx-auto w-full p-2 md:p-4 xl:p-2">
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Create Annual Exhibition Budget</h1>
+                <p class="text-sm text-gray-600">Set up yearly budget allocation for exhibitions</p>
+            </div>
+            <a href="{% url 'marketing:annual_budget_list' %}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Back to Budgets
+            </a>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <form method="post" class="p-6 space-y-6">
+            {% csrf_token %}
+            
+            <!-- Basic Information -->
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="year" class="block text-sm font-medium text-gray-700 mb-2">
+                            Year <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="year" name="year" min="2024" max="2030" 
+                               class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" 
+                               placeholder="Enter year (e.g., 2024)"
+                               required>
+                    </div>
+                    <div>
+                        <label for="total_budget" class="block text-sm font-medium text-gray-700 mb-2">
+                            Total Budget (₹) <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="total_budget" name="total_budget" step="0.01" min="0"
+                               class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" 
+                               placeholder="Enter total budget amount"
+                               required>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                        <textarea id="notes" name="notes" rows="3"
+                                  class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                  placeholder="Additional notes about this budget..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Allocations -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Category Allocations</h3>
+                    <p class="text-sm text-gray-600">Distribute the total budget across different exhibition categories</p>
+                </div>
+                
+                <div class="space-y-4">
+                    {% for category in categories %}
+                    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-900">{{ category.name }}</h4>
+                            <p class="text-sm text-gray-600">{{ category.get_category_type_display }}</p>
+                            {% if category.description %}
+                            <p class="text-sm text-gray-500 mt-1">{{ category.description }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="ml-4">
+                            <label for="allocation_{{ category.id }}" class="block text-sm font-medium text-gray-700 mb-1">Amount (₹)</label>
+                            <input type="number" id="allocation_{{ category.id }}" name="allocation_{{ category.id }}" 
+                                   step="0.01" min="0" value="0"
+                                   class="w-32 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                   onchange="updateTotal()">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium text-gray-900">Total Allocated:</span>
+                        <span id="total-allocated" class="font-bold text-lg text-blue-600">₹0.00</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-sm text-gray-600">Remaining:</span>
+                        <span id="remaining-amount" class="text-sm font-medium text-gray-900">₹0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+                <a href="{% url 'marketing:annual_budget_list' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="px-6 py-2 bg-brand-600 text-white rounded-lg shadow-sm text-sm font-medium hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2">
+                    <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>
+                    Create Budget
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Help Section -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+        <h4 class="font-medium text-blue-900 mb-2">Budget Planning Tips</h4>
+        <ul class="text-sm text-blue-800 space-y-1">
+            <li>• All fields marked with * are required</li>
+            <li>• Distribute your total budget across different exhibition categories</li>
+            <li>• You can leave some categories with zero allocation</li>
+            <li>• The remaining amount will be calculated automatically</li>
+            <li>• Budget can be modified after creation if status is Draft</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+function updateTotal() {
+    let total = 0;
+    const inputs = document.querySelectorAll('input[name^="allocation_"]');
+    
+    inputs.forEach(input => {
+        const value = parseFloat(input.value) || 0;
+        total += value;
+    });
+    
+    document.getElementById('total-allocated').textContent = '₹' + total.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    const totalBudget = parseFloat(document.getElementById('total_budget').value) || 0;
+    const remaining = totalBudget - total;
+    document.getElementById('remaining-amount').textContent = '₹' + remaining.toLocaleString('en-IN', {minimumFractionDigits: 2});
+    
+    // Change color based on remaining amount
+    const remainingElement = document.getElementById('remaining-amount');
+    if (remaining < 0) {
+        remainingElement.className = 'text-sm font-medium text-red-600';
+    } else if (remaining === 0) {
+        remainingElement.className = 'text-sm font-medium text-green-600';
+    } else {
+        remainingElement.className = 'text-sm font-medium text-gray-900';
+    }
+}
+
+// Update total when total budget changes
+document.getElementById('total_budget').addEventListener('input', updateTotal);
+
+// Initialize total calculation
+updateTotal();
+</script>
+{% endblock %}
