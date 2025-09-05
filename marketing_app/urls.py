@@ -130,6 +130,10 @@ urlpatterns = [
     path('reports/performance/', views.performance_analytics, name='performance_analytics'),
     path('reports/export/', views.export_data, name='export_data'),
     
+    # Weekly Status Report System
+    path('reports/wsr/dashboard/', views.wsr_dashboard, name='wsr_dashboard'),
+    path('reports/wsr/sheets/', views.wsr_sheets, name='wsr_sheets'),
+    
     # MIS Reports
     path('mis/visitor-attendance/', views.visitor_attendance, name='visitor_attendance'),
     path('mis/ongoing-projects/', views.ongoing_projects, name='ongoing_projects'),

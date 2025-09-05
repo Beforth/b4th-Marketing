@@ -1750,3 +1750,260 @@ class WorkOrderFormat(models.Model):
     
     def __str__(self):
         return f"{self.work_order_no} - {self.equipment_type}"
+
+
+# Weekly Status Report System Models
+class WeeklySummary(models.Model):
+    """Weekly Summary - Weekly performance summary by region and product"""
+    
+    REGION_CHOICES = [
+        ('north', 'North'),
+        ('mh', 'MH'),
+        ('west_01', 'West-01'),
+        ('west_02', 'West-02'),
+        ('south_01', 'South-01'),
+        ('south_02', 'South-02'),
+        ('export', 'Export'),
+        ('mp', 'MP'),
+        ('goa', 'Goa'),
+    ]
+    
+    PRODUCT_CHOICES = [
+        ('aureole_process', 'Aureole Process'),
+        ('table_top', 'Table Top'),
+        ('air_sampler', 'Air Sampler'),
+        ('pumps', 'Pumps'),
+        ('ropp_caps', 'ROPP Caps'),
+    ]
+    
+    week_no = models.CharField(max_length=20, help_text="Week No.")
+    region = models.CharField(max_length=20, choices=REGION_CHOICES, help_text="Region")
+    product_line = models.CharField(max_length=20, choices=PRODUCT_CHOICES, help_text="Product Line")
+    
+    # Quote Statistics
+    quotes_new = models.IntegerField(default=0, help_text="No of quote sent: New")
+    quotes_revised = models.IntegerField(default=0, help_text="No of quote sent: Revised")
+    quotes_total = models.IntegerField(default=0, help_text="No of quote sent: Total")
+    
+    # Order Statistics
+    po_received = models.IntegerField(default=0, help_text="No. of PO received")
+    hot_orders = models.IntegerField(default=0, help_text="Hot Orders")
+    pending_payment = models.DecimalField(max_digits=12, decimal_places=2, default=0, help_text="Pending Payment")
+    
+    # System fields
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-week_no', 'region']
+        verbose_name = "Weekly Summary"
+        verbose_name_plural = "Weekly Summaries"
+    
+    def __str__(self):
+        return f"Week {self.week_no} - {self.get_region_display()} - {self.get_product_line_display()}"
+
+
+class CallingDetails(models.Model):
+    """Calling Details - Track calling activities and enquiry generation"""
+    
+    week_no = models.CharField(max_length=20, help_text="Week No.")
+    region = models.CharField(max_length=20, choices=WeeklySummary.REGION_CHOICES, help_text="Region")
+    coordinator_name = models.CharField(max_length=100, help_text="Coordinator Name")
+    product_line = models.CharField(max_length=20, choices=WeeklySummary.PRODUCT_CHOICES, help_text="Product Line")
+    
+    # Calling Report
+    number_of_calls = models.IntegerField(default=0, help_text="Number of Calls")
+    number_of_enquiries = models.IntegerField(default=0, help_text="Number of Enquiries")
+    
+    # System fields
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-week_no', 'region']
+        verbose_name = "Calling Detail"
+        verbose_name_plural = "Calling Details"
+    
+    def __str__(self):
+        return f"Week {self.week_no} - {self.coordinator_name} - {self.get_region_display()}"
+
+
+class HotOrders(models.Model):
+    """Hot Orders - Track high-priority potential orders"""
+    
+    STATUS_CHOICES = [
+        ('on_hold', 'On-Hold'),
+        ('under_discussion', 'Under Technical Discussions'),
+        ('final_offer', 'Final Offer Submitted'),
+        ('po_received', 'PO Received (AP)'),
+        ('order_lost', 'Order Lost'),
+        ('at_final_stage', 'At Final Stage'),
+    ]
+    
+    week_no = models.CharField(max_length=20, help_text="Week No.")
+    case_number = models.CharField(max_length=50, help_text="Case Number")
+    equipment = models.CharField(max_length=200, help_text="Equipment")
+    region = models.CharField(max_length=20, choices=WeeklySummary.REGION_CHOICES, help_text="Region")
+    contact_person = models.CharField(max_length=100, help_text="Contact Person")
+    company_name = models.CharField(max_length=200, help_text="Company Name")
+    requirement = models.TextField(help_text="Requirement")
+    location = models.CharField(max_length=200, help_text="Location")
+    contact_no = models.CharField(max_length=20, help_text="Contact No")
+    
+    # Pricing
+    ap_quote_price = models.DecimalField(max_digits=12, decimal_places=2, help_text="AP Quote Price")
+    discounted_price = models.DecimalField(max_digits=12, decimal_places=2, help_text="Discounted Price")
+    
+    # Status and Follow-up
+    expected_order_date = models.DateField(null=True, blank=True, help_text="Expected Order Date")
+    status_date = models.DateField(null=True, blank=True, help_text="Status Date")
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, help_text="Status")
+    remark = models.TextField(blank=True, help_text="Remark")
+    follow_up_in = models.CharField(max_length=100, blank=True, help_text="Need to take follow up in")
+    
+    # System fields
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-week_no', 'case_number']
+        verbose_name = "Hot Order"
+        verbose_name_plural = "Hot Orders"
+    
+    def __str__(self):
+        return f"Week {self.week_no} - {self.case_number} - {self.company_name}"
+
+
+class PendingPayment2024(models.Model):
+    """Pending Payment 2024-25 - Track pending payments from previous financial year"""
+    
+    month = models.CharField(max_length=20, help_text="Month")
+    region = models.CharField(max_length=20, choices=WeeklySummary.REGION_CHOICES, help_text="Region")
+    contact_person = models.CharField(max_length=100, help_text="Contact Person")
+    equipment = models.CharField(max_length=200, help_text="Equipment")
+    wo_date = models.DateField(help_text="WO Date")
+    work_order_no = models.CharField(max_length=100, help_text="Work Order No")
+    payment_terms = models.TextField(help_text="Payment Terms")
+    status = models.CharField(max_length=100, help_text="Status")
+    
+    # System fields
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-wo_date']
+        verbose_name = "Pending Payment 2024-25"
+        verbose_name_plural = "Pending Payments 2024-25"
+    
+    def __str__(self):
+        return f"{self.work_order_no} - {self.contact_person}"
+
+
+class PendingPayment2025(models.Model):
+    """Pending Payment 25-26 - Track pending payments for current financial year"""
+    
+    month = models.CharField(max_length=20, help_text="Month")
+    region = models.CharField(max_length=20, choices=WeeklySummary.REGION_CHOICES, help_text="Region")
+    contact_person = models.CharField(max_length=100, help_text="Contact Person")
+    equipment = models.CharField(max_length=200, help_text="Equipment")
+    wo_date = models.DateField(help_text="WO Date")
+    work_order_no = models.CharField(max_length=100, help_text="Work Order No")
+    company_name = models.CharField(max_length=200, help_text="Company Name")
+    payment_terms = models.TextField(help_text="Payment Terms")
+    status = models.CharField(max_length=100, help_text="Status")
+    
+    # System fields
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-wo_date']
+        verbose_name = "Pending Payment 25-26"
+        verbose_name_plural = "Pending Payments 25-26"
+    
+    def __str__(self):
+        return f"{self.work_order_no} - {self.company_name}"
+
+
+class OrderLoss(models.Model):
+    """Order Loss - Track lost orders and analysis"""
+    
+    week_no = models.CharField(max_length=20, help_text="Week No.")
+    equipment = models.CharField(max_length=200, help_text="Equipment")
+    region = models.CharField(max_length=20, choices=WeeklySummary.REGION_CHOICES, help_text="Region")
+    contact_person_region = models.CharField(max_length=100, help_text="Contact Person (Region)")
+    company_name = models.CharField(max_length=200, help_text="Company Name")
+    requirement = models.TextField(help_text="Requirement")
+    location = models.CharField(max_length=200, help_text="Location")
+    contact_person = models.CharField(max_length=100, help_text="Contact Person")
+    contact_no = models.CharField(max_length=20, help_text="Contact No")
+    
+    # Pricing
+    ap_quote_price = models.DecimalField(max_digits=12, decimal_places=2, help_text="AP Quote Price")
+    discounted_price = models.DecimalField(max_digits=12, decimal_places=2, help_text="Discounted Price")
+    
+    # Loss Details
+    placed_to = models.CharField(max_length=200, help_text="Placed To")
+    placed_with_value = models.DecimalField(max_digits=12, decimal_places=2, help_text="Placed with value")
+    reason = models.TextField(help_text="Reason")
+    
+    # System fields
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-week_no']
+        verbose_name = "Order Loss"
+        verbose_name_plural = "Order Losses"
+    
+    def __str__(self):
+        return f"Week {self.week_no} - {self.company_name} - {self.equipment}"
+
+
+class DSR(models.Model):
+    """DSR (Daily Status Report) - Daily team activity and attendance tracking"""
+    
+    TEAM_CHOICES = [
+        ('team_a', 'Team A'),
+        ('team_b', 'Team B'),
+        ('process_team', 'Process Team'),
+        ('air_sampler_pump_team', 'Air Sampler/Pump Team'),
+    ]
+    
+    week_no = models.CharField(max_length=20, help_text="Week No.")
+    team = models.CharField(max_length=30, choices=TEAM_CHOICES, help_text="Team")
+    region = models.CharField(max_length=20, choices=WeeklySummary.REGION_CHOICES, help_text="Region")
+    person = models.CharField(max_length=100, help_text="Person")
+    
+    # Attendance
+    office_days = models.DecimalField(max_digits=4, decimal_places=1, default=0, help_text="Office Days")
+    od_days = models.IntegerField(default=0, help_text="OD (Outdoor) Days")
+    absent_days = models.IntegerField(default=0, help_text="Absent Days")
+    
+    # DSR
+    given_days = models.IntegerField(default=0, help_text="Given Days")
+    not_given_days = models.IntegerField(default=0, help_text="Not Given Days")
+    delay_days = models.IntegerField(default=0, help_text="Delay Days")
+    
+    # Live Location
+    live_location_given = models.BooleanField(default=False, help_text="Live Location Given")
+    live_location_dont = models.BooleanField(default=False, help_text="Live Location Don't")
+    
+    # System fields
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-week_no', 'team', 'region']
+        verbose_name = "DSR"
+        verbose_name_plural = "DSRs"
+    
+    def __str__(self):
+        return f"Week {self.week_no} - {self.get_team_display()} - {self.person}"

@@ -1,0 +1,150 @@
+<!-- Weekly Summary Form for Tab -->
+<div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+    <form method="post" action="#" class="p-6 space-y-6">
+        {% csrf_token %}
+        
+        <!-- Basic Information -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
+                Basic Information
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="week_no" class="block text-sm font-medium text-gray-700 mb-2">
+                        Week No. <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="week_no" 
+                           name="week_no" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="e.g., Week-15"
+                           required>
+                </div>
+                <div>
+                    <label for="region" class="block text-sm font-medium text-gray-700 mb-2">
+                        Region <span class="text-red-500">*</span>
+                    </label>
+                    <select id="region" 
+                            name="region" 
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            required>
+                        <option value="">Select Region</option>
+                        {% for key, value in REGION_CHOICES %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="product_line" class="block text-sm font-medium text-gray-700 mb-2">
+                        Product Line <span class="text-red-500">*</span>
+                    </label>
+                    <select id="product_line" 
+                            name="product_line" 
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            required>
+                        <option value="">Select Product Line</option>
+                        {% for key, value in PRODUCT_CHOICES %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quote Statistics -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i data-lucide="file-text" class="w-5 h-5 text-green-600"></i>
+                Quote Statistics
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="quotes_new" class="block text-sm font-medium text-gray-700 mb-2">
+                        No of quote sent: New
+                    </label>
+                    <input type="number" 
+                           id="quotes_new" 
+                           name="quotes_new" 
+                           min="0"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter new quotes count">
+                </div>
+                <div>
+                    <label for="quotes_revised" class="block text-sm font-medium text-gray-700 mb-2">
+                        No of quote sent: Revised
+                    </label>
+                    <input type="number" 
+                           id="quotes_revised" 
+                           name="quotes_revised" 
+                           min="0"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter revised quotes count">
+                </div>
+                <div>
+                    <label for="quotes_total" class="block text-sm font-medium text-gray-700 mb-2">
+                        No of quote sent: Total
+                    </label>
+                    <input type="number" 
+                           id="quotes_total" 
+                           name="quotes_total" 
+                           min="0"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter total quotes count">
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Statistics -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <i data-lucide="shopping-cart" class="w-5 h-5 text-purple-600"></i>
+                Order Statistics
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="po_received" class="block text-sm font-medium text-gray-700 mb-2">
+                        No. of PO received
+                    </label>
+                    <input type="number" 
+                           id="po_received" 
+                           name="po_received" 
+                           min="0"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter PO received count">
+                </div>
+                <div>
+                    <label for="hot_orders" class="block text-sm font-medium text-gray-700 mb-2">
+                        Hot Orders
+                    </label>
+                    <input type="number" 
+                           id="hot_orders" 
+                           name="hot_orders" 
+                           min="0"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter hot orders count">
+                </div>
+                <div>
+                    <label for="pending_payment" class="block text-sm font-medium text-gray-700 mb-2">
+                        Pending Payment
+                    </label>
+                    <input type="number" 
+                           id="pending_payment" 
+                           name="pending_payment" 
+                           step="0.01"
+                           min="0"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter pending payment amount">
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>
+                Save Weekly Summary
+            </button>
+        </div>
+    </form>
+</div>

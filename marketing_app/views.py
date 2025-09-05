@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Count, Sum, ExpressionWrapper, F, FloatField
 from django.utils import timezone
 from datetime import datetime, timedelta
-from .models import Campaign, Lead, EmailTemplate, CampaignMetric, LeadActivity, Customer, CustomerLocation, Region, Visit, VisitParticipant, Expense, Exhibition, Quotation, PurchaseOrder, PaymentFollowUp, WorkOrder, Manufacturing, Dispatch, URS, GADrawing, TechnicalDiscussion, Negotiation, QuotationRevision, QCTracking, ProductionPlan, PackingDetails, DispatchChecklist, BudgetCategory, AnnualExhibitionBudget, BudgetAllocation, BudgetApproval, InquiryLog, FollowUpStatus, ProjectToday, OrderExpectedNextMonth, MISPurchaseOrder, NewData, NewDataDetails, ODPlan, ODPlanVisitReport, ODPlanRemarks, PODetails, POStatus, WorkOrderFormat
+from .models import Campaign, Lead, EmailTemplate, CampaignMetric, LeadActivity, Customer, CustomerLocation, Region, Visit, VisitParticipant, Expense, Exhibition, Quotation, PurchaseOrder, PaymentFollowUp, WorkOrder, Manufacturing, Dispatch, URS, GADrawing, TechnicalDiscussion, Negotiation, QuotationRevision, QCTracking, ProductionPlan, PackingDetails, DispatchChecklist, BudgetCategory, AnnualExhibitionBudget, BudgetAllocation, BudgetApproval, InquiryLog, FollowUpStatus, ProjectToday, OrderExpectedNextMonth, MISPurchaseOrder, NewData, NewDataDetails, ODPlan, ODPlanVisitReport, ODPlanRemarks, PODetails, POStatus, WorkOrderFormat, WeeklySummary, CallingDetails, HotOrders, PendingPayment2024, PendingPayment2025, OrderLoss, DSR
 from django.contrib.auth import get_user_model
 import sys
 
@@ -6237,5 +6237,42 @@ def work_order_format_delete(request, pk):
     }
     
     return render(request, 'marketing/work_order_format_confirm_delete.html', context)
+
+
+# Weekly Status Report System Views
+@login_required
+def wsr_dashboard(request):
+    """WSR Dashboard - Main overview of all Weekly Status Reports"""
+    # Get statistics
+    weekly_summary_count = WeeklySummary.objects.filter(created_by=request.user).count()
+    hot_orders_count = HotOrders.objects.filter(created_by=request.user).count()
+    calling_details_count = CallingDetails.objects.filter(created_by=request.user).count()
+    dsr_count = DSR.objects.filter(created_by=request.user).count()
+    
+    # Recent activities
+    recent_weekly_summaries = WeeklySummary.objects.filter(created_by=request.user).order_by('-created_at')[:5]
+    
+    context = {
+        'weekly_summary_count': weekly_summary_count,
+        'hot_orders_count': hot_orders_count,
+        'calling_details_count': calling_details_count,
+        'dsr_count': dsr_count,
+        'recent_weekly_summaries': recent_weekly_summaries,
+    }
+    
+    return render(request, 'marketing/wsr_dashboard.html', context)
+
+
+@login_required
+def wsr_sheets(request):
+    """WSR Sheets - Tabbed interface for all 8 sheets"""
+    context = {
+        'REGION_CHOICES': WeeklySummary.REGION_CHOICES,
+        'PRODUCT_CHOICES': WeeklySummary.PRODUCT_CHOICES,
+        'STATUS_CHOICES': HotOrders.STATUS_CHOICES,
+        'TEAM_CHOICES': DSR.TEAM_CHOICES,
+    }
+    
+    return render(request, 'marketing/wsr_sheets.html', context)
 
 

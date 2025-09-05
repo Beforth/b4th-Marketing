@@ -1,0 +1,342 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Weekly Report Sheets - Marketing Hub{% endblock %}
+
+{% block content %}
+<div class="mx-auto w-full p-2 md:p-4 xl:p-2">
+    <!-- Modern Header -->
+    <div class="mb-4">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Weekly Report Sheets</h1>
+                <p class="text-sm text-gray-600">Complete tabbed interface for all 8 Weekly Status Report sheets with comprehensive tracking and analysis</p>
+            </div>
+            <a href="{% url 'marketing:wsr_dashboard' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm transition">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Tabbed Navigation -->
+    <div class="rounded-lg border border-gray-200 bg-white shadow-sm mb-6">
+        <div class="border-b border-gray-200">
+            <nav class="-mb-px flex space-x-8 px-6 overflow-x-auto" aria-label="Tabs">
+                <button type="button" onclick="switchTab('weekly-summary')" 
+                        id="tab-weekly-summary"
+                        class="tab-button active flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                    Weekly Summary
+                </button>
+                <button type="button" onclick="switchTab('calling-details')" 
+                        id="tab-calling-details"
+                        class="tab-button flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap">
+                    <i data-lucide="phone" class="w-4 h-4"></i>
+                    Calling Details
+                </button>
+                <button type="button" onclick="switchTab('hot-orders')" 
+                        id="tab-hot-orders"
+                        class="tab-button flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap">
+                    <i data-lucide="flame" class="w-4 h-4"></i>
+                    Hot Orders
+                </button>
+                <button type="button" onclick="switchTab('pending-payment-2024')" 
+                        id="tab-pending-payment-2024"
+                        class="tab-button flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap">
+                    <i data-lucide="credit-card" class="w-4 h-4"></i>
+                    Pending Payment 2024-25
+                </button>
+                <button type="button" onclick="switchTab('pending-payment-2025')" 
+                        id="tab-pending-payment-2025"
+                        class="tab-button flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap">
+                    <i data-lucide="credit-card" class="w-4 h-4"></i>
+                    Pending Payment 25-26
+                </button>
+                <button type="button" onclick="switchTab('order-loss')" 
+                        id="tab-order-loss"
+                        class="tab-button flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap">
+                    <i data-lucide="x-circle" class="w-4 h-4"></i>
+                    Order Loss
+                </button>
+                <button type="button" onclick="switchTab('legends')" 
+                        id="tab-legends"
+                        class="tab-button flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap">
+                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                    Legends
+                </button>
+                <button type="button" onclick="switchTab('dsr')" 
+                        id="tab-dsr"
+                        class="tab-button flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap">
+                    <i data-lucide="users" class="w-4 h-4"></i>
+                    DSR
+                </button>
+            </nav>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="p-6">
+            <!-- Weekly Summary Tab -->
+            <div id="content-weekly-summary" class="tab-content">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Weekly Summary - Weekly performance summary by region and product</h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewForm('weekly-summary')" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Add New
+                        </button>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">Week No., Region, No of quote sent (New, Revised, Total), No. of PO received, Hot Orders, Pending Payment. Regions: North, MH, West-02, South-01, South-02, Export, MP, Goa. Product Lines: Aureole Process, Table Top, Air Sampler, Pumps, ROPP Caps.</p>
+                
+                <!-- Forms Container -->
+                <div id="weekly-summary-forms-container">
+                    <!-- Include Weekly Summary Form -->
+                    {% include 'marketing/wsr_weekly_summary_tab_form.html' %}
+                </div>
+            </div>
+
+            <!-- Calling Details Tab -->
+            <div id="content-calling-details" class="tab-content hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Calling Details - Track calling activities and enquiry generation</h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewForm('calling-details')" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Add New
+                        </button>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">Week No., Region, Coordinator Name, Calling Report (Number of Calls, Number of Enquiries). Template ready for coordinator-wise call tracking.</p>
+                
+                <!-- Forms Container -->
+                <div id="calling-details-forms-container">
+                    <!-- Include Calling Details Form -->
+                    {% include 'marketing/wsr_calling_details_tab_form.html' %}
+                </div>
+            </div>
+
+            <!-- Hot Orders Tab -->
+            <div id="content-hot-orders" class="tab-content hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Hot Orders - Track high-priority potential orders</h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewForm('hot-orders')" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Add New
+                        </button>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">Week No., Case Number, Equipment, Region, Contact Person, Company Name, Requirement, Location, Contact No, AP Quote Price, Discounted Price, Expected Order Date, Status Date, Status, Remark, Need to take follow up in.</p>
+                
+                <!-- Forms Container -->
+                <div id="hot-orders-forms-container">
+                    <!-- Include Hot Orders Form -->
+                    {% include 'marketing/wsr_hot_orders_tab_form.html' %}
+                </div>
+            </div>
+
+            <!-- Pending Payment 2024-25 Tab -->
+            <div id="content-pending-payment-2024" class="tab-content hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Pending Payment 2024-25 - Track pending payments from previous financial year</h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewForm('pending-payment-2024')" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Add New
+                        </button>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">Month, Region, Contact Person, Equipment, WO Date, Work Order No, Payment Terms, Status. Empty template for 2024-25 pending payments.</p>
+                
+                <!-- Forms Container -->
+                <div id="pending-payment-2024-forms-container">
+                    <!-- Include Pending Payment 2024 Form -->
+                    {% include 'marketing/wsr_pending_payment_2024_tab_form.html' %}
+                </div>
+            </div>
+
+            <!-- Pending Payment 25-26 Tab -->
+            <div id="content-pending-payment-2025" class="tab-content hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Pending Payment 25-26 - Track pending payments for current financial year</h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewForm('pending-payment-2025')" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Add New
+                        </button>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">Month, Region, Contact Person, Equipment, WO Date, Work Order No, Company Name, Payment Terms, Status. Template for current year pending payments.</p>
+                
+                <!-- Forms Container -->
+                <div id="pending-payment-2025-forms-container">
+                    <!-- Include Pending Payment 2025 Form -->
+                    {% include 'marketing/wsr_pending_payment_2025_tab_form.html' %}
+                </div>
+            </div>
+
+            <!-- Order Loss Tab -->
+            <div id="content-order-loss" class="tab-content hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Order Loss - Track lost orders and analysis</h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewForm('order-loss')" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Add New
+                        </button>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">Week No., Equipment, Region, Contact Person (Region), Company Name, Requirement, Location, Contact Person, Contact No, AP Quote Price, Discounted Price, Placed To, Placed with value, Reason. Empty template for order loss tracking.</p>
+                
+                <!-- Forms Container -->
+                <div id="order-loss-forms-container">
+                    <!-- Include Order Loss Form -->
+                    {% include 'marketing/wsr_order_loss_tab_form.html' %}
+                </div>
+            </div>
+
+            <!-- Legends Tab -->
+            <div id="content-legends" class="tab-content hidden">
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Legends - Reference data for status categories</h3>
+                </div>
+                <p class="text-gray-600 mb-6">Reference data for status categories and validation rules.</p>
+                
+                <div class="bg-white border border-gray-200 rounded-lg p-6">
+                    <div class="space-y-6">
+                        <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <h5 class="font-medium text-blue-900 mb-3">Quote Stage Categories</h5>
+                            <ul class="text-sm text-blue-800 space-y-1">
+                                <li>• Standard</li>
+                                <li>• Discounted</li>
+                                <li>• Final</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <h5 class="font-medium text-green-900 mb-3">Inquiry Type Categories</h5>
+                            <ul class="text-sm text-green-800 space-y-1">
+                                <li>• Current Inquiry</li>
+                                <li>• Future Requirement</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                            <h5 class="font-medium text-purple-900 mb-3">PO Status Categories</h5>
+                            <ul class="text-sm text-purple-800 space-y-1">
+                                <li>• PO Received (AP)</li>
+                                <li>• Order Lost</li>
+                                <li>• At Final Stage</li>
+                                <li>• On-Hold</li>
+                                <li>• Under Technical Discussions</li>
+                                <li>• Final Offer Submitted</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DSR Tab -->
+            <div id="content-dsr" class="tab-content hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">DSR (Daily Status Report) - Daily team activity and attendance tracking</h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewForm('dsr')" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Add New
+                        </button>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">Week No., Team, Region, Person, Attendance (Office, OD, Absent), DSR (Given days, Not Given days, Delay), Live Location (Given, Don't). Sample Data: Team A: North (0 office, 5 OD, 0 absent), Team A: Gujarat (1.5-3 office, 2 OD, 0-2 absent).</p>
+                
+                <!-- Forms Container -->
+                <div id="dsr-forms-container">
+                    <!-- Include DSR Form -->
+                    {% include 'marketing/wsr_dsr_tab_form.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create Lucide icons
+    lucide.createIcons();
+    
+    // Tab switching functionality
+    window.switchTab = function(tabName) {
+        // Hide all tab contents
+        const allContents = document.querySelectorAll('.tab-content');
+        allContents.forEach(content => {
+            content.classList.add('hidden');
+        });
+        
+        // Remove active class from all tab buttons
+        const allTabs = document.querySelectorAll('.tab-button');
+        allTabs.forEach(tab => {
+            tab.classList.remove('active', 'border-blue-500', 'text-blue-600');
+            tab.classList.add('border-transparent', 'text-gray-500');
+        });
+        
+        // Show selected tab content
+        const selectedContent = document.getElementById('content-' + tabName);
+        if (selectedContent) {
+            selectedContent.classList.remove('hidden');
+        }
+        
+        // Add active class to selected tab button
+        const selectedTab = document.getElementById('tab-' + tabName);
+        if (selectedTab) {
+            selectedTab.classList.add('active', 'border-blue-500', 'text-blue-600');
+            selectedTab.classList.remove('border-transparent', 'text-gray-500');
+        }
+    };
+    
+    // Add new form functionality
+    window.addNewForm = function(tabName) {
+        const container = document.getElementById(tabName + '-forms-container');
+        if (container) {
+            // Find the first form in the container
+            const firstForm = container.querySelector('.bg-white.rounded-lg.border');
+            if (firstForm) {
+                // Clone the first form
+                const newForm = firstForm.cloneNode(true);
+                
+                // Clear all input values in the cloned form
+                const inputs = newForm.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        input.checked = false;
+                    } else {
+                        input.value = '';
+                    }
+                });
+                
+                // Add a subtle header to indicate this is an additional entry
+                const additionalHeader = document.createElement('div');
+                additionalHeader.className = 'mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between';
+                additionalHeader.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <span class="text-sm font-medium text-blue-900">Additional Entry</span>
+                    </div>
+                    <button onclick="this.closest('.bg-white').remove()" class="text-red-600 hover:text-red-800 text-sm">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                        Remove
+                    </button>
+                `;
+                
+                // Insert the header before the form
+                newForm.insertBefore(additionalHeader, newForm.firstChild);
+                
+                // Add the new form to the container
+                container.appendChild(newForm);
+                
+                // Re-initialize Lucide icons for the new form
+                lucide.createIcons();
+            }
+        }
+    };
+});
+</script>
+{% endblock %}
