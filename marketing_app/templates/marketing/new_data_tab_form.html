@@ -1,0 +1,126 @@
+<!-- New Data Form for MIS Sheets Tab -->
+<div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+    <form method="post" action="#" class="p-6 space-y-6">
+        {% csrf_token %}
+        
+        <!-- Monthly Tracking Section -->
+        <div>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Monthly Tracking</h4>
+            <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-6">
+                <h5 class="font-semibold text-indigo-900 mb-2">April, May, Total</h5>
+                <p class="text-sm text-indigo-800">Track new customer acquisition across different categories</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                        Category <span class="text-red-500">*</span>
+                    </label>
+                    <select id="category" 
+                            name="category" 
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            required>
+                        <option value="">Select Category</option>
+                        {% for key, value in CATEGORY_CHOICES %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Data Section -->
+        <div>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Monthly Data</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="april" class="block text-sm font-medium text-gray-700 mb-2">
+                        April
+                    </label>
+                    <input type="number" 
+                           id="april" 
+                           name="april" 
+                           min="0"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="0"
+                           value="0">
+                </div>
+                <div>
+                    <label for="may" class="block text-sm font-medium text-gray-700 mb-2">
+                        May
+                    </label>
+                    <input type="number" 
+                           id="may" 
+                           name="may" 
+                           min="0"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="0"
+                           value="0">
+                </div>
+                <div>
+                    <label for="total" class="block text-sm font-medium text-gray-700 mb-2">
+                        Total
+                    </label>
+                    <input type="number" 
+                           id="total" 
+                           name="total" 
+                           min="0"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="0"
+                           value="0"
+                           readonly>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories Reference -->
+        <div>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Available Categories</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">Customer Visits</h5>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• New customer visits or Enquiry (Pharma)</li>
+                        <li>• New customer visits or Enquiry (Non Pharma)</li>
+                    </ul>
+                </div>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h5 class="font-semibold text-gray-800 mb-2">Business Identification</h5>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Identify new potential business in Pharma Field (Groups)</li>
+                        <li>• Identify new potential business in Pharma Field (Individual Company)</li>
+                        <li>• Identify new potential business in Non Pharma Field (Groups)</li>
+                        <li>• Identify new potential business in Non Pharma Field (Individual Company)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors">
+                <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>
+                Save New Data
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-calculate total
+    const aprilInput = document.getElementById('april');
+    const mayInput = document.getElementById('may');
+    const totalInput = document.getElementById('total');
+    
+    function calculateTotal() {
+        const april = parseInt(aprilInput.value) || 0;
+        const may = parseInt(mayInput.value) || 0;
+        const total = april + may;
+        totalInput.value = total;
+    }
+    
+    aprilInput.addEventListener('input', calculateTotal);
+    mayInput.addEventListener('input', calculateTotal);
+});
+</script>

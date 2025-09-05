@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Count, Sum, ExpressionWrapper, F, FloatField
 from django.utils import timezone
 from datetime import datetime, timedelta
-from .models import Campaign, Lead, EmailTemplate, CampaignMetric, LeadActivity, Customer, CustomerLocation, Region, Visit, VisitParticipant, Expense, Exhibition, Quotation, PurchaseOrder, PaymentFollowUp, WorkOrder, Manufacturing, Dispatch, URS, GADrawing, TechnicalDiscussion, Negotiation, QuotationRevision, QCTracking, ProductionPlan, PackingDetails, DispatchChecklist, BudgetCategory, AnnualExhibitionBudget, BudgetAllocation, BudgetApproval, InquiryLog
+from .models import Campaign, Lead, EmailTemplate, CampaignMetric, LeadActivity, Customer, CustomerLocation, Region, Visit, VisitParticipant, Expense, Exhibition, Quotation, PurchaseOrder, PaymentFollowUp, WorkOrder, Manufacturing, Dispatch, URS, GADrawing, TechnicalDiscussion, Negotiation, QuotationRevision, QCTracking, ProductionPlan, PackingDetails, DispatchChecklist, BudgetCategory, AnnualExhibitionBudget, BudgetAllocation, BudgetApproval, InquiryLog, FollowUpStatus, ProjectToday, OrderExpectedNextMonth, MISPurchaseOrder, NewData, NewDataDetails, ODPlan
 from django.contrib.auth import get_user_model
 import sys
 
@@ -5171,5 +5171,197 @@ def inquiry_log_delete(request, pk):
     }
     
     return render(request, 'marketing/inquiry_log_confirm_delete.html', context)
+
+
+# MIS System Views
+@login_required
+def mis_dashboard(request):
+    """MIS Dashboard - Main overview of all sheets"""
+    # Get statistics for each sheet
+    follow_up_count = FollowUpStatus.objects.count()
+    project_today_count = ProjectToday.objects.count()
+    order_expected_count = OrderExpectedNextMonth.objects.count()
+    purchase_order_count = MISPurchaseOrder.objects.count()
+    new_data_count = NewData.objects.count()
+    new_data_details_count = NewDataDetails.objects.count()
+    od_plan_count = ODPlan.objects.count()
+    inquiry_log_count = InquiryLog.objects.count()
+    
+    # Recent activities
+    recent_follow_ups = FollowUpStatus.objects.order_by('-created_at')[:5]
+    recent_projects = ProjectToday.objects.order_by('-created_at')[:5]
+    recent_orders = OrderExpectedNextMonth.objects.order_by('-created_at')[:5]
+    
+    context = {
+        'follow_up_count': follow_up_count,
+        'project_today_count': project_today_count,
+        'order_expected_count': order_expected_count,
+        'purchase_order_count': purchase_order_count,
+        'new_data_count': new_data_count,
+        'new_data_details_count': new_data_details_count,
+        'od_plan_count': od_plan_count,
+        'inquiry_log_count': inquiry_log_count,
+        'recent_follow_ups': recent_follow_ups,
+        'recent_projects': recent_projects,
+        'recent_orders': recent_orders,
+    }
+    
+    return render(request, 'marketing/mis_dashboard.html', context)
+
+
+@login_required
+def follow_up_status_list(request):
+    """List all follow-up status entries"""
+    follow_ups = FollowUpStatus.objects.all().order_by('-follow_up_date', '-created_at')
+    
+    # Search functionality
+    search_query = request.GET.get('search', '')
+    if search_query:
+        follow_ups = follow_ups.filter(
+            Q(company_group__icontains=search_query) |
+            Q(contact_person__icontains=search_query) |
+            Q(quote_no__icontains=search_query)
+        )
+    
+    # Filter by status
+    status_filter = request.GET.get('status', '')
+    if status_filter:
+        follow_ups = follow_ups.filter(follow_up_status=status_filter)
+    
+    # Pagination
+    paginator = Paginator(follow_ups, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Statistics
+    total_follow_ups = FollowUpStatus.objects.count()
+    pending_follow_ups = FollowUpStatus.objects.filter(follow_up_status__in=['qtn_submitted', 'qtn_followup']).count()
+    completed_follow_ups = FollowUpStatus.objects.filter(follow_up_status__in=['order_finalization', 'po_release']).count()
+    
+    context = {
+        'follow_ups': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
+        'total_follow_ups': total_follow_ups,
+        'pending_follow_ups': pending_follow_ups,
+        'completed_follow_ups': completed_follow_ups,
+        'status_choices': FollowUpStatus.FOLLOW_UP_STATUS_CHOICES,
+    }
+    
+    return render(request, 'marketing/follow_up_status_list.html', context)
+
+
+@login_required
+def follow_up_status_create(request):
+    """Create a new follow-up status entry"""
+    if request.method == 'POST':
+        follow_up = FollowUpStatus(
+            month=request.POST.get('month'),
+            date=request.POST.get('date'),
+            quote_no=request.POST.get('quote_no') or None,
+            responsible_person=request.POST.get('responsible_person'),
+            company_group=request.POST.get('company_group'),
+            address=request.POST.get('address'),
+            contact_person=request.POST.get('contact_person'),
+            contact_no=request.POST.get('contact_no'),
+            mail_id=request.POST.get('mail_id'),
+            requirements=request.POST.get('requirements'),
+            follow_up_date=request.POST.get('follow_up_date'),
+            follow_up_status=request.POST.get('follow_up_status'),
+            created_by=request.user
+        )
+        
+        try:
+            follow_up.save()
+            messages.success(request, f'Follow-up status entry created successfully!')
+            return redirect('marketing:follow_up_status_detail', pk=follow_up.pk)
+        except Exception as e:
+            messages.error(request, f'Error creating follow-up status: {str(e)}')
+    
+    context = {
+        'status_choices': FollowUpStatus.FOLLOW_UP_STATUS_CHOICES,
+    }
+    
+    return render(request, 'marketing/follow_up_status_form.html', context)
+
+
+@login_required
+def follow_up_status_detail(request, pk):
+    """View detailed information of a specific follow-up status entry"""
+    follow_up = get_object_or_404(FollowUpStatus, pk=pk)
+    
+    context = {
+        'follow_up': follow_up,
+    }
+    
+    return render(request, 'marketing/follow_up_status_detail.html', context)
+
+
+@login_required
+def follow_up_status_edit(request, pk):
+    """Edit an existing follow-up status entry"""
+    follow_up = get_object_or_404(FollowUpStatus, pk=pk)
+    
+    if request.method == 'POST':
+        follow_up.month = request.POST.get('month')
+        follow_up.date = request.POST.get('date')
+        follow_up.quote_no = request.POST.get('quote_no') or None
+        follow_up.responsible_person = request.POST.get('responsible_person')
+        follow_up.company_group = request.POST.get('company_group')
+        follow_up.address = request.POST.get('address')
+        follow_up.contact_person = request.POST.get('contact_person')
+        follow_up.contact_no = request.POST.get('contact_no')
+        follow_up.mail_id = request.POST.get('mail_id')
+        follow_up.requirements = request.POST.get('requirements')
+        follow_up.follow_up_date = request.POST.get('follow_up_date')
+        follow_up.follow_up_status = request.POST.get('follow_up_status')
+        
+        try:
+            follow_up.save()
+            messages.success(request, f'Follow-up status entry updated successfully!')
+            return redirect('marketing:follow_up_status_detail', pk=follow_up.pk)
+        except Exception as e:
+            messages.error(request, f'Error updating follow-up status: {str(e)}')
+    
+    context = {
+        'follow_up': follow_up,
+        'status_choices': FollowUpStatus.FOLLOW_UP_STATUS_CHOICES,
+    }
+    
+    return render(request, 'marketing/follow_up_status_form.html', context)
+
+
+@login_required
+def follow_up_status_delete(request, pk):
+    """Delete a follow-up status entry"""
+    follow_up = get_object_or_404(FollowUpStatus, pk=pk)
+    
+    if request.method == 'POST':
+        company_name = follow_up.company_group
+        follow_up.delete()
+        messages.success(request, f'Follow-up status entry for {company_name} deleted successfully!')
+        return redirect('marketing:follow_up_status_list')
+    
+    context = {
+        'follow_up': follow_up,
+    }
+    
+    return render(request, 'marketing/follow_up_status_confirm_delete.html', context)
+
+
+@login_required
+def mis_sheets(request):
+    """MIS Sheets - Tabbed interface for all sheets"""
+    context = {
+        'FOLLOW_UP_STATUS_CHOICES': FollowUpStatus.FOLLOW_UP_STATUS_CHOICES,
+        'PHARMA_CATEGORIES': ProjectToday.PHARMA_CATEGORIES,
+        'NON_PHARMA_CATEGORIES': ProjectToday.NON_PHARMA_CATEGORIES,
+        'ORDER_STATUS_CHOICES': OrderExpectedNextMonth.ORDER_STATUS_CHOICES,
+        'CATEGORY_CHOICES': NewData.CATEGORY_CHOICES,
+        'PHARMA_CHOICES': NewDataDetails.PHARMA_CHOICES,
+        'GROUP_CHOICES': NewDataDetails.GROUP_CHOICES,
+    }
+    
+    return render(request, 'marketing/mis_sheets.html', context)
 
 

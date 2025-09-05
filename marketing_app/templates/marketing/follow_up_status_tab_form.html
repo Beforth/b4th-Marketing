@@ -1,0 +1,184 @@
+<!-- Follow-Up Status Form for MIS Sheets Tab -->
+<div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+    <form method="post" action="{% url 'marketing:follow_up_status_create' %}" class="p-6 space-y-6">
+        {% csrf_token %}
+        
+        <!-- Basic Information Section -->
+        <div>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Basic Information</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="month" class="block text-sm font-medium text-gray-700 mb-2">
+                        Month <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="month" 
+                           name="month" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter month"
+                           required>
+                </div>
+                <div>
+                    <label for="date" class="block text-sm font-medium text-gray-700 mb-2">
+                        Date <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" 
+                           id="date" 
+                           name="date" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           required>
+                </div>
+                <div>
+                    <label for="quote_no" class="block text-sm font-medium text-gray-700 mb-2">
+                        Quote Number
+                    </label>
+                    <input type="text" 
+                           id="quote_no" 
+                           name="quote_no" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter quote number">
+                </div>
+            </div>
+        </div>
+
+        <!-- Responsible Person Section -->
+        <div>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Responsible Person</h4>
+            <div>
+                <label for="responsible_person" class="block text-sm font-medium text-gray-700 mb-2">
+                    Responsible Person <span class="text-red-500">*</span>
+                </label>
+                <input type="text" 
+                       id="responsible_person" 
+                       name="responsible_person" 
+                       class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                       placeholder="Enter responsible person name"
+                       required>
+            </div>
+        </div>
+
+        <!-- Company Information Section -->
+        <div>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Company Information</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="company_group" class="block text-sm font-medium text-gray-700 mb-2">
+                        Company / Group <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="company_group" 
+                           name="company_group" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter company or group name"
+                           required>
+                </div>
+                <div>
+                    <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
+                        Address <span class="text-red-500">*</span>
+                    </label>
+                    <textarea id="address" 
+                              name="address" 
+                              rows="3" 
+                              class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                              placeholder="Enter complete address"
+                              required></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information Section -->
+        <div>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Contact Information</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="contact_person" class="block text-sm font-medium text-gray-700 mb-2">
+                        Contact Person <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="contact_person" 
+                           name="contact_person" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter contact person name"
+                           required>
+                </div>
+                <div>
+                    <label for="contact_no" class="block text-sm font-medium text-gray-700 mb-2">
+                        Contact Number <span class="text-red-500">*</span>
+                    </label>
+                    <input type="tel" 
+                           id="contact_no" 
+                           name="contact_no" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter contact number"
+                           required>
+                </div>
+                <div>
+                    <label for="mail_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        Email ID <span class="text-red-500">*</span>
+                    </label>
+                    <input type="email" 
+                           id="mail_id" 
+                           name="mail_id" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter email address"
+                           required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Requirements Section -->
+        <div>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Requirements</h4>
+            <div>
+                <label for="requirements" class="block text-sm font-medium text-gray-700 mb-2">
+                    Requirements <span class="text-red-500">*</span>
+                </label>
+                <textarea id="requirements" 
+                          name="requirements" 
+                          rows="4" 
+                          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                          placeholder="Enter detailed requirements"
+                          required></textarea>
+            </div>
+        </div>
+
+        <!-- Follow-Up Information Section -->
+        <div>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Follow-Up Information</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="follow_up_date" class="block text-sm font-medium text-gray-700 mb-2">
+                        Follow Up Date <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" 
+                           id="follow_up_date" 
+                           name="follow_up_date" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           required>
+                </div>
+                <div>
+                    <label for="follow_up_status" class="block text-sm font-medium text-gray-700 mb-2">
+                        Follow Up Status <span class="text-red-500">*</span>
+                    </label>
+                    <select id="follow_up_status" 
+                            name="follow_up_status" 
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            required>
+                        <option value="">Select Status</option>
+                        {% for key, value in FOLLOW_UP_STATUS_CHOICES %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>
+                Save Follow-Up Status
+            </button>
+        </div>
+    </form>
+</div>

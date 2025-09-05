@@ -1104,3 +1104,261 @@ class InquiryLog(models.Model):
     def is_quote_sent(self):
         """Check if quote has been sent"""
         return self.quote_send == 'yes'
+
+
+# MIS System Models
+class FollowUpStatus(models.Model):
+    """Sheet 2: Follow-Up Status"""
+    FOLLOW_UP_STATUS_CHOICES = [
+        ('qtn_submitted', 'QTN Submitted'),
+        ('qtn_followup', 'QTN Followup'),
+        ('technical_discussions', 'Technical Discussions'),
+        ('at_customer_desk', 'At Customer Desk'),
+        ('order_finalization', 'Order Finalization (AP)'),
+        ('po_release', 'PO Release (AP)'),
+        ('po_acknowledge', 'PO Acknowledge (AP)'),
+        ('wo_prepared', 'WO Prepared'),
+        ('on_hold', 'On-Hold (Customer end)'),
+        ('requirement_cancelled', 'Requirement Cancelled (Customer end)'),
+        ('order_loss_1', '1 - Order Loss'),
+        ('order_loss_2', '2 - Order Loss'),
+        ('order_loss_3', '3 - Order Loss'),
+    ]
+    
+    sr_no = models.AutoField(primary_key=True)
+    month = models.CharField(max_length=20)
+    date = models.DateField()
+    quote_no = models.CharField(max_length=50, blank=True)
+    responsible_person = models.CharField(max_length=100)
+    company_group = models.CharField(max_length=200)
+    address = models.TextField()
+    contact_person = models.CharField(max_length=100)
+    contact_no = models.CharField(max_length=20)
+    mail_id = models.EmailField()
+    requirements = models.TextField()
+    follow_up_date = models.DateField()
+    follow_up_status = models.CharField(max_length=30, choices=FOLLOW_UP_STATUS_CHOICES)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-follow_up_date', '-created_at']
+        verbose_name = "Follow-Up Status"
+        verbose_name_plural = "Follow-Up Status"
+    
+    def __str__(self):
+        return f"{self.company_group} - {self.follow_up_date}"
+
+
+class ProjectToday(models.Model):
+    """Sheet 3: Project Today"""
+    PHARMA_CATEGORIES = [
+        ('api', 'API'),
+        ('injectable', 'Injectable'),
+        ('formulation', 'Formulation'),
+        ('oncology', 'Oncology'),
+        ('intermediate', 'Intermediate'),
+        ('packaging', 'Packaging'),
+    ]
+    
+    NON_PHARMA_CATEGORIES = [
+        ('fmcg', 'FMCG'),
+        ('chemical', 'Chemical Industry'),
+        ('blood_bank', 'Blood bank'),
+        ('oil_gas', 'Oil & Gas Industry'),
+        ('cosmetics', 'Cosmetics'),
+        ('textile', 'Textile'),
+        ('hospital', 'Hospital'),
+        ('government', 'Government'),
+        ('agri', 'Agri'),
+        ('dairy', 'Dairy'),
+        ('veterinary', 'Veterinary'),
+        ('other', 'Other'),
+    ]
+    
+    sr_no = models.AutoField(primary_key=True)
+    location = models.CharField(max_length=200)
+    district = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    product1 = models.CharField(max_length=200)
+    promoter_name = models.CharField(max_length=200)
+    promoter_office_add = models.TextField()
+    promoter_contact_person_name = models.CharField(max_length=100)
+    promoter_contact_person_designation = models.CharField(max_length=100)
+    promoter_contact_person_direct_contact = models.CharField(max_length=20)
+    promoter_contact_person_email = models.EmailField()
+    architect_name = models.CharField(max_length=100, blank=True)
+    consultant_name = models.CharField(max_length=100, blank=True)
+    contractor_name = models.CharField(max_length=100, blank=True)
+    followup_date = models.DateField()
+    followup_status = models.CharField(max_length=30, choices=FollowUpStatus.FOLLOW_UP_STATUS_CHOICES)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-followup_date', '-created_at']
+        verbose_name = "Project Today"
+        verbose_name_plural = "Projects Today"
+    
+    def __str__(self):
+        return f"{self.promoter_name} - {self.location}"
+
+
+class OrderExpectedNextMonth(models.Model):
+    """Sheet 4: Order expected in Next Month"""
+    ORDER_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('delayed', 'Delayed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    region = models.CharField(max_length=100)
+    from_month = models.CharField(max_length=20)
+    company_name = models.CharField(max_length=200)
+    requirement = models.TextField()
+    location = models.CharField(max_length=200)
+    contact_person = models.CharField(max_length=100)
+    contact_no = models.CharField(max_length=20)
+    ap_quote_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    discounted_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    total_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    last_status_date = models.DateField()
+    order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES)
+    expected_in_month = models.CharField(max_length=50)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-last_status_date', '-created_at']
+        verbose_name = "Order Expected Next Month"
+        verbose_name_plural = "Orders Expected Next Month"
+    
+    def __str__(self):
+        return f"{self.company_name} - {self.expected_in_month}"
+
+
+class MISPurchaseOrder(models.Model):
+    """Sheet 5: Purchase Order - MIS System"""
+    sr_no = models.AutoField(primary_key=True)
+    person_name = models.CharField(max_length=100)
+    purchase_order_no = models.CharField(max_length=100)
+    po_date = models.DateField()
+    company_name = models.CharField(max_length=200)
+    location = models.CharField(max_length=200)
+    contact_person_details = models.TextField()
+    contact_number = models.CharField(max_length=20)
+    enquiry_log_number = models.CharField(max_length=50, blank=True)
+    quote_no = models.CharField(max_length=50, blank=True)
+    work_order_number = models.CharField(max_length=50, blank=True)
+    product_name = models.CharField(max_length=200)
+    capacity = models.CharField(max_length=100, blank=True)
+    model_number = models.CharField(max_length=100, blank=True)
+    machine_details = models.TextField(blank=True)
+    equipment_sr_number = models.CharField(max_length=100, blank=True)
+    po_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    ap_quote_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    percentage_order = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-po_date', '-created_at']
+        verbose_name = "MIS Purchase Order"
+        verbose_name_plural = "MIS Purchase Orders"
+    
+    def __str__(self):
+        return f"{self.purchase_order_no} - {self.company_name}"
+
+
+class NewData(models.Model):
+    """Sheet 6: New Data - Monthly Tracking"""
+    CATEGORY_CHOICES = [
+        ('new_customer_visits_pharma', 'New customer visits or Enquiry (Pharma)'),
+        ('new_customer_visits_non_pharma', 'New customer visits or Enquiry (Non Pharma)'),
+        ('identify_pharma_groups', 'Identify new potential business in Pharma Field (Groups)'),
+        ('identify_pharma_individual', 'Identify new potential business in Pharma Field (Individual Company)'),
+        ('identify_non_pharma_groups', 'Identify new potential business in Non Pharma Field (Groups)'),
+        ('identify_non_pharma_individual', 'Identify new potential business in Non Pharma Field (Individual Company)'),
+    ]
+    
+    id = models.AutoField(primary_key=True)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
+    april = models.IntegerField(default=0)
+    may = models.IntegerField(default=0)
+    total = models.IntegerField(default=0)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['category']
+        verbose_name = "New Data"
+        verbose_name_plural = "New Data"
+    
+    def __str__(self):
+        return f"{self.get_category_display()} - Total: {self.total}"
+
+
+class NewDataDetails(models.Model):
+    """Sheet 7: New Data Details"""
+    PHARMA_CHOICES = [
+        ('pharma', 'Pharma'),
+        ('non_pharma', 'Non Pharma'),
+    ]
+    
+    GROUP_CHOICES = [
+        ('group', 'Group'),
+        ('individual', 'Individual'),
+    ]
+    
+    sr_no = models.AutoField(primary_key=True)
+    company_name = models.CharField(max_length=200)
+    location = models.CharField(max_length=200)
+    pharma_non_pharma = models.CharField(max_length=20, choices=PHARMA_CHOICES)
+    group_individual = models.CharField(max_length=20, choices=GROUP_CHOICES)
+    contact_person = models.CharField(max_length=100)
+    designation = models.CharField(max_length=100)
+    mobile_no = models.CharField(max_length=20)
+    mail_id = models.EmailField()
+    description = models.TextField()
+    status = models.CharField(max_length=100)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "New Data Detail"
+        verbose_name_plural = "New Data Details"
+    
+    def __str__(self):
+        return f"{self.company_name} - {self.pharma_non_pharma}"
+
+
+class ODPlan(models.Model):
+    """Sheet 8: OD Plan - Outdoor Planning"""
+    id = models.AutoField(primary_key=True)
+    region = models.CharField(max_length=100)
+    month = models.CharField(max_length=20)
+    name = models.CharField(max_length=100)
+    from_date = models.DateField()
+    to_date = models.DateField()
+    location = models.CharField(max_length=200)
+    total_days = models.IntegerField()
+    company_visits = models.IntegerField()
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-from_date', '-created_at']
+        verbose_name = "OD Plan"
+        verbose_name_plural = "OD Plans"
+    
+    def __str__(self):
+        return f"{self.name} - {self.region} ({self.month})"

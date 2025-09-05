@@ -33,6 +33,17 @@ urlpatterns = [
     path('inquiry-log/<int:pk>/edit/', views.inquiry_log_edit, name='inquiry_log_edit'),
     path('inquiry-log/<int:pk>/delete/', views.inquiry_log_delete, name='inquiry_log_delete'),
     
+    # MIS System
+    path('mis-dashboard/', views.mis_dashboard, name='mis_dashboard'),
+    path('mis-sheets/', views.mis_sheets, name='mis_sheets'),
+    
+    # Follow-Up Status
+    path('follow-up-status/', views.follow_up_status_list, name='follow_up_status_list'),
+    path('follow-up-status/create/', views.follow_up_status_create, name='follow_up_status_create'),
+    path('follow-up-status/<int:pk>/', views.follow_up_status_detail, name='follow_up_status_detail'),
+    path('follow-up-status/<int:pk>/edit/', views.follow_up_status_edit, name='follow_up_status_edit'),
+    path('follow-up-status/<int:pk>/delete/', views.follow_up_status_delete, name='follow_up_status_delete'),
+    
     # Visits
     path('visits/', views.visit_list, name='visit_list'),
     path('visits/create/', views.customer_visit, name='visit_create'),

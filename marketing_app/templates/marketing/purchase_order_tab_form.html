@@ -1,0 +1,271 @@
+<!-- Purchase Order Form for MIS Sheets Tab -->
+<div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+    <form method="post" action="#" class="p-6 space-y-6">
+        {% csrf_token %}
+        
+        <!-- Basic Information Section -->
+        <div>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Basic Information</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="person_name" class="block text-sm font-medium text-gray-700 mb-2">
+                        Person Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="person_name" 
+                           name="person_name" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter person name"
+                           required>
+                </div>
+                <div>
+                    <label for="purchase_order_no" class="block text-sm font-medium text-gray-700 mb-2">
+                        Purchase Order No. <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="purchase_order_no" 
+                           name="purchase_order_no" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter PO number"
+                           required>
+                </div>
+                <div>
+                    <label for="po_date" class="block text-sm font-medium text-gray-700 mb-2">
+                        PO Date <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" 
+                           id="po_date" 
+                           name="po_date" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Company Information Section -->
+        <div>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Company Information</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="company_name" class="block text-sm font-medium text-gray-700 mb-2">
+                        Company Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="company_name" 
+                           name="company_name" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter company name"
+                           required>
+                </div>
+                <div>
+                    <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
+                        Location <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="location" 
+                           name="location" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter location"
+                           required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information Section -->
+        <div>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Contact Information</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="contact_person_details" class="block text-sm font-medium text-gray-700 mb-2">
+                        Contact Person and Details <span class="text-red-500">*</span>
+                    </label>
+                    <textarea id="contact_person_details" 
+                              name="contact_person_details" 
+                              rows="3" 
+                              class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                              placeholder="Enter contact person details"
+                              required></textarea>
+                </div>
+                <div>
+                    <label for="contact_number" class="block text-sm font-medium text-gray-700 mb-2">
+                        Contact Number <span class="text-red-500">*</span>
+                    </label>
+                    <input type="tel" 
+                           id="contact_number" 
+                           name="contact_number" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter contact number"
+                           required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reference Numbers Section -->
+        <div>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Reference Numbers</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="enquiry_log_number" class="block text-sm font-medium text-gray-700 mb-2">
+                        Enquiry Log Number
+                    </label>
+                    <input type="text" 
+                           id="enquiry_log_number" 
+                           name="enquiry_log_number" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter enquiry log number">
+                </div>
+                <div>
+                    <label for="quote_no" class="block text-sm font-medium text-gray-700 mb-2">
+                        Quote No.
+                    </label>
+                    <input type="text" 
+                           id="quote_no" 
+                           name="quote_no" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter quote number">
+                </div>
+                <div>
+                    <label for="work_order_number" class="block text-sm font-medium text-gray-700 mb-2">
+                        Work Order Number
+                    </label>
+                    <input type="text" 
+                           id="work_order_number" 
+                           name="work_order_number" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter work order number">
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Information Section -->
+        <div>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Product Information</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="product_name" class="block text-sm font-medium text-gray-700 mb-2">
+                        Product Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="product_name" 
+                           name="product_name" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter product name"
+                           required>
+                </div>
+                <div>
+                    <label for="capacity" class="block text-sm font-medium text-gray-700 mb-2">
+                        Capacity
+                    </label>
+                    <input type="text" 
+                           id="capacity" 
+                           name="capacity" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter capacity">
+                </div>
+                <div>
+                    <label for="model_number" class="block text-sm font-medium text-gray-700 mb-2">
+                        Model Number
+                    </label>
+                    <input type="text" 
+                           id="model_number" 
+                           name="model_number" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter model number">
+                </div>
+                <div>
+                    <label for="equipment_sr_number" class="block text-sm font-medium text-gray-700 mb-2">
+                        Equipment Sr. Number
+                    </label>
+                    <input type="text" 
+                           id="equipment_sr_number" 
+                           name="equipment_sr_number" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="e.g., AP_23-24/01">
+                </div>
+            </div>
+        </div>
+
+        <!-- Machine Details Section -->
+        <div>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Machine Details</h4>
+            <div>
+                <label for="machine_details" class="block text-sm font-medium text-gray-700 mb-2">
+                    Machine Details
+                </label>
+                <textarea id="machine_details" 
+                          name="machine_details" 
+                          rows="4" 
+                          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                          placeholder="Enter detailed machine specifications"></textarea>
+            </div>
+        </div>
+
+        <!-- Financial Information Section -->
+        <div>
+            <h4 class="text-md font-semibold text-gray-900 mb-4">Financial Information</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="po_amount" class="block text-sm font-medium text-gray-700 mb-2">
+                        PO Amount <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 text-sm">₹</span>
+                        </div>
+                        <input type="number" 
+                               id="po_amount" 
+                               name="po_amount" 
+                               step="0.01" 
+                               min="0"
+                               class="w-full pl-8 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               placeholder="0.00"
+                               required>
+                    </div>
+                </div>
+                <div>
+                    <label for="ap_quote_price" class="block text-sm font-medium text-gray-700 mb-2">
+                        AP Quote Price
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 text-sm">₹</span>
+                        </div>
+                        <input type="number" 
+                               id="ap_quote_price" 
+                               name="ap_quote_price" 
+                               step="0.01" 
+                               min="0"
+                               class="w-full pl-8 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               placeholder="0.00">
+                    </div>
+                </div>
+                <div>
+                    <label for="percentage_order" class="block text-sm font-medium text-gray-700 mb-2">
+                        % Order
+                    </label>
+                    <div class="relative">
+                        <input type="number" 
+                               id="percentage_order" 
+                               name="percentage_order" 
+                               step="0.01" 
+                               min="0"
+                               max="100"
+                               class="w-full pr-8 pl-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               placeholder="0.00">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 text-sm">%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700 transition-colors">
+                <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>
+                Save Purchase Order
+            </button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,271 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}MIS Dashboard{% endblock %}
+
+{% block content %}
+<div class="mx-auto w-full p-2 md:p-4 xl:p-2">
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">MIS Dashboard</h1>
+                <p class="text-sm text-gray-600">Management Information System - Overview and Statistics</p>
+            </div>
+            <a href="{% url 'marketing:mis_sheets' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm transition">
+                <i data-lucide="table" class="w-4 h-4"></i>
+                All Sheets
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Follow-Up Status Card -->
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Follow-Up Status</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ follow_up_count }}</p>
+                    <p class="text-xs text-gray-500">Active entries</p>
+                </div>
+                <div class="p-3 bg-green-100 rounded-full">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Project Today Card -->
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Project Today</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ project_today_count }}</p>
+                    <p class="text-xs text-gray-500">Active projects</p>
+                </div>
+                <div class="p-3 bg-blue-100 rounded-full">
+                    <i data-lucide="briefcase" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Purchase Orders Card -->
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Purchase Orders</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ purchase_order_count }}</p>
+                    <p class="text-xs text-gray-500">Total POs</p>
+                </div>
+                <div class="p-3 bg-orange-100 rounded-full">
+                    <i data-lucide="shopping-cart" class="w-6 h-6 text-orange-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inquiry Logs Card -->
+        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Inquiry Logs</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ inquiry_log_count|default:0 }}</p>
+                    <p class="text-xs text-gray-500">Total inquiries</p>
+                </div>
+                <div class="p-3 bg-purple-100 rounded-full">
+                    <i data-lucide="clipboard-list" class="w-6 h-6 text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="{% url 'marketing:mis_sheets' %}" class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div class="p-2 bg-blue-100 rounded-lg">
+                    <i data-lucide="table" class="w-5 h-5 text-blue-600"></i>
+                </div>
+                <div>
+                    <p class="font-medium text-gray-900">All Sheets</p>
+                    <p class="text-sm text-gray-600">Access all MIS forms</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'marketing:inquiry_log_create' %}" class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div class="p-2 bg-green-100 rounded-lg">
+                    <i data-lucide="plus" class="w-5 h-5 text-green-600"></i>
+                </div>
+                <div>
+                    <p class="font-medium text-gray-900">New Inquiry</p>
+                    <p class="text-sm text-gray-600">Add new inquiry log</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'marketing:inquiry_log_list' %}" class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div class="p-2 bg-purple-100 rounded-lg">
+                    <i data-lucide="list" class="w-5 h-5 text-purple-600"></i>
+                </div>
+                <div>
+                    <p class="font-medium text-gray-900">View Inquiries</p>
+                    <p class="text-sm text-gray-600">Browse all inquiries</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'marketing:follow_up_status_list' %}" class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div class="p-2 bg-orange-100 rounded-lg">
+                    <i data-lucide="check-circle" class="w-5 h-5 text-orange-600"></i>
+                </div>
+                <div>
+                    <p class="font-medium text-gray-900">Follow-Ups</p>
+                    <p class="text-sm text-gray-600">Track follow-ups</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- MIS Sheets Overview -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">MIS Sheets Overview</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- How to Use -->
+            <div class="p-4 border border-gray-200 rounded-lg">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-blue-100 rounded-lg">
+                        <i data-lucide="help-circle" class="w-4 h-4 text-blue-600"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">How to Use</h4>
+                </div>
+                <p class="text-sm text-gray-600">Instructions and overview sheet</p>
+            </div>
+
+            <!-- Inquiry Log -->
+            <div class="p-4 border border-gray-200 rounded-lg">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-purple-100 rounded-lg">
+                        <i data-lucide="clipboard-list" class="w-4 h-4 text-purple-600"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">Inquiry Log</h4>
+                </div>
+                <p class="text-sm text-gray-600">Manage business inquiries</p>
+            </div>
+
+            <!-- Follow-Up Status -->
+            <div class="p-4 border border-gray-200 rounded-lg">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-green-100 rounded-lg">
+                        <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">Follow-Up Status</h4>
+                </div>
+                <p class="text-sm text-gray-600">Track enquiry follow-ups</p>
+            </div>
+
+            <!-- Project Today -->
+            <div class="p-4 border border-gray-200 rounded-lg">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-blue-100 rounded-lg">
+                        <i data-lucide="briefcase" class="w-4 h-4 text-blue-600"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">Project Today</h4>
+                </div>
+                <p class="text-sm text-gray-600">Current active projects</p>
+            </div>
+
+            <!-- Order Expected -->
+            <div class="p-4 border border-gray-200 rounded-lg">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-purple-100 rounded-lg">
+                        <i data-lucide="calendar" class="w-4 h-4 text-purple-600"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">Order Expected</h4>
+                </div>
+                <p class="text-sm text-gray-600">Sales forecast tracking</p>
+            </div>
+
+            <!-- Purchase Order -->
+            <div class="p-4 border border-gray-200 rounded-lg">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-orange-100 rounded-lg">
+                        <i data-lucide="shopping-cart" class="w-4 h-4 text-orange-600"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">Purchase Order</h4>
+                </div>
+                <p class="text-sm text-gray-600">PO management</p>
+            </div>
+
+            <!-- New Data -->
+            <div class="p-4 border border-gray-200 rounded-lg">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-indigo-100 rounded-lg">
+                        <i data-lucide="trending-up" class="w-4 h-4 text-indigo-600"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">New Data</h4>
+                </div>
+                <p class="text-sm text-gray-600">Customer acquisition</p>
+            </div>
+
+            <!-- OD Plan -->
+            <div class="p-4 border border-gray-200 rounded-lg">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-teal-100 rounded-lg">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-teal-600"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">OD Plan</h4>
+                </div>
+                <p class="text-sm text-gray-600">Field visit planning</p>
+            </div>
+
+            <!-- Legends -->
+            <div class="p-4 border border-gray-200 rounded-lg">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-gray-100 rounded-lg">
+                        <i data-lucide="book-open" class="w-4 h-4 text-gray-600"></i>
+                    </div>
+                    <h4 class="font-medium text-gray-900">Legends</h4>
+                </div>
+                <p class="text-sm text-gray-600">Reference data</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+        <div class="space-y-4">
+            {% if recent_follow_ups %}
+                {% for follow_up in recent_follow_ups %}
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div class="p-2 bg-green-100 rounded-lg">
+                        <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900">Follow-Up Added</p>
+                        <p class="text-xs text-gray-600">{{ follow_up.company_name }} - {{ follow_up.follow_up_status }}</p>
+                    </div>
+                    <span class="text-xs text-gray-500">{{ follow_up.created_at|timesince }} ago</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div class="p-2 bg-blue-100 rounded-lg">
+                        <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium text-gray-900">MIS System Ready</p>
+                        <p class="text-xs text-gray-600">Start adding data to see recent activity</p>
+                    </div>
+                    <span class="text-xs text-gray-500">Just now</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create Lucide icons
+    lucide.createIcons();
+});
+</script>
+{% endblock %}
