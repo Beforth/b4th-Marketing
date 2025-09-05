@@ -1,0 +1,253 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Inquiry Log Details - {{ inquiry.enquiry_number }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-900">
+                <i class="fas fa-clipboard-list text-blue-600 mr-3"></i>
+                Inquiry Log Details
+            </h2>
+            <div class="flex space-x-3">
+                <a href="{% url 'marketing:inquiry_log_list' %}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i> Back to List
+                </a>
+                <a href="{% url 'marketing:inquiry_log_edit' inquiry.pk %}" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors">
+                    <i class="fas fa-edit mr-2"></i> Edit
+                </a>
+                <a href="{% url 'marketing:inquiry_log_delete' inquiry.pk %}" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                   onclick="return confirm('Are you sure you want to delete this inquiry log?')">
+                    <i class="fas fa-trash mr-2"></i> Delete
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Details Card -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4">
+                <h3 class="text-2xl font-semibold">
+                    <i class="fas fa-file-alt mr-2"></i>
+                    {{ inquiry.enquiry_number }} - {{ inquiry.company_name }}
+                </h3>
+                <p class="text-blue-100 mt-1">Created on {{ inquiry.created_at|date:"F d, Y \a\t g:i A" }}</p>
+            </div>
+            
+            <div class="p-6 space-y-8">
+                <!-- Enquiry Details Section -->
+                <div>
+                    <h4 class="text-xl font-semibold text-blue-600 mb-4 pb-2 border-b-2 border-gray-200">
+                        <i class="fas fa-info-circle mr-2"></i> Enquiry Details
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex">
+                            <div class="w-32 font-semibold text-gray-700">SR. No.:</div>
+                            <div class="text-gray-900">{{ inquiry.sr_no }}</div>
+                        </div>
+                        
+                        <div class="flex">
+                            <div class="w-32 font-semibold text-gray-700">Month:</div>
+                            <div class="text-gray-900">{{ inquiry.month }}</div>
+                        </div>
+                        
+                        <div class="flex">
+                            <div class="w-32 font-semibold text-gray-700">Enquiry Date:</div>
+                            <div class="text-gray-900">{{ inquiry.enquiry_date|date:"F d, Y" }}</div>
+                        </div>
+                        
+                        <div class="flex">
+                            <div class="w-32 font-semibold text-gray-700">Location:</div>
+                            <div class="text-gray-900">{{ inquiry.location }}</div>
+                        </div>
+                        
+                        <div class="flex md:col-span-2">
+                            <div class="w-32 font-semibold text-gray-700">Enquiry Email:</div>
+                            <div class="text-gray-900">
+                                <a href="mailto:{{ inquiry.enquiry_mail }}" class="text-blue-600 hover:text-blue-800">{{ inquiry.enquiry_mail }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quote Details Section -->
+                <div>
+                    <h4 class="text-xl font-semibold text-blue-600 mb-4 pb-2 border-b-2 border-gray-200">
+                        <i class="fas fa-file-invoice mr-2"></i> Quote Details
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex">
+                            <div class="w-32 font-semibold text-gray-700">Quote Number:</div>
+                            <div class="text-gray-900">
+                                {% if inquiry.quote_number %}
+                                    {{ inquiry.quote_number }}
+                                {% else %}
+                                    <span class="text-gray-400 italic">Not provided</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="flex">
+                            <div class="w-32 font-semibold text-gray-700">Quote Date:</div>
+                            <div class="text-gray-900">
+                                {% if inquiry.quote_date %}
+                                    {{ inquiry.quote_date|date:"F d, Y" }}
+                                {% else %}
+                                    <span class="text-gray-400 italic">Not provided</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Company Details Section -->
+                <div>
+                    <h4 class="text-xl font-semibold text-blue-600 mb-4 pb-2 border-b-2 border-gray-200">
+                        <i class="fas fa-building mr-2"></i> Company Details
+                    </h4>
+                    
+                    <div class="space-y-4">
+                        <div class="flex">
+                            <div class="w-32 font-semibold text-gray-700">Offer Category:</div>
+                            <div class="text-gray-900">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                    {{ inquiry.get_offer_category_display }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex">
+                            <div class="w-32 font-semibold text-gray-700">Company Name:</div>
+                            <div class="text-gray-900 font-semibold">{{ inquiry.company_name }}</div>
+                        </div>
+                        
+                        <div class="flex">
+                            <div class="w-32 font-semibold text-gray-700">Company Address:</div>
+                            <div class="text-gray-900 whitespace-pre-line">{{ inquiry.company_address }}</div>
+                        </div>
+                        
+                        <div class="flex">
+                            <div class="w-32 font-semibold text-gray-700">Contact Person:</div>
+                            <div class="text-gray-900">{{ inquiry.contact_person }}</div>
+                        </div>
+                        
+                        <div class="flex">
+                            <div class="w-32 font-semibold text-gray-700">Contact Number:</div>
+                            <div class="text-gray-900">
+                                <a href="tel:{{ inquiry.contact_number }}" class="text-blue-600 hover:text-blue-800">{{ inquiry.contact_number }}</a>
+                            </div>
+                        </div>
+                        
+                        <div class="flex">
+                            <div class="w-32 font-semibold text-gray-700">Email ID:</div>
+                            <div class="text-gray-900">
+                                <a href="mailto:{{ inquiry.email_id }}" class="text-blue-600 hover:text-blue-800">{{ inquiry.email_id }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Requirement Details Section -->
+                <div>
+                    <h4 class="text-xl font-semibold text-blue-600 mb-4 pb-2 border-b-2 border-gray-200">
+                        <i class="fas fa-list-alt mr-2"></i> Requirement Details
+                    </h4>
+                    
+                    <div class="flex">
+                        <div class="w-32 font-semibold text-gray-700">Requirements:</div>
+                        <div class="text-gray-900 whitespace-pre-line flex-1">{{ inquiry.requirement_details }}</div>
+                    </div>
+                </div>
+
+                <!-- Quote Status Section -->
+                <div>
+                    <h4 class="text-xl font-semibold text-blue-600 mb-4 pb-2 border-b-2 border-gray-200">
+                        <i class="fas fa-dollar-sign mr-2"></i> Quote Status
+                    </h4>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div class="w-32 font-semibold text-gray-700">Quote Sent:</div>
+                            <div class="flex items-center">
+                                <div class="w-2 h-2 rounded-full mr-2 {% if inquiry.quote_send == 'yes' %}bg-green-500{% else %}bg-yellow-500{% endif %}"></div>
+                                {% if inquiry.quote_send == 'yes' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">Quote Sent</span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">Quote Not Sent</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if inquiry.quote_price %}
+                        <div class="flex">
+                            <div class="w-32 font-semibold text-gray-700">Quote Price:</div>
+                            <div class="text-gray-900 text-lg font-semibold text-green-600">₹{{ inquiry.quote_price|floatformat:2 }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if inquiry.discounted_price %}
+                        <div class="flex">
+                            <div class="w-32 font-semibold text-gray-700">Discounted Price:</div>
+                            <div class="text-gray-900">
+                                <span class="text-lg font-semibold text-green-600">₹{{ inquiry.discounted_price|floatformat:2 }}</span>
+                                {% if inquiry.discount_percentage > 0 %}
+                                    <span class="text-sm text-red-600 font-medium ml-2">
+                                        ({{ inquiry.discount_percentage|floatformat:1 }}% discount)
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Follow Up Section -->
+                <div>
+                    <h4 class="text-xl font-semibold text-blue-600 mb-4 pb-2 border-b-2 border-gray-200">
+                        <i class="fas fa-tasks mr-2"></i> Follow Up
+                    </h4>
+                    
+                    <div class="flex">
+                        <div class="w-32 font-semibold text-gray-700">Follow Up Notes:</div>
+                        <div class="text-gray-900 flex-1">
+                            {% if inquiry.follow_up %}
+                                <div class="whitespace-pre-line">{{ inquiry.follow_up }}</div>
+                            {% else %}
+                                <span class="text-gray-400 italic">No follow-up notes available</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Information -->
+                <div>
+                    <h4 class="text-xl font-semibold text-blue-600 mb-4 pb-2 border-b-2 border-gray-200">
+                        <i class="fas fa-cog mr-2"></i> System Information
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex">
+                            <div class="w-32 font-semibold text-gray-700">Created By:</div>
+                            <div class="text-gray-900">{{ inquiry.created_by.get_full_name|default:inquiry.created_by.username }}</div>
+                        </div>
+                        
+                        <div class="flex">
+                            <div class="w-32 font-semibold text-gray-700">Created At:</div>
+                            <div class="text-gray-900">{{ inquiry.created_at|date:"F d, Y \a\t g:i A" }}</div>
+                        </div>
+                        
+                        <div class="flex md:col-span-2">
+                            <div class="w-32 font-semibold text-gray-700">Last Updated:</div>
+                            <div class="text-gray-900">{{ inquiry.updated_at|date:"F d, Y \a\t g:i A" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

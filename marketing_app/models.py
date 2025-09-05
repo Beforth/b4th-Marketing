@@ -993,3 +993,114 @@ class LeadActivity(models.Model):
     
     def __str__(self):
         return f"{self.lead.full_name} - {self.get_activity_type_display()}"
+
+class InquiryLog(models.Model):
+    """Main Enquiry Log Structure"""
+    OFFER_CATEGORIES = [
+        ('standard', 'Standard'),
+        ('customized', 'Customized'),
+        ('discounted', 'Discounted'),
+        ('final', 'Final'),
+    ]
+    
+    ENQUIRY_THROUGH_CHOICES = [
+        ('regional_head', 'Regional Head'),
+        ('area_sales_manager', 'Area Sales Manager'),
+        ('enquiry_mail', 'Enquiry Mail'),
+        ('website', 'Website'),
+        ('individual_vp', 'Individual (VP)'),
+        ('individual_india_head', 'Individual (India Head)'),
+        ('individual_other', 'Individual (Other)'),
+        ('exhibition', 'Exhibition'),
+        ('mail', 'Mail'),
+        ('call', 'Call'),
+    ]
+    
+    FOLLOW_UP_STATUS_CHOICES = [
+        ('yes_updated', 'Yes (Updated in Follow-Up Status)'),
+        ('yet_not', 'Yet Not (Not updated in Follow-Up Status)'),
+    ]
+    
+    QUOTE_SEND_CHOICES = [
+        ('yes', 'Yes'),
+        ('no', 'No'),
+    ]
+    
+    # SR. No. - Auto-generated
+    sr_no = models.AutoField(primary_key=True)
+    
+    # Enquiry Details
+    month = models.CharField(max_length=20, help_text="Month of enquiry")
+    enquiry_number = models.CharField(max_length=50, unique=True, help_text="ENQ-No")
+    enquiry_date = models.DateField(help_text="Enquiry Date")
+    location = models.CharField(max_length=200, help_text="Location")
+    enquiry_mail = models.EmailField(help_text="Enquiry Mail")
+    enquiry_through = models.CharField(max_length=30, choices=ENQUIRY_THROUGH_CHOICES, help_text="How the enquiry was received")
+    
+    # Quote Details
+    quote_number = models.CharField(max_length=50, blank=True, help_text="Quote No.")
+    quote_date = models.DateField(null=True, blank=True, help_text="Quote Date")
+    
+    # Company Details
+    offer_category = models.CharField(max_length=20, choices=OFFER_CATEGORIES, default='standard')
+    company_name = models.CharField(max_length=200)
+    company_address = models.TextField()
+    contact_person = models.CharField(max_length=100)
+    contact_number = models.CharField(max_length=20)
+    email_id = models.EmailField()
+    
+    # Requirement Details
+    requirement_details = models.TextField()
+    
+    # Quote Status
+    quote_send = models.CharField(max_length=3, choices=QUOTE_SEND_CHOICES, default='no')
+    quote_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    discounted_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    
+    # Follow Up
+    follow_up_status = models.CharField(max_length=20, choices=FOLLOW_UP_STATUS_CHOICES, blank=True, help_text="Follow-up status")
+    follow_up = models.TextField(blank=True, help_text="Follow up notes and status")
+    
+    # System fields
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-enquiry_date', '-created_at']
+        verbose_name = "Inquiry Log"
+        verbose_name_plural = "Inquiry Logs"
+    
+    def __str__(self):
+        return f"{self.enquiry_number} - {self.company_name}"
+    
+    def save(self, *args, **kwargs):
+        if not self.enquiry_number:
+            # Generate enquiry number if not provided
+            from django.utils import timezone
+            month_year = timezone.now().strftime('%Y%m')
+            last_enquiry = InquiryLog.objects.filter(
+                enquiry_number__startswith=f'ENQ-{month_year}'
+            ).order_by('-enquiry_number').first()
+            
+            if last_enquiry:
+                last_num = int(last_enquiry.enquiry_number.split('-')[-1])
+                new_num = last_num + 1
+            else:
+                new_num = 1
+            
+            self.enquiry_number = f'ENQ-{month_year}-{new_num:04d}'
+        
+        super().save(*args, **kwargs)
+    
+    @property
+    def discount_percentage(self):
+        """Calculate discount percentage if both prices are available"""
+        if self.quote_price and self.discounted_price and self.quote_price > 0:
+            return ((self.quote_price - self.discounted_price) / self.quote_price) * 100
+        return 0
+    
+    @property
+    def is_quote_sent(self):
+        """Check if quote has been sent"""
+        return self.quote_send == 'yes'

@@ -26,6 +26,13 @@ urlpatterns = [
     path('leads/import/', views.lead_import, name='lead_import'),
     path('leads/scoring/', views.lead_scoring, name='lead_scoring'),
     
+    # Inquiry Log
+    path('inquiry-log/', views.inquiry_log_list, name='inquiry_log_list'),
+    path('inquiry-log/create/', views.inquiry_log_create, name='inquiry_log_create'),
+    path('inquiry-log/<int:pk>/', views.inquiry_log_detail, name='inquiry_log_detail'),
+    path('inquiry-log/<int:pk>/edit/', views.inquiry_log_edit, name='inquiry_log_edit'),
+    path('inquiry-log/<int:pk>/delete/', views.inquiry_log_delete, name='inquiry_log_delete'),
+    
     # Visits
     path('visits/', views.visit_list, name='visit_list'),
     path('visits/create/', views.customer_visit, name='visit_create'),

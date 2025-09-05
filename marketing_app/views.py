@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Count, Sum, ExpressionWrapper, F, FloatField
 from django.utils import timezone
 from datetime import datetime, timedelta
-from .models import Campaign, Lead, EmailTemplate, CampaignMetric, LeadActivity, Customer, CustomerLocation, Region, Visit, VisitParticipant, Expense, Exhibition, Quotation, PurchaseOrder, PaymentFollowUp, WorkOrder, Manufacturing, Dispatch, URS, GADrawing, TechnicalDiscussion, Negotiation, QuotationRevision, QCTracking, ProductionPlan, PackingDetails, DispatchChecklist, BudgetCategory, AnnualExhibitionBudget, BudgetAllocation, BudgetApproval
+from .models import Campaign, Lead, EmailTemplate, CampaignMetric, LeadActivity, Customer, CustomerLocation, Region, Visit, VisitParticipant, Expense, Exhibition, Quotation, PurchaseOrder, PaymentFollowUp, WorkOrder, Manufacturing, Dispatch, URS, GADrawing, TechnicalDiscussion, Negotiation, QuotationRevision, QCTracking, ProductionPlan, PackingDetails, DispatchChecklist, BudgetCategory, AnnualExhibitionBudget, BudgetAllocation, BudgetApproval, InquiryLog
 from django.contrib.auth import get_user_model
 import sys
 
@@ -4984,5 +4984,192 @@ def expense_export(request):
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     
     return response
+
+
+# ==================== INQUIRY LOG VIEWS ====================
+
+@login_required
+def inquiry_log_list(request):
+    """List all inquiry logs with filtering and pagination"""
+    inquiries = InquiryLog.objects.all().order_by('-enquiry_date', '-created_at')
+    
+    # Search functionality
+    search_query = request.GET.get('search', '')
+    if search_query:
+        inquiries = inquiries.filter(
+            Q(company_name__icontains=search_query) |
+            Q(enquiry_number__icontains=search_query) |
+            Q(contact_person__icontains=search_query) |
+            Q(location__icontains=search_query)
+        )
+    
+    # Filter by month
+    month_filter = request.GET.get('month', '')
+    if month_filter:
+        inquiries = inquiries.filter(month=month_filter)
+    
+    # Filter by quote status
+    quote_send_filter = request.GET.get('quote_send', '')
+    if quote_send_filter:
+        inquiries = inquiries.filter(quote_send=quote_send_filter)
+    
+    # Filter by offer category
+    category_filter = request.GET.get('offer_category', '')
+    if category_filter:
+        inquiries = inquiries.filter(offer_category=category_filter)
+    
+    # Pagination
+    paginator = Paginator(inquiries, 20)  # Show 20 inquiries per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Statistics
+    total_inquiries = InquiryLog.objects.count()
+    quotes_sent = InquiryLog.objects.filter(quote_send='yes').count()
+    pending_followups = InquiryLog.objects.filter(follow_up='').count()
+    total_value = InquiryLog.objects.aggregate(
+        total=Sum('quote_price')
+    )['total'] or 0
+    
+    # Get unique months for filter dropdown
+    months = InquiryLog.objects.values_list('month', flat=True).distinct().order_by('month')
+    
+    # Get offer categories for filter dropdown
+    offer_categories = InquiryLog.OFFER_CATEGORIES
+    
+    context = {
+        'inquiries': page_obj,
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
+        'total_inquiries': total_inquiries,
+        'quotes_sent': quotes_sent,
+        'pending_followups': pending_followups,
+        'total_value': total_value,
+        'months': months,
+        'offer_categories': offer_categories,
+    }
+    
+    return render(request, 'marketing/inquiry_log_list.html', context)
+
+
+@login_required
+def inquiry_log_detail(request, pk):
+    """View detailed information of a specific inquiry log"""
+    inquiry = get_object_or_404(InquiryLog, pk=pk)
+    
+    context = {
+        'inquiry': inquiry,
+    }
+    
+    return render(request, 'marketing/inquiry_log_detail.html', context)
+
+
+@login_required
+def inquiry_log_create(request):
+    """Create a new inquiry log entry"""
+    if request.method == 'POST':
+        # Create form data from POST request
+        form_data = request.POST.copy()
+        form_data['created_by'] = request.user.id
+        
+        # Create InquiryLog instance
+        inquiry = InquiryLog(
+            month=form_data.get('month'),
+            enquiry_date=form_data.get('enquiry_date'),
+            enquiry_number=form_data.get('enquiry_number') or None,
+            location=form_data.get('location'),
+            enquiry_mail=form_data.get('enquiry_mail'),
+            enquiry_through=form_data.get('enquiry_through'),
+            quote_number=form_data.get('quote_number') or None,
+            quote_date=form_data.get('quote_date') or None,
+            offer_category=form_data.get('offer_category'),
+            company_name=form_data.get('company_name'),
+            company_address=form_data.get('company_address'),
+            contact_person=form_data.get('contact_person'),
+            contact_number=form_data.get('contact_number'),
+            email_id=form_data.get('email_id'),
+            requirement_details=form_data.get('requirement_details'),
+            quote_send=form_data.get('quote_send'),
+            quote_price=form_data.get('quote_price') or None,
+            discounted_price=form_data.get('discounted_price') or None,
+            follow_up_status=form_data.get('follow_up_status') or None,
+            follow_up=form_data.get('follow_up') or '',
+            created_by=request.user
+        )
+        
+        try:
+            inquiry.save()
+            messages.success(request, f'Inquiry log {inquiry.enquiry_number} created successfully!')
+            return redirect('marketing:inquiry_log_detail', pk=inquiry.pk)
+        except Exception as e:
+            messages.error(request, f'Error creating inquiry log: {str(e)}')
+    
+    # For GET request, show empty form
+    context = {
+        'form': None,  # We'll handle form rendering in template
+    }
+    
+    return render(request, 'marketing/inquiry_log_form.html', context)
+
+
+@login_required
+def inquiry_log_edit(request, pk):
+    """Edit an existing inquiry log entry"""
+    inquiry = get_object_or_404(InquiryLog, pk=pk)
+    
+    if request.method == 'POST':
+        # Update inquiry with form data
+        inquiry.month = request.POST.get('month')
+        inquiry.enquiry_date = request.POST.get('enquiry_date')
+        inquiry.enquiry_number = request.POST.get('enquiry_number') or None
+        inquiry.location = request.POST.get('location')
+        inquiry.enquiry_mail = request.POST.get('enquiry_mail')
+        inquiry.enquiry_through = request.POST.get('enquiry_through')
+        inquiry.quote_number = request.POST.get('quote_number') or None
+        inquiry.quote_date = request.POST.get('quote_date') or None
+        inquiry.offer_category = request.POST.get('offer_category')
+        inquiry.company_name = request.POST.get('company_name')
+        inquiry.company_address = request.POST.get('company_address')
+        inquiry.contact_person = request.POST.get('contact_person')
+        inquiry.contact_number = request.POST.get('contact_number')
+        inquiry.email_id = request.POST.get('email_id')
+        inquiry.requirement_details = request.POST.get('requirement_details')
+        inquiry.quote_send = request.POST.get('quote_send')
+        inquiry.quote_price = request.POST.get('quote_price') or None
+        inquiry.discounted_price = request.POST.get('discounted_price') or None
+        inquiry.follow_up_status = request.POST.get('follow_up_status') or None
+        inquiry.follow_up = request.POST.get('follow_up') or ''
+        
+        try:
+            inquiry.save()
+            messages.success(request, f'Inquiry log {inquiry.enquiry_number} updated successfully!')
+            return redirect('marketing:inquiry_log_detail', pk=inquiry.pk)
+        except Exception as e:
+            messages.error(request, f'Error updating inquiry log: {str(e)}')
+    
+    context = {
+        'object': inquiry,
+        'form': None,  # We'll handle form rendering in template
+    }
+    
+    return render(request, 'marketing/inquiry_log_form.html', context)
+
+
+@login_required
+def inquiry_log_delete(request, pk):
+    """Delete an inquiry log entry"""
+    inquiry = get_object_or_404(InquiryLog, pk=pk)
+    
+    if request.method == 'POST':
+        enquiry_number = inquiry.enquiry_number
+        inquiry.delete()
+        messages.success(request, f'Inquiry log {enquiry_number} deleted successfully!')
+        return redirect('marketing:inquiry_log_list')
+    
+    context = {
+        'inquiry': inquiry,
+    }
+    
+    return render(request, 'marketing/inquiry_log_confirm_delete.html', context)
 
 

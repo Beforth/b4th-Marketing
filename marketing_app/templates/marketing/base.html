@@ -358,6 +358,22 @@
                     </div>
                 </div>
                 
+                <!-- Inquiry Log -->
+                <div class="">
+                    <button id="inquiry-toggle" type="button" class="sidebar-link flex items-center gap-3 w-full px-4 py-3 text-left">
+                        <i data-lucide="clipboard-list" class="w-4 h-4 hand-drawn-icon"></i> Inquiry Log
+                        <svg id="inquiry-chevron" class="ml-auto w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="inquiry-menu" class="sidebar-submenu hidden">
+                        <a href="{% url 'marketing:inquiry_log_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="list" class="w-3.5 h-3.5 hand-drawn-icon"></i> All Inquiries
+                        </a>
+                        <a href="{% url 'marketing:inquiry_log_create' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="plus" class="w-3.5 h-3.5 hand-drawn-icon"></i> Add Inquiry
+                        </a>
+                    </div>
+                </div>
+                
                 <!-- Visits -->
                 <div class="">
                     <button id="visits-toggle" type="button" class="sidebar-link flex items-center gap-3 w-full px-4 py-3 text-left">
@@ -902,6 +918,17 @@
                 leadsToggle.addEventListener('click', function(e) {
                     e.stopPropagation();
                     toggleAccordion(leadsToggle, leadsMenu, leadsChevron, 'leads');
+                });
+            }
+
+            // Inquiry Log accordion
+            const inquiryToggle = document.getElementById('inquiry-toggle');
+            const inquiryMenu = document.getElementById('inquiry-menu');
+            const inquiryChevron = document.getElementById('inquiry-chevron');
+            if (inquiryToggle && inquiryMenu && inquiryChevron) {
+                inquiryToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleAccordion(inquiryToggle, inquiryMenu, inquiryChevron, 'inquiry');
                 });
             }
 
