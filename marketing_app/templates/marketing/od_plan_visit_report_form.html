@@ -1,0 +1,314 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}OD Plan Visit Report - {% if report %}Edit{% else %}Create{% endif %}{% endblock %}
+
+{% block content %}
+<div class="mx-auto w-full p-2 md:p-4 xl:p-2">
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">
+                    {% if report %}Edit OD Plan Visit Report{% else %}Create OD Plan Visit Report{% endif %}
+                </h1>
+                <p class="text-sm text-gray-600">Outdoor planning and visit execution tracking</p>
+            </div>
+            <a href="{% url 'marketing:od_plan_visit_report_list' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm transition">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Back to List
+            </a>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-4 rounded-lg p-4 {% if message.tags == 'error' %}bg-red-50 border border-red-200{% elif message.tags == 'success' %}bg-green-50 border border-green-200{% else %}bg-blue-50 border border-blue-200{% endif %}">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        {% if message.tags == 'error' %}
+                            <i data-lucide="alert-circle" class="w-5 h-5 text-red-400"></i>
+                        {% elif message.tags == 'success' %}
+                            <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+                        {% else %}
+                            <i data-lucide="info" class="w-5 h-5 text-blue-400"></i>
+                        {% endif %}
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium {% if message.tags == 'error' %}text-red-800{% elif message.tags == 'success' %}text-green-800{% else %}text-blue-800{% endif %}">
+                            {{ message }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Form Card -->
+    <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <form method="post" class="p-6 space-y-8">
+            {% csrf_token %}
+            
+            <!-- Outdoor Plan Section -->
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-5 h-5 text-blue-600"></i>
+                    Outdoor Plan Section
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="month" class="block text-sm font-medium text-gray-700 mb-2">
+                            Month <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="month" 
+                               name="month" 
+                               value="{% if report %}{{ report.month }}{% endif %}"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               placeholder="Enter month"
+                               required>
+                    </div>
+                    <div>
+                        <label for="region" class="block text-sm font-medium text-gray-700 mb-2">
+                            Region <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="region" 
+                               name="region" 
+                               value="{% if report %}{{ report.region }}{% endif %}"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               placeholder="Enter region"
+                               required>
+                    </div>
+                    <div>
+                        <label for="date" class="block text-sm font-medium text-gray-700 mb-2">
+                            Date <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" 
+                               id="date" 
+                               name="date" 
+                               value="{% if report %}{{ report.date|date:'Y-m-d' }}{% endif %}"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               required>
+                    </div>
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                            Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="name" 
+                               name="name" 
+                               value="{% if report %}{{ report.name }}{% endif %}"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               placeholder="Enter person name"
+                               required>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="visit_plan" class="block text-sm font-medium text-gray-700 mb-2">
+                            Visit Plan <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="visit_plan" 
+                               name="visit_plan" 
+                               value="{% if report %}{{ report.visit_plan }}{% endif %}"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               placeholder="Enter visit plan details"
+                               required>
+                    </div>
+                    <div>
+                        <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
+                            Location <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="location" 
+                               name="location" 
+                               value="{% if report %}{{ report.location }}{% endif %}"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               placeholder="Enter visit location"
+                               required>
+                    </div>
+                    <div>
+                        <label for="company_name" class="block text-sm font-medium text-gray-700 mb-2">
+                            Company Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="company_name" 
+                               name="company_name" 
+                               value="{% if report %}{{ report.company_name }}{% endif %}"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               placeholder="Enter company name"
+                               required>
+                    </div>
+                    <div>
+                        <label for="contact_person" class="block text-sm font-medium text-gray-700 mb-2">
+                            Contact Person <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="contact_person" 
+                               name="contact_person" 
+                               value="{% if report %}{{ report.contact_person }}{% endif %}"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               placeholder="Enter contact person name"
+                               required>
+                    </div>
+                    <div>
+                        <label for="contact_no" class="block text-sm font-medium text-gray-700 mb-2">
+                            Contact No. <span class="text-red-500">*</span>
+                        </label>
+                        <input type="tel" 
+                               id="contact_no" 
+                               name="contact_no" 
+                               value="{% if report %}{{ report.contact_no }}{% endif %}"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               placeholder="Enter contact number"
+                               required>
+                    </div>
+                    <div>
+                        <label for="mail_id" class="block text-sm font-medium text-gray-700 mb-2">
+                            Mail ID <span class="text-red-500">*</span>
+                        </label>
+                        <input type="email" 
+                               id="mail_id" 
+                               name="mail_id" 
+                               value="{% if report %}{{ report.mail_id }}{% endif %}"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               placeholder="Enter email address"
+                               required>
+                    </div>
+                    <div>
+                        <label for="reason_for_visit" class="block text-sm font-medium text-gray-700 mb-2">
+                            Reason for Visit <span class="text-red-500">*</span>
+                        </label>
+                        <select id="reason_for_visit" 
+                                name="reason_for_visit" 
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                required>
+                            <option value="">Select Reason</option>
+                            {% for key, value in REASON_FOR_VISIT_CHOICES %}
+                                <option value="{{ key }}" {% if report.reason_for_visit == key %}selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="appointment_status" class="block text-sm font-medium text-gray-700 mb-2">
+                            Appointment Status <span class="text-red-500">*</span>
+                        </label>
+                        <select id="appointment_status" 
+                                name="appointment_status" 
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                required>
+                            <option value="">Select Status</option>
+                            {% for key, value in APPOINTMENT_STATUS_CHOICES %}
+                                <option value="{{ key }}" {% if report.appointment_status == key %}selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visit Report Details Section -->
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                    <i data-lucide="clipboard-list" class="w-5 h-5 text-green-600"></i>
+                    Visit Report Details Section
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="visit_status" class="block text-sm font-medium text-gray-700 mb-2">
+                            Visit Status <span class="text-red-500">*</span>
+                        </label>
+                        <select id="visit_status" 
+                                name="visit_status" 
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                required>
+                            {% for key, value in VISIT_STATUS_CHOICES %}
+                                <option value="{{ key }}" {% if report.visit_status == key %}selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="visited_on_date" class="block text-sm font-medium text-gray-700 mb-2">
+                            Visited on Date
+                        </label>
+                        <input type="date" 
+                               id="visited_on_date" 
+                               name="visited_on_date" 
+                               value="{% if report.visited_on_date %}{{ report.visited_on_date|date:'Y-m-d' }}{% endif %}"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="meeting_output" class="block text-sm font-medium text-gray-700 mb-2">
+                            Meeting Output
+                        </label>
+                        <textarea id="meeting_output" 
+                                  name="meeting_output" 
+                                  rows="4" 
+                                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                  placeholder="Enter meeting output and results">{% if report %}{{ report.meeting_output }}{% endif %}</textarea>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="next_action_needed" class="block text-sm font-medium text-gray-700 mb-2">
+                            Next Action Needed (if any)
+                        </label>
+                        <textarea id="next_action_needed" 
+                                  name="next_action_needed" 
+                                  rows="3" 
+                                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                  placeholder="Enter next action needed">{% if report %}{{ report.next_action_needed }}{% endif %}</textarea>
+                    </div>
+                    <div>
+                        <label for="next_follow_up_visit" class="block text-sm font-medium text-gray-700 mb-2">
+                            Next Follow Up Visit
+                        </label>
+                        <input type="date" 
+                               id="next_follow_up_visit" 
+                               name="next_follow_up_visit" 
+                               value="{% if report.next_follow_up_visit %}{{ report.next_follow_up_visit|date:'Y-m-d' }}{% endif %}"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label for="mail_status_about_visit" class="block text-sm font-medium text-gray-700 mb-2">
+                            Mail Status about Visit
+                        </label>
+                        <select id="mail_status_about_visit" 
+                                name="mail_status_about_visit" 
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                            {% for key, value in MAIL_STATUS_CHOICES %}
+                                <option value="{{ key }}" {% if report.mail_status_about_visit == key %}selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="comments" class="block text-sm font-medium text-gray-700 mb-2">
+                            Comments (if any)
+                        </label>
+                        <textarea id="comments" 
+                                  name="comments" 
+                                  rows="3" 
+                                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                  placeholder="Enter additional comments">{% if report %}{{ report.comments }}{% endif %}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+                <a href="{% url 'marketing:od_plan_visit_report_list' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                    <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>
+                    {% if report %}Update{% else %}Save{% endif %} Report
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create Lucide icons
+    lucide.createIcons();
+});
+</script>
+{% endblock %}

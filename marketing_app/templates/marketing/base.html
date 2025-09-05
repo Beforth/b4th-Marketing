@@ -390,6 +390,22 @@
                     </div>
                 </div>
                 
+                <!-- OD Plan System -->
+                <div class="">
+                    <button id="od-plan-toggle" type="button" class="sidebar-link flex items-center gap-3 w-full px-4 py-3 text-left">
+                        <i data-lucide="map-pin" class="w-4 h-4 hand-drawn-icon"></i> OD Plan System
+                        <svg id="od-plan-chevron" class="ml-auto w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="od-plan-menu" class="sidebar-submenu hidden">
+                        <a href="{% url 'marketing:od_plan_dashboard' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 hand-drawn-icon"></i> OD Dashboard
+                        </a>
+                        <a href="{% url 'marketing:od_plan_sheets' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="table" class="w-3.5 h-3.5 hand-drawn-icon"></i> All Sheets
+                        </a>
+                    </div>
+                </div>
+                
                 <!-- Visits -->
                 <div class="">
                     <button id="visits-toggle" type="button" class="sidebar-link flex items-center gap-3 w-full px-4 py-3 text-left">
@@ -956,6 +972,17 @@
                 misSystemToggle.addEventListener('click', function(e) {
                     e.stopPropagation();
                     toggleAccordion(misSystemToggle, misSystemMenu, misSystemChevron, 'mis-system');
+                });
+            }
+
+            // OD Plan System accordion
+            const odPlanToggle = document.getElementById('od-plan-toggle');
+            const odPlanMenu = document.getElementById('od-plan-menu');
+            const odPlanChevron = document.getElementById('od-plan-chevron');
+            if (odPlanToggle && odPlanMenu && odPlanChevron) {
+                odPlanToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleAccordion(odPlanToggle, odPlanMenu, odPlanChevron, 'od-plan');
                 });
             }
 

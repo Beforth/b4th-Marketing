@@ -1,0 +1,327 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}OD Plan Sheets{% endblock %}
+
+{% block content %}
+<div class="mx-auto w-full p-2 md:p-4 xl:p-2">
+    <!-- Header -->
+    <div class="mb-6">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">OD Plan Sheets</h1>
+                <p class="text-sm text-gray-600">Complete outdoor planning and visit reporting system</p>
+            </div>
+            <a href="{% url 'marketing:od_plan_dashboard' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm transition">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm mb-6">
+        <div class="border-b border-gray-200">
+            <nav class="flex space-x-8 px-6" aria-label="Tabs">
+                <button onclick="showTab('guidelines')" id="tab-guidelines" class="tab-button active py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600">
+                    <i data-lucide="book-open" class="w-4 h-4 inline mr-2"></i>
+                    Guidelines
+                </button>
+                <button onclick="showTab('planning-execution')" id="tab-planning-execution" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                    <i data-lucide="clipboard-list" class="w-4 h-4 inline mr-2"></i>
+                    Planning & Execution
+                </button>
+                <button onclick="showTab('remarks')" id="tab-remarks" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                    <i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>
+                    Remarks
+                </button>
+                <button onclick="showTab('legends')" id="tab-legends" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                    <i data-lucide="list" class="w-4 h-4 inline mr-2"></i>
+                    Legends
+                </button>
+            </nav>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="p-6">
+            <!-- Guidelines Tab -->
+            <div id="content-guidelines" class="tab-content">
+                <div class="space-y-6">
+                    <!-- File Naming Convention -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-blue-900 mb-4 flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-5 h-5"></i>
+                            File Naming Convention
+                        </h3>
+                        <div class="bg-white border border-blue-200 rounded-lg p-4">
+                            <p class="text-blue-800 font-medium">OD_Planning_and_Execution_Person Name_FY</p>
+                            <p class="text-sm text-blue-600 mt-2">Example: OD_Planning_and_Execution_John_Doe_2024-25</p>
+                        </div>
+                    </div>
+
+                    <!-- Usage Instructions -->
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-green-900 mb-4 flex items-center gap-2">
+                            <i data-lucide="info" class="w-5 h-5"></i>
+                            Usage Instructions
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-3">
+                                <div class="p-1 bg-green-100 rounded-full mt-1">
+                                    <i data-lucide="copy" class="w-4 h-4 text-green-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-green-900">Copy Template</h4>
+                                    <p class="text-sm text-green-700">Copy this template and have your own file for personal use</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="p-1 bg-blue-100 rounded-full mt-1">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4 text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-green-900">Continuous Updates</h4>
+                                    <p class="text-sm text-green-700">Continue to use this file for all outdoors and send the updated one before OD and after OD</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="p-1 bg-purple-100 rounded-full mt-1">
+                                    <i data-lucide="check-circle" class="w-4 h-4 text-purple-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-green-900">Actual Status Tracking</h4>
+                                    <p class="text-sm text-green-700">This will help us to have actual status of all outdoor activities</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="p-1 bg-orange-100 rounded-full mt-1">
+                                    <i data-lucide="list" class="w-4 h-4 text-orange-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-green-900">Data Entry</h4>
+                                    <p class="text-sm text-green-700">Use the dropdown text only wherever given for consistency</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Planning & Execution Tab -->
+            <div id="content-planning-execution" class="tab-content hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Planning & Execution Management</h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewForm('planning-execution')" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Add New
+                        </button>
+                        <a href="{% url 'marketing:od_plan_visit_report_list' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm transition">
+                            <i data-lucide="list" class="w-4 h-4"></i>
+                            View All Entries
+                        </a>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">Main outdoor planning and visit execution tracking.</p>
+                
+                <!-- Forms Container -->
+                <div id="planning-execution-forms-container">
+                    <!-- Include Planning & Execution Form -->
+                    {% include 'marketing/od_plan_visit_report_tab_form.html' %}
+                </div>
+            </div>
+
+            <!-- Remarks Tab -->
+            <div id="content-remarks" class="tab-content hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Remarks Management</h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewForm('remarks')" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Add New
+                        </button>
+                        <a href="{% url 'marketing:od_plan_remarks_list' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm transition">
+                            <i data-lucide="list" class="w-4 h-4"></i>
+                            View All Entries
+                        </a>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4">General remarks section for additional comments.</p>
+                
+                <!-- Forms Container -->
+                <div id="remarks-forms-container">
+                    <!-- Include Remarks Form -->
+                    {% include 'marketing/od_plan_remarks_tab_form.html' %}
+                </div>
+            </div>
+
+            <!-- Legends Tab -->
+            <div id="content-legends" class="tab-content hidden">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Reference Data (Legends)</h3>
+                <p class="text-gray-600 mb-6">Master reference data for dropdown validations.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                        <h4 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <i data-lucide="list" class="w-5 h-5 text-blue-600"></i>
+                            Reason for Visit Categories
+                        </h4>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                First Visit
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                Inquiry Collection
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                Follow up
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                Casual Visit
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                Order Finalization
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                Technical Discussions
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                Payment Follow up
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                Payment Collection
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                Any Issue/Escalation
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                Upgradation Requirement
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4 text-green-500"></i>
+                                AMC Requirement
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                        <h4 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <i data-lucide="calendar-check" class="w-5 h-5 text-blue-600"></i>
+                            Appointment Status Categories
+                        </h4>
+                        <ul class="space-y-2 text-sm text-gray-600">
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="calendar-check" class="w-4 h-4 text-blue-500"></i>
+                                Appointment confirmed
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-blue-500"></i>
+                                Direct Visit
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create Lucide icons
+    lucide.createIcons();
+});
+
+function showTab(tabName) {
+    // Hide all tab contents
+    const contents = document.querySelectorAll('.tab-content');
+    contents.forEach(content => content.classList.add('hidden'));
+    
+    // Remove active class from all tab buttons
+    const buttons = document.querySelectorAll('.tab-button');
+    buttons.forEach(button => {
+        button.classList.remove('active', 'border-blue-500', 'text-blue-600');
+        button.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    // Show selected tab content
+    document.getElementById('content-' + tabName).classList.remove('hidden');
+    
+    // Add active class to selected tab button
+    const activeButton = document.getElementById('tab-' + tabName);
+    activeButton.classList.add('active', 'border-blue-500', 'text-blue-600');
+    activeButton.classList.remove('border-transparent', 'text-gray-500');
+}
+
+function addNewForm(formType) {
+    const container = document.getElementById(formType + '-forms-container');
+    if (!container) return;
+    
+    // Find the first form in the container to clone
+    const firstForm = container.querySelector('.bg-white.rounded-lg.border.border-gray-200.shadow-sm');
+    if (!firstForm) return;
+    
+    // Clone the first form
+    const newForm = firstForm.cloneNode(true);
+    
+    // Remove any existing header if it exists (from the original form)
+    const existingHeader = newForm.querySelector('.p-4.border-b.border-gray-200.bg-gray-50');
+    if (existingHeader) {
+        existingHeader.remove();
+    }
+    
+    // Add a subtle separator and remove button at the top
+    const separator = document.createElement('div');
+    separator.className = 'flex items-center justify-between mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200';
+    separator.innerHTML = `
+        <div class="flex items-center gap-2">
+            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+            <span class="text-sm font-medium text-gray-700">Additional Entry</span>
+        </div>
+        <button onclick="removeForm(this)" class="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 text-sm transition">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+            Remove
+        </button>
+    `;
+    
+    // Insert the separator at the beginning of the form
+    newForm.insertBefore(separator, newForm.firstChild);
+    
+    // Clear all form inputs in the new form
+    const inputs = newForm.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        if (input.type === 'checkbox' || input.type === 'radio') {
+            input.checked = false;
+        } else {
+            input.value = '';
+        }
+    });
+    
+    // Add the new form to the container
+    container.appendChild(newForm);
+    
+    // Recreate icons for the new elements
+    lucide.createIcons();
+    
+    // Scroll to the new form
+    newForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function removeForm(button) {
+    const formElement = button.closest('.bg-white.rounded-lg.border.border-gray-200.shadow-sm');
+    if (formElement) {
+        formElement.remove();
+    }
+}
+</script>
+{% endblock %}

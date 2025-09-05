@@ -171,4 +171,18 @@ urlpatterns = [
     path('system/regions/', views.region_management, name='region_management'),
     path('system/notifications/', views.notification_settings, name='notification_settings'),
     path('reports/export/', views.export_reports, name='export_reports'),
+    
+    # OD Plan and Visit Report System
+    path('od-plan/dashboard/', views.od_plan_dashboard, name='od_plan_dashboard'),
+    path('od-plan/sheets/', views.od_plan_sheets, name='od_plan_sheets'),
+    path('od-plan/guidelines/', views.od_plan_guidelines, name='od_plan_guidelines'),
+    path('od-plan/visit-reports/', views.od_plan_visit_report_list, name='od_plan_visit_report_list'),
+    path('od-plan/visit-reports/create/', views.od_plan_visit_report_create, name='od_plan_visit_report_create'),
+    path('od-plan/visit-reports/<int:pk>/', views.od_plan_visit_report_detail, name='od_plan_visit_report_detail'),
+    path('od-plan/visit-reports/<int:pk>/edit/', views.od_plan_visit_report_edit, name='od_plan_visit_report_edit'),
+    path('od-plan/visit-reports/<int:pk>/delete/', views.od_plan_visit_report_delete, name='od_plan_visit_report_delete'),
+    path('od-plan/remarks/', views.od_plan_remarks_list, name='od_plan_remarks_list'),
+    path('od-plan/remarks/create/', views.od_plan_remarks_create, name='od_plan_remarks_create'),
+    path('od-plan/remarks/<int:pk>/edit/', views.od_plan_remarks_edit, name='od_plan_remarks_edit'),
+    path('od-plan/remarks/<int:pk>/delete/', views.od_plan_remarks_delete, name='od_plan_remarks_delete'),
 ]

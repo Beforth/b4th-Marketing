@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Count, Sum, ExpressionWrapper, F, FloatField
 from django.utils import timezone
 from datetime import datetime, timedelta
-from .models import Campaign, Lead, EmailTemplate, CampaignMetric, LeadActivity, Customer, CustomerLocation, Region, Visit, VisitParticipant, Expense, Exhibition, Quotation, PurchaseOrder, PaymentFollowUp, WorkOrder, Manufacturing, Dispatch, URS, GADrawing, TechnicalDiscussion, Negotiation, QuotationRevision, QCTracking, ProductionPlan, PackingDetails, DispatchChecklist, BudgetCategory, AnnualExhibitionBudget, BudgetAllocation, BudgetApproval, InquiryLog, FollowUpStatus, ProjectToday, OrderExpectedNextMonth, MISPurchaseOrder, NewData, NewDataDetails, ODPlan
+from .models import Campaign, Lead, EmailTemplate, CampaignMetric, LeadActivity, Customer, CustomerLocation, Region, Visit, VisitParticipant, Expense, Exhibition, Quotation, PurchaseOrder, PaymentFollowUp, WorkOrder, Manufacturing, Dispatch, URS, GADrawing, TechnicalDiscussion, Negotiation, QuotationRevision, QCTracking, ProductionPlan, PackingDetails, DispatchChecklist, BudgetCategory, AnnualExhibitionBudget, BudgetAllocation, BudgetApproval, InquiryLog, FollowUpStatus, ProjectToday, OrderExpectedNextMonth, MISPurchaseOrder, NewData, NewDataDetails, ODPlan, ODPlanVisitReport, ODPlanRemarks
 from django.contrib.auth import get_user_model
 import sys
 
@@ -5363,5 +5363,270 @@ def mis_sheets(request):
     }
     
     return render(request, 'marketing/mis_sheets.html', context)
+
+
+# OD Plan and Visit Report System Views
+@login_required
+def od_plan_dashboard(request):
+    """OD Plan Dashboard - Main overview of all OD Plan activities"""
+    # Get statistics for each sheet
+    visit_reports_count = ODPlanVisitReport.objects.filter(created_by=request.user).count()
+    remarks_count = ODPlanRemarks.objects.filter(created_by=request.user).count()
+    
+    # Recent activities
+    recent_reports = ODPlanVisitReport.objects.filter(created_by=request.user).order_by('-created_at')[:5]
+    recent_remarks = ODPlanRemarks.objects.filter(created_by=request.user).order_by('-created_at')[:3]
+    
+    # Status breakdown
+    planned_visits = ODPlanVisitReport.objects.filter(created_by=request.user, visit_status='planned').count()
+    completed_visits = ODPlanVisitReport.objects.filter(created_by=request.user, visit_status='completed').count()
+    cancelled_visits = ODPlanVisitReport.objects.filter(created_by=request.user, visit_status='cancelled').count()
+    
+    context = {
+        'visit_reports_count': visit_reports_count,
+        'remarks_count': remarks_count,
+        'recent_reports': recent_reports,
+        'recent_remarks': recent_remarks,
+        'planned_visits': planned_visits,
+        'completed_visits': completed_visits,
+        'cancelled_visits': cancelled_visits,
+    }
+    
+    return render(request, 'marketing/od_plan_dashboard.html', context)
+
+
+@login_required
+def od_plan_sheets(request):
+    """OD Plan Sheets - Tabbed interface for all sheets"""
+    context = {
+        'REASON_FOR_VISIT_CHOICES': ODPlanVisitReport.REASON_FOR_VISIT_CHOICES,
+        'APPOINTMENT_STATUS_CHOICES': ODPlanVisitReport.APPOINTMENT_STATUS_CHOICES,
+        'VISIT_STATUS_CHOICES': ODPlanVisitReport.VISIT_STATUS_CHOICES,
+        'MAIL_STATUS_CHOICES': ODPlanVisitReport.MAIL_STATUS_CHOICES,
+    }
+    
+    return render(request, 'marketing/od_plan_sheets.html', context)
+
+
+@login_required
+def od_plan_guidelines(request):
+    """OD Plan Guidelines - Instructions for using the template"""
+    return render(request, 'marketing/od_plan_guidelines.html')
+
+
+@login_required
+def od_plan_visit_report_list(request):
+    """List all OD Plan Visit Reports"""
+    search_query = request.GET.get('search', '')
+    region_filter = request.GET.get('region', '')
+    status_filter = request.GET.get('status', '')
+    
+    reports = ODPlanVisitReport.objects.filter(created_by=request.user)
+    
+    if search_query:
+        reports = reports.filter(
+            Q(company_name__icontains=search_query) |
+            Q(contact_person__icontains=search_query) |
+            Q(region__icontains=search_query)
+        )
+    
+    if region_filter:
+        reports = reports.filter(region__icontains=region_filter)
+    
+    if status_filter:
+        reports = reports.filter(visit_status=status_filter)
+    
+    # Pagination
+    paginator = Paginator(reports, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'search_query': search_query,
+        'region_filter': region_filter,
+        'status_filter': status_filter,
+        'VISIT_STATUS_CHOICES': ODPlanVisitReport.VISIT_STATUS_CHOICES,
+    }
+    
+    return render(request, 'marketing/od_plan_visit_report_list.html', context)
+
+
+@login_required
+def od_plan_visit_report_create(request):
+    """Create new OD Plan Visit Report"""
+    if request.method == 'POST':
+        # Handle form submission
+        report = ODPlanVisitReport(
+            month=request.POST.get('month'),
+            region=request.POST.get('region'),
+            date=request.POST.get('date'),
+            name=request.POST.get('name'),
+            visit_plan=request.POST.get('visit_plan'),
+            location=request.POST.get('location'),
+            company_name=request.POST.get('company_name'),
+            contact_person=request.POST.get('contact_person'),
+            contact_no=request.POST.get('contact_no'),
+            mail_id=request.POST.get('mail_id'),
+            reason_for_visit=request.POST.get('reason_for_visit'),
+            appointment_status=request.POST.get('appointment_status'),
+            visit_status=request.POST.get('visit_status', 'planned'),
+            visited_on_date=request.POST.get('visited_on_date') or None,
+            meeting_output=request.POST.get('meeting_output'),
+            next_action_needed=request.POST.get('next_action_needed'),
+            next_follow_up_visit=request.POST.get('next_follow_up_visit') or None,
+            mail_status_about_visit=request.POST.get('mail_status_about_visit', 'not_sent'),
+            comments=request.POST.get('comments'),
+            created_by=request.user
+        )
+        report.save()
+        messages.success(request, 'OD Plan Visit Report created successfully!')
+        return redirect('marketing:od_plan_visit_report_list')
+    
+    context = {
+        'REASON_FOR_VISIT_CHOICES': ODPlanVisitReport.REASON_FOR_VISIT_CHOICES,
+        'APPOINTMENT_STATUS_CHOICES': ODPlanVisitReport.APPOINTMENT_STATUS_CHOICES,
+        'VISIT_STATUS_CHOICES': ODPlanVisitReport.VISIT_STATUS_CHOICES,
+        'MAIL_STATUS_CHOICES': ODPlanVisitReport.MAIL_STATUS_CHOICES,
+    }
+    
+    return render(request, 'marketing/od_plan_visit_report_form.html', context)
+
+
+@login_required
+def od_plan_visit_report_detail(request, pk):
+    """View OD Plan Visit Report details"""
+    report = get_object_or_404(ODPlanVisitReport, pk=pk, created_by=request.user)
+    
+    context = {
+        'report': report,
+    }
+    
+    return render(request, 'marketing/od_plan_visit_report_detail.html', context)
+
+
+@login_required
+def od_plan_visit_report_edit(request, pk):
+    """Edit OD Plan Visit Report"""
+    report = get_object_or_404(ODPlanVisitReport, pk=pk, created_by=request.user)
+    
+    if request.method == 'POST':
+        report.month = request.POST.get('month')
+        report.region = request.POST.get('region')
+        report.date = request.POST.get('date')
+        report.name = request.POST.get('name')
+        report.visit_plan = request.POST.get('visit_plan')
+        report.location = request.POST.get('location')
+        report.company_name = request.POST.get('company_name')
+        report.contact_person = request.POST.get('contact_person')
+        report.contact_no = request.POST.get('contact_no')
+        report.mail_id = request.POST.get('mail_id')
+        report.reason_for_visit = request.POST.get('reason_for_visit')
+        report.appointment_status = request.POST.get('appointment_status')
+        report.visit_status = request.POST.get('visit_status')
+        report.visited_on_date = request.POST.get('visited_on_date') or None
+        report.meeting_output = request.POST.get('meeting_output')
+        report.next_action_needed = request.POST.get('next_action_needed')
+        report.next_follow_up_visit = request.POST.get('next_follow_up_visit') or None
+        report.mail_status_about_visit = request.POST.get('mail_status_about_visit')
+        report.comments = request.POST.get('comments')
+        report.save()
+        
+        messages.success(request, 'OD Plan Visit Report updated successfully!')
+        return redirect('marketing:od_plan_visit_report_detail', pk=report.pk)
+    
+    context = {
+        'report': report,
+        'REASON_FOR_VISIT_CHOICES': ODPlanVisitReport.REASON_FOR_VISIT_CHOICES,
+        'APPOINTMENT_STATUS_CHOICES': ODPlanVisitReport.APPOINTMENT_STATUS_CHOICES,
+        'VISIT_STATUS_CHOICES': ODPlanVisitReport.VISIT_STATUS_CHOICES,
+        'MAIL_STATUS_CHOICES': ODPlanVisitReport.MAIL_STATUS_CHOICES,
+    }
+    
+    return render(request, 'marketing/od_plan_visit_report_form.html', context)
+
+
+@login_required
+def od_plan_visit_report_delete(request, pk):
+    """Delete OD Plan Visit Report"""
+    report = get_object_or_404(ODPlanVisitReport, pk=pk, created_by=request.user)
+    
+    if request.method == 'POST':
+        report.delete()
+        messages.success(request, 'OD Plan Visit Report deleted successfully!')
+        return redirect('marketing:od_plan_visit_report_list')
+    
+    context = {
+        'report': report,
+    }
+    
+    return render(request, 'marketing/od_plan_visit_report_confirm_delete.html', context)
+
+
+@login_required
+def od_plan_remarks_list(request):
+    """List all OD Plan Remarks"""
+    remarks = ODPlanRemarks.objects.filter(created_by=request.user)
+    
+    # Pagination
+    paginator = Paginator(remarks, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+    }
+    
+    return render(request, 'marketing/od_plan_remarks_list.html', context)
+
+
+@login_required
+def od_plan_remarks_create(request):
+    """Create new OD Plan Remarks"""
+    if request.method == 'POST':
+        remark = ODPlanRemarks(
+            remarks=request.POST.get('remarks'),
+            created_by=request.user
+        )
+        remark.save()
+        messages.success(request, 'OD Plan Remarks added successfully!')
+        return redirect('marketing:od_plan_remarks_list')
+    
+    return render(request, 'marketing/od_plan_remarks_form.html')
+
+
+@login_required
+def od_plan_remarks_edit(request, pk):
+    """Edit OD Plan Remarks"""
+    remark = get_object_or_404(ODPlanRemarks, pk=pk, created_by=request.user)
+    
+    if request.method == 'POST':
+        remark.remarks = request.POST.get('remarks')
+        remark.save()
+        messages.success(request, 'OD Plan Remarks updated successfully!')
+        return redirect('marketing:od_plan_remarks_list')
+    
+    context = {
+        'remark': remark,
+    }
+    
+    return render(request, 'marketing/od_plan_remarks_form.html', context)
+
+
+@login_required
+def od_plan_remarks_delete(request, pk):
+    """Delete OD Plan Remarks"""
+    remark = get_object_or_404(ODPlanRemarks, pk=pk, created_by=request.user)
+    
+    if request.method == 'POST':
+        remark.delete()
+        messages.success(request, 'OD Plan Remarks deleted successfully!')
+        return redirect('marketing:od_plan_remarks_list')
+    
+    context = {
+        'remark': remark,
+    }
+    
+    return render(request, 'marketing/od_plan_remarks_confirm_delete.html', context)
 
 

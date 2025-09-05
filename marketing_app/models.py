@@ -1362,3 +1362,95 @@ class ODPlan(models.Model):
     
     def __str__(self):
         return f"{self.name} - {self.region} ({self.month})"
+
+
+# OD Plan and Visit Report System Models
+class ODPlanVisitReport(models.Model):
+    """OD Plan and Visit Report - Main outdoor planning and visit execution tracking"""
+    
+    REASON_FOR_VISIT_CHOICES = [
+        ('first_visit', 'First Visit'),
+        ('inquiry_collection', 'Inquiry Collection'),
+        ('follow_up', 'Follow up'),
+        ('casual_visit', 'Casual Visit'),
+        ('order_finalization', 'Order Finalization'),
+        ('technical_discussions', 'Technical Discussions'),
+        ('payment_follow_up', 'Payment Follow up'),
+        ('payment_collection', 'Payment Collection'),
+        ('issue_escalation', 'Any Issue/Escalation'),
+        ('upgradation_requirement', 'Upgradation Requirement'),
+        ('amc_requirement', 'AMC Requirement'),
+    ]
+    
+    APPOINTMENT_STATUS_CHOICES = [
+        ('appointment_confirmed', 'Appointment confirmed'),
+        ('direct_visit', 'Direct Visit'),
+    ]
+    
+    VISIT_STATUS_CHOICES = [
+        ('planned', 'Planned'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+        ('postponed', 'Postponed'),
+        ('no_show', 'No Show'),
+    ]
+    
+    MAIL_STATUS_CHOICES = [
+        ('not_sent', 'Not Sent'),
+        ('sent', 'Sent'),
+        ('delivered', 'Delivered'),
+        ('opened', 'Opened'),
+        ('replied', 'Replied'),
+    ]
+    
+    # Outdoor Plan Section
+    month = models.CharField(max_length=20, help_text="Month of planning")
+    region = models.CharField(max_length=100, help_text="Region for visit")
+    date = models.DateField(help_text="Planned date for visit")
+    name = models.CharField(max_length=100, help_text="Person name")
+    visit_plan = models.CharField(max_length=200, help_text="Visit plan details")
+    location = models.CharField(max_length=200, help_text="Visit location")
+    company_name = models.CharField(max_length=200, help_text="Company to visit")
+    contact_person = models.CharField(max_length=100, help_text="Contact person name")
+    contact_no = models.CharField(max_length=20, help_text="Contact number")
+    mail_id = models.EmailField(help_text="Email address")
+    reason_for_visit = models.CharField(max_length=50, choices=REASON_FOR_VISIT_CHOICES, help_text="Reason for visit")
+    appointment_status = models.CharField(max_length=30, choices=APPOINTMENT_STATUS_CHOICES, help_text="Appointment status")
+    
+    # Visit Report Details Section
+    visit_status = models.CharField(max_length=20, choices=VISIT_STATUS_CHOICES, default='planned', help_text="Visit status")
+    visited_on_date = models.DateField(null=True, blank=True, help_text="Actual visit date")
+    meeting_output = models.TextField(blank=True, help_text="Meeting output and results")
+    next_action_needed = models.TextField(blank=True, help_text="Next action needed if any")
+    next_follow_up_visit = models.DateField(null=True, blank=True, help_text="Next follow up visit date")
+    mail_status_about_visit = models.CharField(max_length=20, choices=MAIL_STATUS_CHOICES, default='not_sent', help_text="Mail status about visit")
+    comments = models.TextField(blank=True, help_text="Additional comments if any")
+    
+    # System fields
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-date', '-created_at']
+        verbose_name = "OD Plan Visit Report"
+        verbose_name_plural = "OD Plan Visit Reports"
+    
+    def __str__(self):
+        return f"{self.company_name} - {self.region} ({self.date})"
+
+
+class ODPlanRemarks(models.Model):
+    """OD Plan Remarks - General remarks section"""
+    remarks = models.TextField(help_text="General remarks if any")
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "OD Plan Remark"
+        verbose_name_plural = "OD Plan Remarks"
+    
+    def __str__(self):
+        return f"Remarks - {self.created_at.strftime('%Y-%m-%d')}"
