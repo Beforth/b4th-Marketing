@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Count, Sum, ExpressionWrapper, F, FloatField
 from django.utils import timezone
 from datetime import datetime, timedelta
-from .models import Campaign, Lead, EmailTemplate, CampaignMetric, LeadActivity, Customer, CustomerLocation, Region, Visit, VisitParticipant, Expense, Exhibition, Quotation, PurchaseOrder, PaymentFollowUp, WorkOrder, Manufacturing, Dispatch, URS, GADrawing, TechnicalDiscussion, Negotiation, QuotationRevision, QCTracking, ProductionPlan, PackingDetails, DispatchChecklist, BudgetCategory, AnnualExhibitionBudget, BudgetAllocation, BudgetApproval, InquiryLog, FollowUpStatus, ProjectToday, OrderExpectedNextMonth, MISPurchaseOrder, NewData, NewDataDetails, ODPlan, ODPlanVisitReport, ODPlanRemarks
+from .models import Campaign, Lead, EmailTemplate, CampaignMetric, LeadActivity, Customer, CustomerLocation, Region, Visit, VisitParticipant, Expense, Exhibition, Quotation, PurchaseOrder, PaymentFollowUp, WorkOrder, Manufacturing, Dispatch, URS, GADrawing, TechnicalDiscussion, Negotiation, QuotationRevision, QCTracking, ProductionPlan, PackingDetails, DispatchChecklist, BudgetCategory, AnnualExhibitionBudget, BudgetAllocation, BudgetApproval, InquiryLog, FollowUpStatus, ProjectToday, OrderExpectedNextMonth, MISPurchaseOrder, NewData, NewDataDetails, ODPlan, ODPlanVisitReport, ODPlanRemarks, PODetails, POStatus
 from django.contrib.auth import get_user_model
 import sys
 
@@ -5628,5 +5628,383 @@ def od_plan_remarks_delete(request, pk):
     }
     
     return render(request, 'marketing/od_plan_remarks_confirm_delete.html', context)
+
+
+# Purchase Order Details System Views
+@login_required
+def po_details_dashboard(request):
+    """PO Details Dashboard - Main overview of all PO Details"""
+    # Get statistics
+    po_details_count = PODetails.objects.filter(created_by=request.user).count()
+    
+    # Recent activities
+    recent_po_details = PODetails.objects.filter(created_by=request.user).order_by('-created_at')[:5]
+    
+    context = {
+        'po_details_count': po_details_count,
+        'recent_po_details': recent_po_details,
+    }
+    
+    return render(request, 'marketing/po_details_dashboard.html', context)
+
+
+@login_required
+def po_details_sheets(request):
+    """PO Details Sheets - Tabbed interface for all sheets"""
+    context = {
+        'PACKING_FORWARDING_CHOICES': PODetails.PACKING_FORWARDING_CHOICES,
+        'TRANSPORTATION_CHOICES': PODetails.TRANSPORTATION_CHOICES,
+    }
+    
+    return render(request, 'marketing/po_details_sheets.html', context)
+
+
+@login_required
+def po_details_list(request):
+    """List all PO Details"""
+    search_query = request.GET.get('search', '')
+    customer_filter = request.GET.get('customer', '')
+    
+    po_details = PODetails.objects.filter(created_by=request.user)
+    
+    if search_query:
+        po_details = po_details.filter(
+            Q(customer_name__icontains=search_query) |
+            Q(po_no__icontains=search_query) |
+            Q(wo_no__icontains=search_query)
+        )
+    
+    if customer_filter:
+        po_details = po_details.filter(customer_name__icontains=customer_filter)
+    
+    # Pagination
+    paginator = Paginator(po_details, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'search_query': search_query,
+        'customer_filter': customer_filter,
+    }
+    
+    return render(request, 'marketing/po_details_list.html', context)
+
+
+@login_required
+def po_details_create(request):
+    """Create new PO Details"""
+    if request.method == 'POST':
+        po_detail = PODetails(
+            customer_name=request.POST.get('customer_name'),
+            po_no=request.POST.get('po_no'),
+            po_date=request.POST.get('po_date'),
+            wo_no=request.POST.get('wo_no'),
+            contact_name=request.POST.get('contact_name'),
+            contact_details=request.POST.get('contact_details'),
+            tel_mob_no=request.POST.get('tel_mob_no'),
+            email_id=request.POST.get('email_id'),
+            discount=request.POST.get('discount') or None,
+            advance_percentage=request.POST.get('advance_percentage') or None,
+            against_pi_percentage=request.POST.get('against_pi_percentage') or None,
+            against_fat_percentage=request.POST.get('against_fat_percentage') or None,
+            after_delivery_percentage=request.POST.get('after_delivery_percentage') or None,
+            after_installation_percentage=request.POST.get('after_installation_percentage') or None,
+            packing_forwarding=request.POST.get('packing_forwarding'),
+            transportation=request.POST.get('transportation'),
+            marketing_dept=request.POST.get('marketing_dept', 'Miss. Pooja Kolse'),
+            accounts_dept=request.POST.get('accounts_dept', 'Mr. Jitendra Tajanpure'),
+            additional_contact=request.POST.get('additional_contact', 'Mr. Harshal Ghoge'),
+            created_by=request.user
+        )
+        po_detail.save()
+        messages.success(request, 'PO Details created successfully!')
+        return redirect('marketing:po_details_list')
+    
+    context = {
+        'PACKING_FORWARDING_CHOICES': PODetails.PACKING_FORWARDING_CHOICES,
+        'TRANSPORTATION_CHOICES': PODetails.TRANSPORTATION_CHOICES,
+    }
+    
+    return render(request, 'marketing/po_details_form.html', context)
+
+
+@login_required
+def po_details_detail(request, pk):
+    """View PO Details"""
+    po_detail = get_object_or_404(PODetails, pk=pk, created_by=request.user)
+    
+    context = {
+        'po_detail': po_detail,
+    }
+    
+    return render(request, 'marketing/po_details_detail.html', context)
+
+
+@login_required
+def po_details_edit(request, pk):
+    """Edit PO Details"""
+    po_detail = get_object_or_404(PODetails, pk=pk, created_by=request.user)
+    
+    if request.method == 'POST':
+        po_detail.customer_name = request.POST.get('customer_name')
+        po_detail.po_no = request.POST.get('po_no')
+        po_detail.po_date = request.POST.get('po_date')
+        po_detail.wo_no = request.POST.get('wo_no')
+        po_detail.contact_name = request.POST.get('contact_name')
+        po_detail.contact_details = request.POST.get('contact_details')
+        po_detail.tel_mob_no = request.POST.get('tel_mob_no')
+        po_detail.email_id = request.POST.get('email_id')
+        po_detail.discount = request.POST.get('discount') or None
+        po_detail.advance_percentage = request.POST.get('advance_percentage') or None
+        po_detail.against_pi_percentage = request.POST.get('against_pi_percentage') or None
+        po_detail.against_fat_percentage = request.POST.get('against_fat_percentage') or None
+        po_detail.after_delivery_percentage = request.POST.get('after_delivery_percentage') or None
+        po_detail.after_installation_percentage = request.POST.get('after_installation_percentage') or None
+        po_detail.packing_forwarding = request.POST.get('packing_forwarding')
+        po_detail.transportation = request.POST.get('transportation')
+        po_detail.marketing_dept = request.POST.get('marketing_dept', 'Miss. Pooja Kolse')
+        po_detail.accounts_dept = request.POST.get('accounts_dept', 'Mr. Jitendra Tajanpure')
+        po_detail.additional_contact = request.POST.get('additional_contact', 'Mr. Harshal Ghoge')
+        po_detail.save()
+        
+        messages.success(request, 'PO Details updated successfully!')
+        return redirect('marketing:po_details_detail', pk=po_detail.pk)
+    
+    context = {
+        'po_detail': po_detail,
+        'PACKING_FORWARDING_CHOICES': PODetails.PACKING_FORWARDING_CHOICES,
+        'TRANSPORTATION_CHOICES': PODetails.TRANSPORTATION_CHOICES,
+    }
+    
+    return render(request, 'marketing/po_details_form.html', context)
+
+
+@login_required
+def po_details_delete(request, pk):
+    """Delete PO Details"""
+    po_detail = get_object_or_404(PODetails, pk=pk, created_by=request.user)
+    
+    if request.method == 'POST':
+        po_detail.delete()
+        messages.success(request, 'PO Details deleted successfully!')
+        return redirect('marketing:po_details_list')
+    
+    context = {
+        'po_detail': po_detail,
+    }
+    
+    return render(request, 'marketing/po_details_confirm_delete.html', context)
+
+
+# Purchase Order Status System Views
+@login_required
+def po_status_list(request):
+    """List all PO Status entries"""
+    search_query = request.GET.get('search', '')
+    company_filter = request.GET.get('company', '')
+    
+    po_statuses = POStatus.objects.filter(created_by=request.user)
+    
+    if search_query:
+        po_statuses = po_statuses.filter(
+            Q(company__icontains=search_query) |
+            Q(po_number__icontains=search_query) |
+            Q(responsible_marketing_person__icontains=search_query)
+        )
+    
+    if company_filter:
+        po_statuses = po_statuses.filter(company__icontains=company_filter)
+    
+    # Pagination
+    paginator = Paginator(po_statuses, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'search_query': search_query,
+        'company_filter': company_filter,
+    }
+    
+    return render(request, 'marketing/po_status_list.html', context)
+
+
+@login_required
+def po_status_create(request):
+    """Create new PO Status entry"""
+    if request.method == 'POST':
+        po_status = POStatus(
+            month=request.POST.get('month'),
+            region=request.POST.get('region'),
+            company=request.POST.get('company'),
+            order_is_for=request.POST.get('order_is_for'),
+            po_number=request.POST.get('po_number'),
+            responsible_marketing_person=request.POST.get('responsible_marketing_person'),
+            coordinator=request.POST.get('coordinator'),
+            po_date=request.POST.get('po_date'),
+            po_value_without_gst=request.POST.get('po_value_without_gst'),
+            gst=request.POST.get('gst'),
+            po_acceptance_date=request.POST.get('po_acceptance_date') or None,
+            wo_date=request.POST.get('wo_date') or None,
+            # PayR-01
+            payr01_agreed_percentage=request.POST.get('payr01_agreed_percentage') or None,
+            payr01_agreed_amount=request.POST.get('payr01_agreed_amount') or None,
+            payr01_received_percentage=request.POST.get('payr01_received_percentage') or None,
+            payr01_received_amount=request.POST.get('payr01_received_amount') or None,
+            payr01_received_date=request.POST.get('payr01_received_date') or None,
+            # PayR-02
+            payr02_agreed_percentage=request.POST.get('payr02_agreed_percentage') or None,
+            payr02_agreed_amount=request.POST.get('payr02_agreed_amount') or None,
+            payr02_received_percentage=request.POST.get('payr02_received_percentage') or None,
+            payr02_received_amount=request.POST.get('payr02_received_amount') or None,
+            payr02_received_date=request.POST.get('payr02_received_date') or None,
+            # PayR-03
+            payr03_agreed_percentage=request.POST.get('payr03_agreed_percentage') or None,
+            payr03_agreed_amount=request.POST.get('payr03_agreed_amount') or None,
+            payr03_received_percentage=request.POST.get('payr03_received_percentage') or None,
+            payr03_received_amount=request.POST.get('payr03_received_amount') or None,
+            payr03_received_date=request.POST.get('payr03_received_date') or None,
+            # PayR-04
+            payr04_agreed_percentage=request.POST.get('payr04_agreed_percentage') or None,
+            payr04_agreed_amount=request.POST.get('payr04_agreed_amount') or None,
+            payr04_received_percentage=request.POST.get('payr04_received_percentage') or None,
+            payr04_received_amount=request.POST.get('payr04_received_amount') or None,
+            payr04_received_date=request.POST.get('payr04_received_date') or None,
+            # PayR-05
+            payr05_agreed_percentage=request.POST.get('payr05_agreed_percentage') or None,
+            payr05_agreed_amount=request.POST.get('payr05_agreed_amount') or None,
+            payr05_received_percentage=request.POST.get('payr05_received_percentage') or None,
+            payr05_received_amount=request.POST.get('payr05_received_amount') or None,
+            payr05_received_date=request.POST.get('payr05_received_date') or None,
+            created_by=request.user
+        )
+        po_status.save()
+        messages.success(request, 'PO Status created successfully!')
+        return redirect('marketing:po_status_list')
+    
+    context = {
+        'ORDER_TYPE_CHOICES': POStatus.ORDER_TYPE_CHOICES,
+    }
+    
+    return render(request, 'marketing/po_status_form.html', context)
+
+
+@login_required
+def po_status_detail(request, pk):
+    """View PO Status details"""
+    po_status = get_object_or_404(POStatus, pk=pk, created_by=request.user)
+    
+    context = {
+        'po_status': po_status,
+    }
+    
+    return render(request, 'marketing/po_status_detail.html', context)
+
+
+@login_required
+def po_status_edit(request, pk):
+    """Edit PO Status entry"""
+    po_status = get_object_or_404(POStatus, pk=pk, created_by=request.user)
+    
+    if request.method == 'POST':
+        po_status.month = request.POST.get('month')
+        po_status.region = request.POST.get('region')
+        po_status.company = request.POST.get('company')
+        po_status.order_is_for = request.POST.get('order_is_for')
+        po_status.po_number = request.POST.get('po_number')
+        po_status.responsible_marketing_person = request.POST.get('responsible_marketing_person')
+        po_status.coordinator = request.POST.get('coordinator')
+        po_status.po_date = request.POST.get('po_date')
+        po_status.po_value_without_gst = request.POST.get('po_value_without_gst')
+        po_status.gst = request.POST.get('gst')
+        po_status.po_acceptance_date = request.POST.get('po_acceptance_date') or None
+        po_status.wo_date = request.POST.get('wo_date') or None
+        # PayR-01
+        po_status.payr01_agreed_percentage = request.POST.get('payr01_agreed_percentage') or None
+        po_status.payr01_agreed_amount = request.POST.get('payr01_agreed_amount') or None
+        po_status.payr01_received_percentage = request.POST.get('payr01_received_percentage') or None
+        po_status.payr01_received_amount = request.POST.get('payr01_received_amount') or None
+        po_status.payr01_received_date = request.POST.get('payr01_received_date') or None
+        # PayR-02
+        po_status.payr02_agreed_percentage = request.POST.get('payr02_agreed_percentage') or None
+        po_status.payr02_agreed_amount = request.POST.get('payr02_agreed_amount') or None
+        po_status.payr02_received_percentage = request.POST.get('payr02_received_percentage') or None
+        po_status.payr02_received_amount = request.POST.get('payr02_received_amount') or None
+        po_status.payr02_received_date = request.POST.get('payr02_received_date') or None
+        # PayR-03
+        po_status.payr03_agreed_percentage = request.POST.get('payr03_agreed_percentage') or None
+        po_status.payr03_agreed_amount = request.POST.get('payr03_agreed_amount') or None
+        po_status.payr03_received_percentage = request.POST.get('payr03_received_percentage') or None
+        po_status.payr03_received_amount = request.POST.get('payr03_received_amount') or None
+        po_status.payr03_received_date = request.POST.get('payr03_received_date') or None
+        # PayR-04
+        po_status.payr04_agreed_percentage = request.POST.get('payr04_agreed_percentage') or None
+        po_status.payr04_agreed_amount = request.POST.get('payr04_agreed_amount') or None
+        po_status.payr04_received_percentage = request.POST.get('payr04_received_percentage') or None
+        po_status.payr04_received_amount = request.POST.get('payr04_received_amount') or None
+        po_status.payr04_received_date = request.POST.get('payr04_received_date') or None
+        # PayR-05
+        po_status.payr05_agreed_percentage = request.POST.get('payr05_agreed_percentage') or None
+        po_status.payr05_agreed_amount = request.POST.get('payr05_agreed_amount') or None
+        po_status.payr05_received_percentage = request.POST.get('payr05_received_percentage') or None
+        po_status.payr05_received_amount = request.POST.get('payr05_received_amount') or None
+        po_status.payr05_received_date = request.POST.get('payr05_received_date') or None
+        po_status.save()
+        
+        messages.success(request, 'PO Status updated successfully!')
+        return redirect('marketing:po_status_detail', pk=po_status.pk)
+    
+    context = {
+        'po_status': po_status,
+        'ORDER_TYPE_CHOICES': POStatus.ORDER_TYPE_CHOICES,
+    }
+    
+    return render(request, 'marketing/po_status_form.html', context)
+
+
+@login_required
+def po_status_delete(request, pk):
+    """Delete PO Status entry"""
+    po_status = get_object_or_404(POStatus, pk=pk, created_by=request.user)
+    
+    if request.method == 'POST':
+        po_status.delete()
+        messages.success(request, 'PO Status deleted successfully!')
+        return redirect('marketing:po_status_list')
+    
+    context = {
+        'po_status': po_status,
+    }
+    
+    return render(request, 'marketing/po_status_confirm_delete.html', context)
+
+
+# PO Status System Dashboard and Sheets Views
+@login_required
+def po_status_dashboard(request):
+    """PO Status Dashboard - Main overview of all PO Status"""
+    # Get statistics
+    po_status_count = POStatus.objects.filter(created_by=request.user).count()
+    
+    # Recent activities
+    recent_po_status = POStatus.objects.filter(created_by=request.user).order_by('-created_at')[:5]
+    
+    context = {
+        'po_status_count': po_status_count,
+        'recent_po_status': recent_po_status,
+    }
+    
+    return render(request, 'marketing/po_status_dashboard.html', context)
+
+
+@login_required
+def po_status_sheets(request):
+    """PO Status Sheets - Tabbed interface for all sheets"""
+    context = {
+        'ORDER_TYPE_CHOICES': POStatus.ORDER_TYPE_CHOICES,
+    }
+    
+    return render(request, 'marketing/po_status_sheets.html', context)
 
 

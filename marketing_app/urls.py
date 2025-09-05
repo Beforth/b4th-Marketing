@@ -185,4 +185,22 @@ urlpatterns = [
     path('od-plan/remarks/create/', views.od_plan_remarks_create, name='od_plan_remarks_create'),
     path('od-plan/remarks/<int:pk>/edit/', views.od_plan_remarks_edit, name='od_plan_remarks_edit'),
     path('od-plan/remarks/<int:pk>/delete/', views.od_plan_remarks_delete, name='od_plan_remarks_delete'),
+    
+    # Purchase Order Details System
+    path('po-details/dashboard/', views.po_details_dashboard, name='po_details_dashboard'),
+    path('po-details/sheets/', views.po_details_sheets, name='po_details_sheets'),
+    path('po-details/', views.po_details_list, name='po_details_list'),
+    path('po-details/create/', views.po_details_create, name='po_details_create'),
+    path('po-details/<int:pk>/', views.po_details_detail, name='po_details_detail'),
+    path('po-details/<int:pk>/edit/', views.po_details_edit, name='po_details_edit'),
+    path('po-details/<int:pk>/delete/', views.po_details_delete, name='po_details_delete'),
+    
+    # PO Status System (separate system)
+    path('po-status/dashboard/', views.po_status_dashboard, name='po_status_dashboard'),
+    path('po-status/sheets/', views.po_status_sheets, name='po_status_sheets'),
+    path('po-status/', views.po_status_list, name='po_status_list'),
+    path('po-status/create/', views.po_status_create, name='po_status_create'),
+    path('po-status/<int:pk>/', views.po_status_detail, name='po_status_detail'),
+    path('po-status/<int:pk>/edit/', views.po_status_edit, name='po_status_edit'),
+    path('po-status/<int:pk>/delete/', views.po_status_delete, name='po_status_delete'),
 ]

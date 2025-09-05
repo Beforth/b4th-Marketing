@@ -1454,3 +1454,160 @@ class ODPlanRemarks(models.Model):
     
     def __str__(self):
         return f"Remarks - {self.created_at.strftime('%Y-%m-%d')}"
+
+
+# Purchase Order Details System Model
+class PODetails(models.Model):
+    """Purchase Order Details - Complete PO template system"""
+    
+    PACKING_FORWARDING_CHOICES = [
+        ('inclusive', 'Inclusive'),
+        ('extra_as_actual', 'Extra As Actual'),
+    ]
+    
+    TRANSPORTATION_CHOICES = [
+        ('inclusive', 'Inclusive'),
+        ('extra_as_actual', 'Extra As Actual'),
+    ]
+    
+    # Basic PO Information (Sr. No. 1-4)
+    customer_name = models.CharField(max_length=200, help_text="Customer Name")
+    po_no = models.CharField(max_length=100, help_text="Purchase Order Number")
+    po_date = models.DateField(help_text="Purchase Order Date")
+    wo_no = models.CharField(max_length=100, help_text="Work Order Number")
+    
+    # Client Contact Details (Sr. No. 5)
+    contact_name = models.CharField(max_length=100, help_text="Contact Person Name")
+    contact_details = models.TextField(help_text="Contact Details")
+    tel_mob_no = models.CharField(max_length=20, help_text="Telephone/Mobile Number")
+    email_id = models.EmailField(help_text="Email Address")
+    
+    # Pricing (Sr. No. 6)
+    discount = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="Discount Percentage")
+    
+    # Payment Terms Structure (Sr. No. 7)
+    advance_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="Advance Percentage")
+    against_pi_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="Against PI Percentage")
+    against_fat_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="Against FAT Percentage")
+    after_delivery_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="After Delivery Percentage")
+    after_installation_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="After Installation Percentage")
+    
+    # Logistics (Sr. No. 8-9)
+    packing_forwarding = models.CharField(max_length=20, choices=PACKING_FORWARDING_CHOICES, help_text="Packing & Forwarding")
+    transportation = models.CharField(max_length=20, choices=TRANSPORTATION_CHOICES, help_text="Transportation")
+    
+    # Authorization Section
+    marketing_dept = models.CharField(max_length=100, default="Miss. Pooja Kolse", help_text="Marketing Department Contact")
+    accounts_dept = models.CharField(max_length=100, default="Mr. Jitendra Tajanpure", help_text="Accounts Department Contact")
+    additional_contact = models.CharField(max_length=100, default="Mr. Harshal Ghoge", help_text="Additional Contact")
+    
+    # System fields
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-po_date', '-created_at']
+        verbose_name = "PO Details"
+        verbose_name_plural = "PO Details"
+    
+    def __str__(self):
+        return f"{self.po_no} - {self.customer_name}"
+
+
+# Purchase Order Status System Model
+class POStatus(models.Model):
+    """Purchase Order Status - Comprehensive PO tracking and payment management"""
+    
+    ORDER_TYPE_CHOICES = [
+        ('stability', 'Stability'),
+        ('tt', 'TT'),
+        ('validation', 'Validation'),
+        ('other', 'Other'),
+    ]
+    
+    # Core Information Fields
+    sr_no = models.AutoField(primary_key=True)
+    month = models.CharField(max_length=20, help_text="Month")
+    region = models.CharField(max_length=100, help_text="Region")
+    company = models.CharField(max_length=200, help_text="Company Name")
+    order_is_for = models.CharField(max_length=50, choices=ORDER_TYPE_CHOICES, help_text="Order is for (Stability / TT / ...)")
+    
+    # Order Generation Details
+    po_number = models.CharField(max_length=100, help_text="PO Number")
+    responsible_marketing_person = models.CharField(max_length=100, help_text="Responsible Marketing Person")
+    coordinator = models.CharField(max_length=100, help_text="Coordinator")
+    po_date = models.DateField(help_text="PO Date")
+    po_value_without_gst = models.DecimalField(max_digits=12, decimal_places=2, help_text="PO Value (Without GST)")
+    gst = models.DecimalField(max_digits=12, decimal_places=2, help_text="GST")
+    po_acceptance_date = models.DateField(null=True, blank=True, help_text="PO Acceptance Date")
+    wo_date = models.DateField(null=True, blank=True, help_text="WO Date")
+    
+    # Payment Tracking Structure - PayR-01
+    payr01_agreed_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="PayR-01 Agreed Percentage")
+    payr01_agreed_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="PayR-01 Agreed Amount")
+    payr01_received_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="PayR-01 Received Percentage")
+    payr01_received_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="PayR-01 Received Amount")
+    payr01_received_date = models.DateField(null=True, blank=True, help_text="PayR-01 Received Date")
+    
+    # Payment Tracking Structure - PayR-02
+    payr02_agreed_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="PayR-02 Agreed Percentage")
+    payr02_agreed_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="PayR-02 Agreed Amount")
+    payr02_received_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="PayR-02 Received Percentage")
+    payr02_received_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="PayR-02 Received Amount")
+    payr02_received_date = models.DateField(null=True, blank=True, help_text="PayR-02 Received Date")
+    
+    # Payment Tracking Structure - PayR-03
+    payr03_agreed_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="PayR-03 Agreed Percentage")
+    payr03_agreed_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="PayR-03 Agreed Amount")
+    payr03_received_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="PayR-03 Received Percentage")
+    payr03_received_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="PayR-03 Received Amount")
+    payr03_received_date = models.DateField(null=True, blank=True, help_text="PayR-03 Received Date")
+    
+    # Payment Tracking Structure - PayR-04
+    payr04_agreed_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="PayR-04 Agreed Percentage")
+    payr04_agreed_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="PayR-04 Agreed Amount")
+    payr04_received_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="PayR-04 Received Percentage")
+    payr04_received_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="PayR-04 Received Amount")
+    payr04_received_date = models.DateField(null=True, blank=True, help_text="PayR-04 Received Date")
+    
+    # Payment Tracking Structure - PayR-05
+    payr05_agreed_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="PayR-05 Agreed Percentage")
+    payr05_agreed_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="PayR-05 Agreed Amount")
+    payr05_received_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text="PayR-05 Received Percentage")
+    payr05_received_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="PayR-05 Received Amount")
+    payr05_received_date = models.DateField(null=True, blank=True, help_text="PayR-05 Received Date")
+    
+    # Total section
+    total_agreed_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Total Agreed Amount")
+    total_received_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Total Received Amount")
+    
+    # System fields
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-po_date', '-created_at']
+        verbose_name = "PO Status"
+        verbose_name_plural = "PO Status"
+    
+    def __str__(self):
+        return f"{self.po_number} - {self.company}"
+    
+    def save(self, *args, **kwargs):
+        # Calculate total amounts
+        if self.po_value_without_gst:
+            self.total_agreed_amount = self.po_value_without_gst
+        
+        # Calculate total received amount
+        received_amounts = [
+            self.payr01_received_amount or 0,
+            self.payr02_received_amount or 0,
+            self.payr03_received_amount or 0,
+            self.payr04_received_amount or 0,
+            self.payr05_received_amount or 0,
+        ]
+        self.total_received_amount = sum(received_amounts)
+        
+        super().save(*args, **kwargs)

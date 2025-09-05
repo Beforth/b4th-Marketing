@@ -1,0 +1,300 @@
+<!-- PO Details Form for Tab -->
+<div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+    <form method="post" action="{% url 'marketing:po_details_create' %}" class="p-6 space-y-8">
+        {% csrf_token %}
+        
+        <!-- Basic PO Information (Sr. No. 1-4) -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
+                Basic PO Information (Sr. No. 1-4)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="customer_name" class="block text-sm font-medium text-gray-700 mb-2">
+                        1. Customer Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="customer_name" 
+                           name="customer_name" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter customer name"
+                           required>
+                </div>
+                <div>
+                    <label for="po_no" class="block text-sm font-medium text-gray-700 mb-2">
+                        2. PO No. <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="po_no" 
+                           name="po_no" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter PO number"
+                           required>
+                </div>
+                <div>
+                    <label for="po_date" class="block text-sm font-medium text-gray-700 mb-2">
+                        3. PO Date <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" 
+                           id="po_date" 
+                           name="po_date" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           required>
+                </div>
+                <div>
+                    <label for="wo_no" class="block text-sm font-medium text-gray-700 mb-2">
+                        4. WO No. <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="wo_no" 
+                           name="wo_no" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter work order number"
+                           required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Client Contact Details (Sr. No. 5) -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="user" class="w-5 h-5 text-green-600"></i>
+                Client Contact Details (Sr. No. 5) - Purchase Department
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="contact_name" class="block text-sm font-medium text-gray-700 mb-2">
+                        Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="contact_name" 
+                           name="contact_name" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter contact person name"
+                           required>
+                </div>
+                <div>
+                    <label for="tel_mob_no" class="block text-sm font-medium text-gray-700 mb-2">
+                        Tel / Mob No. <span class="text-red-500">*</span>
+                    </label>
+                    <input type="tel" 
+                           id="tel_mob_no" 
+                           name="tel_mob_no" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter telephone/mobile number"
+                           required>
+                </div>
+                <div class="md:col-span-2">
+                    <label for="contact_details" class="block text-sm font-medium text-gray-700 mb-2">
+                        Contact Details <span class="text-red-500">*</span>
+                    </label>
+                    <textarea id="contact_details" 
+                              name="contact_details" 
+                              rows="3" 
+                              class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                              placeholder="Enter contact details"
+                              required></textarea>
+                </div>
+                <div class="md:col-span-2">
+                    <label for="email_id" class="block text-sm font-medium text-gray-700 mb-2">
+                        e-mail id <span class="text-red-500">*</span>
+                    </label>
+                    <input type="email" 
+                           id="email_id" 
+                           name="email_id" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter email address"
+                           required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing (Sr. No. 6) -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="dollar-sign" class="w-5 h-5 text-yellow-600"></i>
+                Pricing (Sr. No. 6)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="discount" class="block text-sm font-medium text-gray-700 mb-2">
+                        Discount (%)
+                    </label>
+                    <input type="number" 
+                           id="discount" 
+                           name="discount" 
+                           step="0.01"
+                           min="0"
+                           max="100"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter discount percentage">
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Terms Structure (Sr. No. 7) -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="credit-card" class="w-5 h-5 text-purple-600"></i>
+                Payment Terms Structure (Sr. No. 7)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div>
+                    <label for="advance_percentage" class="block text-sm font-medium text-gray-700 mb-2">
+                        Advance: _%
+                    </label>
+                    <input type="number" 
+                           id="advance_percentage" 
+                           name="advance_percentage" 
+                           step="0.01"
+                           min="0"
+                           max="100"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter percentage">
+                </div>
+                <div>
+                    <label for="against_pi_percentage" class="block text-sm font-medium text-gray-700 mb-2">
+                        Against PI: _%
+                    </label>
+                    <input type="number" 
+                           id="against_pi_percentage" 
+                           name="against_pi_percentage" 
+                           step="0.01"
+                           min="0"
+                           max="100"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter percentage">
+                </div>
+                <div>
+                    <label for="against_fat_percentage" class="block text-sm font-medium text-gray-700 mb-2">
+                        Against FAT: _%
+                    </label>
+                    <input type="number" 
+                           id="against_fat_percentage" 
+                           name="against_fat_percentage" 
+                           step="0.01"
+                           min="0"
+                           max="100"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter percentage">
+                </div>
+                <div>
+                    <label for="after_delivery_percentage" class="block text-sm font-medium text-gray-700 mb-2">
+                        After delivery: _%
+                    </label>
+                    <input type="number" 
+                           id="after_delivery_percentage" 
+                           name="after_delivery_percentage" 
+                           step="0.01"
+                           min="0"
+                           max="100"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter percentage">
+                </div>
+                <div>
+                    <label for="after_installation_percentage" class="block text-sm font-medium text-gray-700 mb-2">
+                        After Installation: _%
+                    </label>
+                    <input type="number" 
+                           id="after_installation_percentage" 
+                           name="after_installation_percentage" 
+                           step="0.01"
+                           min="0"
+                           max="100"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter percentage">
+                </div>
+            </div>
+        </div>
+
+        <!-- Logistics (Sr. No. 8-9) -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="truck" class="w-5 h-5 text-orange-600"></i>
+                Logistics (Sr. No. 8-9)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="packing_forwarding" class="block text-sm font-medium text-gray-700 mb-2">
+                        8. Packing & Forwarding: <span class="text-red-500">*</span>
+                    </label>
+                    <select id="packing_forwarding" 
+                            name="packing_forwarding" 
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            required>
+                        <option value="">Select Option</option>
+                        {% for key, value in PACKING_FORWARDING_CHOICES %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="transportation" class="block text-sm font-medium text-gray-700 mb-2">
+                        9. Transportation: <span class="text-red-500">*</span>
+                    </label>
+                    <select id="transportation" 
+                            name="transportation" 
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            required>
+                        <option value="">Select Option</option>
+                        {% for key, value in TRANSPORTATION_CHOICES %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Authorization Section -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="user-check" class="w-5 h-5 text-indigo-600"></i>
+                Authorization Section
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="marketing_dept" class="block text-sm font-medium text-gray-700 mb-2">
+                        Marketing Dept
+                    </label>
+                    <input type="text" 
+                           id="marketing_dept" 
+                           name="marketing_dept" 
+                           value="Miss. Pooja Kolse"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           readonly>
+                </div>
+                <div>
+                    <label for="accounts_dept" class="block text-sm font-medium text-gray-700 mb-2">
+                        Accounts Dept
+                    </label>
+                    <input type="text" 
+                           id="accounts_dept" 
+                           name="accounts_dept" 
+                           value="Mr. Jitendra Tajanpure"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           readonly>
+                </div>
+                <div>
+                    <label for="additional_contact" class="block text-sm font-medium text-gray-700 mb-2">
+                        Additional Contact
+                    </label>
+                    <input type="text" 
+                           id="additional_contact" 
+                           name="additional_contact" 
+                           value="Mr. Harshal Ghoge"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           readonly>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>
+                Save PO Details
+            </button>
+        </div>
+    </form>
+</div>

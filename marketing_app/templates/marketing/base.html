@@ -406,6 +406,38 @@
                     </div>
                 </div>
                 
+                        <!-- PO Details System -->
+        <div class="">
+            <button id="po-details-toggle" type="button" class="sidebar-link flex items-center gap-3 w-full px-4 py-3 text-left">
+                <i data-lucide="file-text" class="w-4 h-4 hand-drawn-icon"></i> PO Details System
+                <svg id="po-details-chevron" class="ml-auto w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div id="po-details-menu" class="sidebar-submenu hidden">
+                <a href="{% url 'marketing:po_details_dashboard' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                    <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 hand-drawn-icon"></i> PO Dashboard
+                </a>
+                <a href="{% url 'marketing:po_details_sheets' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                    <i data-lucide="table" class="w-3.5 h-3.5 hand-drawn-icon"></i> All Sheets
+                </a>
+            </div>
+        </div>
+
+        <!-- PO Status System -->
+        <div class="">
+            <button id="po-status-toggle" type="button" class="sidebar-link flex items-center gap-3 w-full px-4 py-3 text-left">
+                <i data-lucide="trending-up" class="w-4 h-4 hand-drawn-icon"></i> PO Status System
+                <svg id="po-status-chevron" class="ml-auto w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div id="po-status-menu" class="sidebar-submenu hidden">
+                <a href="{% url 'marketing:po_status_dashboard' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                    <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 hand-drawn-icon"></i> PO Status Dashboard
+                </a>
+                <a href="{% url 'marketing:po_status_sheets' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                    <i data-lucide="table" class="w-3.5 h-3.5 hand-drawn-icon"></i> All Sheets
+                </a>
+            </div>
+        </div>
+                
                 <!-- Visits -->
                 <div class="">
                     <button id="visits-toggle" type="button" class="sidebar-link flex items-center gap-3 w-full px-4 py-3 text-left">
@@ -985,6 +1017,28 @@
                     toggleAccordion(odPlanToggle, odPlanMenu, odPlanChevron, 'od-plan');
                 });
             }
+
+                    // PO Details System accordion
+        const poDetailsToggle = document.getElementById('po-details-toggle');
+        const poDetailsMenu = document.getElementById('po-details-menu');
+        const poDetailsChevron = document.getElementById('po-details-chevron');
+        if (poDetailsToggle && poDetailsMenu && poDetailsChevron) {
+            poDetailsToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleAccordion(poDetailsToggle, poDetailsMenu, poDetailsChevron, 'po-details');
+            });
+        }
+
+        // PO Status System accordion
+        const poStatusToggle = document.getElementById('po-status-toggle');
+        const poStatusMenu = document.getElementById('po-status-menu');
+        const poStatusChevron = document.getElementById('po-status-chevron');
+        if (poStatusToggle && poStatusMenu && poStatusChevron) {
+            poStatusToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleAccordion(poStatusToggle, poStatusMenu, poStatusChevron, 'po-status');
+            });
+        }
 
             // Visits accordion
             const visitsToggle = document.getElementById('visits-toggle');
