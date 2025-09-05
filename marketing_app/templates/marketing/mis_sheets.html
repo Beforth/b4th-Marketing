@@ -126,85 +126,148 @@
             <div id="content-inquiry-log" class="tab-content hidden">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-semibold text-gray-900">Inquiry Log Management</h3>
-                    <a href="{% url 'marketing:inquiry_log_list' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm transition">
-                        <i data-lucide="list" class="w-4 h-4"></i>
-                        View All Entries
-                    </a>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewForm('inquiry-log')" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Add New
+                        </button>
+                        <a href="{% url 'marketing:inquiry_log_list' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm transition">
+                            <i data-lucide="list" class="w-4 h-4"></i>
+                            View All Entries
+                        </a>
+                    </div>
                 </div>
                 <p class="text-gray-600 mb-4">Manage your business inquiries and track quote status.</p>
                 
-                <!-- Include Inquiry Log Form -->
-                {% include 'marketing/inquiry_log_tab_form.html' %}
+                <!-- Forms Container -->
+                <div id="inquiry-log-forms-container">
+                    <!-- Include Inquiry Log Form -->
+                    {% include 'marketing/inquiry_log_tab_form.html' %}
+                </div>
             </div>
 
             <!-- Follow-Up Status Tab -->
             <div id="content-follow-up-status" class="tab-content hidden">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-semibold text-gray-900">Follow-Up Status Management</h3>
-                    <a href="{% url 'marketing:follow_up_status_list' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm transition">
-                        <i data-lucide="list" class="w-4 h-4"></i>
-                        View All Entries
-                    </a>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewForm('follow-up-status')" class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Add New
+                        </button>
+                        <a href="{% url 'marketing:follow_up_status_list' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm transition">
+                            <i data-lucide="list" class="w-4 h-4"></i>
+                            View All Entries
+                        </a>
+                    </div>
                 </div>
                 <p class="text-gray-600 mb-4">Track enquiry follow-up activities and status updates.</p>
                 
-                <!-- Include Follow-Up Status Form -->
-                {% include 'marketing/follow_up_status_tab_form.html' %}
+                <!-- Forms Container -->
+                <div id="follow-up-status-forms-container">
+                    <!-- Include Follow-Up Status Form -->
+                    {% include 'marketing/follow_up_status_tab_form.html' %}
+                </div>
             </div>
 
             <!-- Project Today Tab -->
             <div id="content-project-today" class="tab-content hidden">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-semibold text-gray-900">Project Today Management</h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewForm('project-today')" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Add New
+                        </button>
+                    </div>
                 </div>
                 <p class="text-gray-600 mb-4">Current active project tracking and management.</p>
                 
-                <!-- Include Project Today Form -->
-                {% include 'marketing/project_today_tab_form.html' %}
+                <!-- Forms Container -->
+                <div id="project-today-forms-container">
+                    <!-- Include Project Today Form -->
+                    {% include 'marketing/project_today_tab_form.html' %}
+                </div>
             </div>
 
             <!-- Order Expected Tab -->
             <div id="content-order-expected" class="tab-content hidden">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-semibold text-gray-900">Order Expected Next Month</h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewForm('order-expected')" class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 text-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Add New
+                        </button>
+                    </div>
                 </div>
                 <p class="text-gray-600 mb-4">Sales forecast tracking for upcoming months.</p>
                 
-                <!-- Include Order Expected Form -->
-                {% include 'marketing/order_expected_tab_form.html' %}
+                <!-- Forms Container -->
+                <div id="order-expected-forms-container">
+                    <!-- Include Order Expected Form -->
+                    {% include 'marketing/order_expected_tab_form.html' %}
+                </div>
             </div>
 
             <!-- Purchase Order Tab -->
             <div id="content-purchase-order" class="tab-content hidden">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-semibold text-gray-900">Purchase Order Management</h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewForm('purchase-order')" class="inline-flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700 text-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Add New
+                        </button>
+                    </div>
                 </div>
                 <p class="text-gray-600 mb-4">Purchase order management and tracking.</p>
                 
-                <!-- Include Purchase Order Form -->
-                {% include 'marketing/purchase_order_tab_form.html' %}
+                <!-- Forms Container -->
+                <div id="purchase-order-forms-container">
+                    <!-- Include Purchase Order Form -->
+                    {% include 'marketing/purchase_order_tab_form.html' %}
+                </div>
             </div>
 
             <!-- New Data Tab -->
             <div id="content-new-data" class="tab-content hidden">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-semibold text-gray-900">New Data Management</h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewForm('new-data')" class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Add New
+                        </button>
+                    </div>
                 </div>
                 <p class="text-gray-600 mb-4">New customer acquisition tracking and monthly breakdown.</p>
                 
-                <!-- Include New Data Form -->
-                {% include 'marketing/new_data_tab_form.html' %}
+                <!-- Forms Container -->
+                <div id="new-data-forms-container">
+                    <!-- Include New Data Form -->
+                    {% include 'marketing/new_data_tab_form.html' %}
+                </div>
             </div>
 
             <!-- OD Plan Tab -->
             <div id="content-od-plan" class="tab-content hidden">
                 <div class="flex items-center justify-between mb-6">
                     <h3 class="text-lg font-semibold text-gray-900">OD Plan Management</h3>
+                    <div class="flex items-center gap-2">
+                        <button onclick="addNewForm('od-plan')" class="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 text-sm transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                            Add New
+                        </button>
+                    </div>
                 </div>
                 <p class="text-gray-600 mb-4">Outdoor Planning (Field visit planning) and management.</p>
                 
-                <!-- Include OD Plan Form -->
-                {% include 'marketing/od_plan_tab_form.html' %}
+                <!-- Forms Container -->
+                <div id="od-plan-forms-container">
+                    <!-- Include OD Plan Form -->
+                    {% include 'marketing/od_plan_tab_form.html' %}
+                </div>
             </div>
 
             <!-- Legends Tab -->
@@ -421,6 +484,67 @@ function switchTab(tabName) {
     
     // Add active class to selected tab
     document.getElementById('tab-' + tabName).classList.add('active');
+}
+
+function addNewForm(formType) {
+    const container = document.getElementById(formType + '-forms-container');
+    if (!container) return;
+    
+    // Find the first form in the container to clone
+    const firstForm = container.querySelector('.bg-white.rounded-lg.border.border-gray-200.shadow-sm');
+    if (!firstForm) return;
+    
+    // Clone the first form
+    const newForm = firstForm.cloneNode(true);
+    
+    // Remove any existing header if it exists
+    const existingHeader = newForm.querySelector('.p-4.border-b.border-gray-200.bg-gray-50');
+    if (existingHeader) {
+        existingHeader.remove();
+    }
+    
+    // Add a subtle separator and remove button at the top
+    const separator = document.createElement('div');
+    separator.className = 'flex items-center justify-between mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200';
+    separator.innerHTML = `
+        <div class="flex items-center gap-2">
+            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+            <span class="text-sm font-medium text-gray-700">Additional Entry</span>
+        </div>
+        <button onclick="removeForm(this)" class="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-md hover:bg-red-200 text-sm transition">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+            Remove
+        </button>
+    `;
+    
+    // Insert the separator at the beginning of the form
+    newForm.insertBefore(separator, newForm.firstChild);
+    
+    // Clear all form inputs in the new form
+    const inputs = newForm.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        if (input.type === 'checkbox' || input.type === 'radio') {
+            input.checked = false;
+        } else {
+            input.value = '';
+        }
+    });
+    
+    // Add the new form to the container
+    container.appendChild(newForm);
+    
+    // Recreate icons for the new elements
+    lucide.createIcons();
+    
+    // Scroll to the new form
+    newForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function removeForm(button) {
+    const formElement = button.closest('.bg-white.rounded-lg.border.border-gray-200.shadow-sm');
+    if (formElement) {
+        formElement.remove();
+    }
 }
 
 
