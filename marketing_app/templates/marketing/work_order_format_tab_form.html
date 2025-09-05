@@ -1,0 +1,681 @@
+<!-- Work Order Format Form for Tab -->
+<div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+    <form method="post" action="{% url 'marketing:work_order_format_create' %}" class="p-6 space-y-8">
+        {% csrf_token %}
+        
+        <!-- Header Information -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
+                Header Information
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="date" class="block text-sm font-medium text-gray-700 mb-2">
+                        Date <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" 
+                           id="date" 
+                           name="date" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           required>
+                </div>
+                <div>
+                    <label for="work_order_no" class="block text-sm font-medium text-gray-700 mb-2">
+                        Work Order No. <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="work_order_no" 
+                           name="work_order_no" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter work order number"
+                           required>
+                </div>
+                <div>
+                    <label for="equipment_no" class="block text-sm font-medium text-gray-700 mb-2">
+                        Equipment No. <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="equipment_no" 
+                           name="equipment_no" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter equipment number"
+                           required>
+                </div>
+                <div>
+                    <label for="delivery_date" class="block text-sm font-medium text-gray-700 mb-2">
+                        Delivery Date <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" 
+                           id="delivery_date" 
+                           name="delivery_date" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Equipment Details -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="package" class="w-5 h-5 text-green-600"></i>
+                Equipment Details
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="equipment_type" class="block text-sm font-medium text-gray-700 mb-2">
+                        Equipment type <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="equipment_type" 
+                           name="equipment_type" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter equipment type"
+                           required>
+                </div>
+                <div>
+                    <label for="capacity" class="block text-sm font-medium text-gray-700 mb-2">
+                        Capacity (Ltr) <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="capacity" 
+                           name="capacity" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter capacity"
+                           required>
+                </div>
+                <div>
+                    <label for="model" class="block text-sm font-medium text-gray-700 mb-2">
+                        Model <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="model" 
+                           name="model" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter model"
+                           required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Material of Construction (MOC) -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="layers" class="w-5 h-5 text-purple-600"></i>
+                Material of Construction (MOC)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="inner_body_moc" class="block text-sm font-medium text-gray-700 mb-2">
+                        Inner Body MOC <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="inner_body_moc" 
+                           name="inner_body_moc" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter inner body MOC"
+                           required>
+                </div>
+                <div>
+                    <label for="outer_body_moc" class="block text-sm font-medium text-gray-700 mb-2">
+                        Outer Body MOC <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="outer_body_moc" 
+                           name="outer_body_moc" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter outer body MOC"
+                           required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dimensions -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="ruler" class="w-5 h-5 text-orange-600"></i>
+                Dimensions
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="inside_dimensions" class="block text-sm font-medium text-gray-700 mb-2">
+                        Inside dimensions (W x D x H in MM) <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="inside_dimensions" 
+                           name="inside_dimensions" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter inside dimensions"
+                           required>
+                </div>
+                <div>
+                    <label for="outer_size" class="block text-sm font-medium text-gray-700 mb-2">
+                        Outer Size (W x D x H in MM) <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="outer_size" 
+                           name="outer_size" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter outer size"
+                           required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Temperature Specifications -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="thermometer" class="w-5 h-5 text-red-600"></i>
+                Temperature Specifications
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="temp_range" class="block text-sm font-medium text-gray-700 mb-2">
+                        Temp Range <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="temp_range" 
+                           name="temp_range" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter temperature range"
+                           required>
+                </div>
+                <div>
+                    <label for="accuracy" class="block text-sm font-medium text-gray-700 mb-2">
+                        Accuracy <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="accuracy" 
+                           name="accuracy" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter accuracy"
+                           required>
+                </div>
+                <div>
+                    <label for="uniformity" class="block text-sm font-medium text-gray-700 mb-2">
+                        Uniformity <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="uniformity" 
+                           name="uniformity" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter uniformity"
+                           required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Systems -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="cpu" class="w-5 h-5 text-indigo-600"></i>
+                Control Systems
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="controller_system" class="block text-sm font-medium text-gray-700 mb-2">
+                        Controller System <span class="text-red-500">*</span>
+                    </label>
+                    <select id="controller_system" 
+                            name="controller_system" 
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            required>
+                        <option value="">Select Controller System</option>
+                        {% for key, value in CONTROLLER_CHOICES %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="hmi_system" class="block text-sm font-medium text-gray-700 mb-2">
+                        HMI System <span class="text-red-500">*</span>
+                    </label>
+                    <select id="hmi_system" 
+                            name="hmi_system" 
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            required>
+                        <option value="">Select HMI System</option>
+                        {% for key, value in HMI_CHOICES %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Communication & Monitoring -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="wifi" class="w-5 h-5 text-cyan-600"></i>
+                Communication & Monitoring
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="flex items-center">
+                    <input type="checkbox" 
+                           id="gsm_system" 
+                           name="gsm_system" 
+                           class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="gsm_system" class="ml-2 text-sm font-medium text-gray-700">
+                        GSM System
+                    </label>
+                </div>
+                <div>
+                    <label for="scanner" class="block text-sm font-medium text-gray-700 mb-2">
+                        Scanner
+                    </label>
+                    <input type="text" 
+                           id="scanner" 
+                           name="scanner" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter scanner details">
+                </div>
+                <div>
+                    <label for="software" class="block text-sm font-medium text-gray-700 mb-2">
+                        Software
+                    </label>
+                    <input type="text" 
+                           id="software" 
+                           name="software" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter software details">
+                </div>
+            </div>
+        </div>
+
+        <!-- Access Control -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="shield" class="w-5 h-5 text-yellow-600"></i>
+                Access Control
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="door_access_system" class="block text-sm font-medium text-gray-700 mb-2">
+                        Door Access System <span class="text-red-500">*</span>
+                    </label>
+                    <select id="door_access_system" 
+                            name="door_access_system" 
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            required>
+                        <option value="">Select Door Access System</option>
+                        {% for key, value in DOOR_ACCESS_CHOICES %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Systems -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="bell" class="w-5 h-5 text-pink-600"></i>
+                Alert Systems
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="hooter_system" class="block text-sm font-medium text-gray-700 mb-2">
+                        Hooter System <span class="text-red-500">*</span>
+                    </label>
+                    <select id="hooter_system" 
+                            name="hooter_system" 
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            required>
+                        <option value="">Select Hooter System</option>
+                        {% for key, value in HOOTER_CHOICES %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Physical Features -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="settings" class="w-5 h-5 text-gray-600"></i>
+                Physical Features
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="flex items-center">
+                    <input type="checkbox" 
+                           id="castor_wheels" 
+                           name="castor_wheels" 
+                           class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="castor_wheels" class="ml-2 text-sm font-medium text-gray-700">
+                        Castor Wheels
+                    </label>
+                </div>
+                <div>
+                    <label for="pipe_length" class="block text-sm font-medium text-gray-700 mb-2">
+                        Pipe Length (Meter/NA)
+                    </label>
+                    <input type="text" 
+                           id="pipe_length" 
+                           name="pipe_length" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter pipe length">
+                </div>
+                <div>
+                    <label for="packaging" class="block text-sm font-medium text-gray-700 mb-2">
+                        Packaging Options <span class="text-red-500">*</span>
+                    </label>
+                    <select id="packaging" 
+                            name="packaging" 
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            required>
+                        <option value="">Select Packaging</option>
+                        {% for key, value in PACKAGING_CHOICES %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="fat" class="block text-sm font-medium text-gray-700 mb-2">
+                        FAT <span class="text-red-500">*</span>
+                    </label>
+                    <select id="fat" 
+                            name="fat" 
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            required>
+                        <option value="">Select FAT</option>
+                        {% for key, value in FAT_CHOICES %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Standby System Section -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="power" class="w-5 h-5 text-emerald-600"></i>
+                Standby System Section
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="refrigeration_system" class="block text-sm font-medium text-gray-700 mb-2">
+                        Refrigeration System <span class="text-red-500">*</span>
+                    </label>
+                    <select id="refrigeration_system" 
+                            name="refrigeration_system" 
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            required>
+                        <option value="">Select Option</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                        <option value="na">NA</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="sg_system" class="block text-sm font-medium text-gray-700 mb-2">
+                        S.G. System <span class="text-red-500">*</span>
+                    </label>
+                    <select id="sg_system" 
+                            name="sg_system" 
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            required>
+                        <option value="">Select Option</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                        <option value="na">NA</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="sensor" class="block text-sm font-medium text-gray-700 mb-2">
+                        Sensor <span class="text-red-500">*</span>
+                    </label>
+                    <select id="sensor" 
+                            name="sensor" 
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            required>
+                        <option value="">Select Option</option>
+                        <option value="yes">Yes</option>
+                        <option value="na">NA</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tray & Rack Specifications -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="grid-3x3" class="w-5 h-5 text-teal-600"></i>
+                Tray & Rack Specifications
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                <div>
+                    <label for="tray_qty" class="block text-sm font-medium text-gray-700 mb-2">
+                        Tray Qty. (Nos) <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="tray_qty" 
+                           name="tray_qty" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter tray quantity"
+                           required>
+                </div>
+                <div>
+                    <label for="tray_type" class="block text-sm font-medium text-gray-700 mb-2">
+                        Tray Type
+                    </label>
+                    <input type="text" 
+                           id="tray_type" 
+                           name="tray_type" 
+                           value="Perforated"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           readonly>
+                </div>
+                <div>
+                    <label for="tray_moc" class="block text-sm font-medium text-gray-700 mb-2">
+                        Tray MOC <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="tray_moc" 
+                           name="tray_moc" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter tray MOC"
+                           required>
+                </div>
+                <div>
+                    <label for="tray_dimension" class="block text-sm font-medium text-gray-700 mb-2">
+                        Tray Dimension (W x D x H in MM) <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="tray_dimension" 
+                           name="tray_dimension" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter tray dimensions"
+                           required>
+                </div>
+                <div>
+                    <label for="rack_qty" class="block text-sm font-medium text-gray-700 mb-2">
+                        Rack Qty. (Nos/NA) <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="rack_qty" 
+                           name="rack_qty" 
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter rack quantity"
+                           required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentation Section -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="file-text" class="w-5 h-5 text-slate-600"></i>
+                Documentation Section
+            </h3>
+            <div class="space-y-4">
+                <div class="flex items-center">
+                    <input type="checkbox" 
+                           id="protocol_documents" 
+                           name="protocol_documents" 
+                           checked
+                           class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="protocol_documents" class="ml-2 text-sm font-medium text-gray-700">
+                        Protocol for DQ, IQ, and OQ, PQ Documents will be provided
+                    </label>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="calibration_duration" class="block text-sm font-medium text-gray-700 mb-2">
+                            Calibration Duration
+                        </label>
+                        <input type="text" 
+                               id="calibration_duration" 
+                               name="calibration_duration" 
+                               value="1 hour"
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label for="validation_duration" class="block text-sm font-medium text-gray-700 mb-2">
+                            Validation Duration <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="validation_duration" 
+                               name="validation_duration" 
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               placeholder="24/48/72 hours with load and 24/48/72 hours without load"
+                               required>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="validation_compressor" class="block text-sm font-medium text-gray-700 mb-2">
+                            Validation Compressor <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="validation_compressor" 
+                               name="validation_compressor" 
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               placeholder="Validation at one set point with one compressor"
+                               required>
+                    </div>
+                    <div>
+                        <label for="calibration_probes" class="block text-sm font-medium text-gray-700 mb-2">
+                            Calibration Probes <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               id="calibration_probes" 
+                               name="calibration_probes" 
+                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               placeholder="8/9/10/Option probes for temperature"
+                               required>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" 
+                           id="extra_validation_charge" 
+                           name="extra_validation_charge" 
+                           checked
+                           class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="extra_validation_charge" class="ml-2 text-sm font-medium text-gray-700">
+                        Any extra Validation would be charged extra per day
+                    </label>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" 
+                           id="plc_validation" 
+                           name="plc_validation" 
+                           checked
+                           class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="plc_validation" class="ml-2 text-sm font-medium text-gray-700">
+                        PLC Based System validation will be carried out
+                    </label>
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" 
+                           id="training_handover" 
+                           name="training_handover" 
+                           checked
+                           class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="training_handover" class="ml-2 text-sm font-medium text-gray-700">
+                        Training and handover of documents
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Special Instructions -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="message-square" class="w-5 h-5 text-amber-600"></i>
+                Special Instructions
+            </h3>
+            <div>
+                <label for="special_instructions" class="block text-sm font-medium text-gray-700 mb-2">
+                    Customizable bullet points for specific requirements
+                </label>
+                <textarea id="special_instructions" 
+                          name="special_instructions" 
+                          rows="4"
+                          class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                          placeholder="Enter special instructions"></textarea>
+            </div>
+        </div>
+
+        <!-- Payment Terms -->
+        <div>
+            <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                <i data-lucide="credit-card" class="w-5 h-5 text-green-600"></i>
+                Payment Terms
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label for="advance_percentage" class="block text-sm font-medium text-gray-700 mb-2">
+                        Advance Percentage <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" 
+                           id="advance_percentage" 
+                           name="advance_percentage" 
+                           step="0.01"
+                           min="0"
+                           max="100"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter advance %"
+                           required>
+                </div>
+                <div>
+                    <label for="against_pi_percentage" class="block text-sm font-medium text-gray-700 mb-2">
+                        Against PI Percentage <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" 
+                           id="against_pi_percentage" 
+                           name="against_pi_percentage" 
+                           step="0.01"
+                           min="0"
+                           max="100"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter against PI %"
+                           required>
+                </div>
+                <div>
+                    <label for="after_material_percentage" class="block text-sm font-medium text-gray-700 mb-2">
+                        After Material Percentage <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" 
+                           id="after_material_percentage" 
+                           name="after_material_percentage" 
+                           step="0.01"
+                           min="0"
+                           max="100"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                           placeholder="Enter after material %"
+                           required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>
+                Save Work Order
+            </button>
+        </div>
+    </form>
+</div>

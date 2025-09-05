@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Count, Sum, ExpressionWrapper, F, FloatField
 from django.utils import timezone
 from datetime import datetime, timedelta
-from .models import Campaign, Lead, EmailTemplate, CampaignMetric, LeadActivity, Customer, CustomerLocation, Region, Visit, VisitParticipant, Expense, Exhibition, Quotation, PurchaseOrder, PaymentFollowUp, WorkOrder, Manufacturing, Dispatch, URS, GADrawing, TechnicalDiscussion, Negotiation, QuotationRevision, QCTracking, ProductionPlan, PackingDetails, DispatchChecklist, BudgetCategory, AnnualExhibitionBudget, BudgetAllocation, BudgetApproval, InquiryLog, FollowUpStatus, ProjectToday, OrderExpectedNextMonth, MISPurchaseOrder, NewData, NewDataDetails, ODPlan, ODPlanVisitReport, ODPlanRemarks, PODetails, POStatus
+from .models import Campaign, Lead, EmailTemplate, CampaignMetric, LeadActivity, Customer, CustomerLocation, Region, Visit, VisitParticipant, Expense, Exhibition, Quotation, PurchaseOrder, PaymentFollowUp, WorkOrder, Manufacturing, Dispatch, URS, GADrawing, TechnicalDiscussion, Negotiation, QuotationRevision, QCTracking, ProductionPlan, PackingDetails, DispatchChecklist, BudgetCategory, AnnualExhibitionBudget, BudgetAllocation, BudgetApproval, InquiryLog, FollowUpStatus, ProjectToday, OrderExpectedNextMonth, MISPurchaseOrder, NewData, NewDataDetails, ODPlan, ODPlanVisitReport, ODPlanRemarks, PODetails, POStatus, WorkOrderFormat
 from django.contrib.auth import get_user_model
 import sys
 
@@ -6006,5 +6006,236 @@ def po_status_sheets(request):
     }
     
     return render(request, 'marketing/po_status_sheets.html', context)
+
+
+# Work Order System Views
+@login_required
+def work_order_format_dashboard(request):
+    """Work Order Format Dashboard - Main overview of all Work Orders"""
+    # Get statistics
+    work_order_count = WorkOrderFormat.objects.filter(created_by=request.user).count()
+    
+    # Recent activities
+    recent_work_orders = WorkOrderFormat.objects.filter(created_by=request.user).order_by('-created_at')[:5]
+    
+    context = {
+        'work_order_count': work_order_count,
+        'recent_work_orders': recent_work_orders,
+    }
+    
+    return render(request, 'marketing/work_order_format_dashboard.html', context)
+
+
+@login_required
+def work_order_format_sheets(request):
+    """Work Order Format Sheets - Tabbed interface for all sheets"""
+    context = {
+        'CONTROLLER_CHOICES': WorkOrderFormat.CONTROLLER_CHOICES,
+        'HMI_CHOICES': WorkOrderFormat.HMI_CHOICES,
+        'DOOR_ACCESS_CHOICES': WorkOrderFormat.DOOR_ACCESS_CHOICES,
+        'HOOTER_CHOICES': WorkOrderFormat.HOOTER_CHOICES,
+        'PACKAGING_CHOICES': WorkOrderFormat.PACKAGING_CHOICES,
+        'FAT_CHOICES': WorkOrderFormat.FAT_CHOICES,
+    }
+    
+    return render(request, 'marketing/work_order_format_sheets.html', context)
+
+
+@login_required
+def work_order_format_list(request):
+    """List all Work Order Format entries"""
+    search_query = request.GET.get('search', '')
+    equipment_filter = request.GET.get('equipment', '')
+    
+    work_orders = WorkOrderFormat.objects.filter(created_by=request.user)
+    
+    if search_query:
+        work_orders = work_orders.filter(
+            Q(work_order_no__icontains=search_query) |
+            Q(equipment_type__icontains=search_query) |
+            Q(equipment_no__icontains=search_query)
+        )
+    
+    if equipment_filter:
+        work_orders = work_orders.filter(equipment_type__icontains=equipment_filter)
+    
+    # Pagination
+    paginator = Paginator(work_orders, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'page_obj': page_obj,
+        'search_query': search_query,
+        'equipment_filter': equipment_filter,
+    }
+    
+    return render(request, 'marketing/work_order_format_list.html', context)
+
+
+@login_required
+def work_order_format_create(request):
+    """Create new Work Order Format entry"""
+    if request.method == 'POST':
+        work_order = WorkOrderFormat(
+            date=request.POST.get('date'),
+            work_order_no=request.POST.get('work_order_no'),
+            equipment_no=request.POST.get('equipment_no'),
+            delivery_date=request.POST.get('delivery_date'),
+            equipment_type=request.POST.get('equipment_type'),
+            capacity=request.POST.get('capacity'),
+            model=request.POST.get('model'),
+            inner_body_moc=request.POST.get('inner_body_moc'),
+            outer_body_moc=request.POST.get('outer_body_moc'),
+            inside_dimensions=request.POST.get('inside_dimensions'),
+            outer_size=request.POST.get('outer_size'),
+            temp_range=request.POST.get('temp_range'),
+            accuracy=request.POST.get('accuracy'),
+            uniformity=request.POST.get('uniformity'),
+            controller_system=request.POST.get('controller_system'),
+            hmi_system=request.POST.get('hmi_system'),
+            gsm_system=request.POST.get('gsm_system') == 'on',
+            scanner=request.POST.get('scanner', ''),
+            software=request.POST.get('software', ''),
+            door_access_system=request.POST.get('door_access_system'),
+            hooter_system=request.POST.get('hooter_system'),
+            castor_wheels=request.POST.get('castor_wheels') == 'on',
+            pipe_length=request.POST.get('pipe_length', ''),
+            packaging=request.POST.get('packaging'),
+            fat=request.POST.get('fat'),
+            refrigeration_system=request.POST.get('refrigeration_system'),
+            sg_system=request.POST.get('sg_system'),
+            sensor=request.POST.get('sensor'),
+            tray_qty=request.POST.get('tray_qty'),
+            tray_type=request.POST.get('tray_type'),
+            tray_moc=request.POST.get('tray_moc'),
+            tray_dimension=request.POST.get('tray_dimension'),
+            rack_qty=request.POST.get('rack_qty'),
+            protocol_documents=request.POST.get('protocol_documents') == 'on',
+            calibration_duration=request.POST.get('calibration_duration'),
+            validation_duration=request.POST.get('validation_duration'),
+            validation_compressor=request.POST.get('validation_compressor'),
+            extra_validation_charge=request.POST.get('extra_validation_charge') == 'on',
+            calibration_probes=request.POST.get('calibration_probes'),
+            plc_validation=request.POST.get('plc_validation') == 'on',
+            training_handover=request.POST.get('training_handover') == 'on',
+            special_instructions=request.POST.get('special_instructions', ''),
+            advance_percentage=request.POST.get('advance_percentage'),
+            against_pi_percentage=request.POST.get('against_pi_percentage'),
+            after_material_percentage=request.POST.get('after_material_percentage'),
+            created_by=request.user
+        )
+        work_order.save()
+        messages.success(request, 'Work Order created successfully!')
+        return redirect('marketing:work_order_format_list')
+    
+    context = {
+        'CONTROLLER_CHOICES': WorkOrderFormat.CONTROLLER_CHOICES,
+        'HMI_CHOICES': WorkOrderFormat.HMI_CHOICES,
+        'DOOR_ACCESS_CHOICES': WorkOrderFormat.DOOR_ACCESS_CHOICES,
+        'HOOTER_CHOICES': WorkOrderFormat.HOOTER_CHOICES,
+        'PACKAGING_CHOICES': WorkOrderFormat.PACKAGING_CHOICES,
+        'FAT_CHOICES': WorkOrderFormat.FAT_CHOICES,
+    }
+    
+    return render(request, 'marketing/work_order_format_form.html', context)
+
+
+@login_required
+def work_order_format_detail(request, pk):
+    """View Work Order Format details"""
+    work_order = get_object_or_404(WorkOrderFormat, pk=pk, created_by=request.user)
+    
+    context = {
+        'work_order': work_order,
+    }
+    
+    return render(request, 'marketing/work_order_format_detail.html', context)
+
+
+@login_required
+def work_order_format_edit(request, pk):
+    """Edit Work Order Format entry"""
+    work_order = get_object_or_404(WorkOrderFormat, pk=pk, created_by=request.user)
+    
+    if request.method == 'POST':
+        work_order.date = request.POST.get('date')
+        work_order.work_order_no = request.POST.get('work_order_no')
+        work_order.equipment_no = request.POST.get('equipment_no')
+        work_order.delivery_date = request.POST.get('delivery_date')
+        work_order.equipment_type = request.POST.get('equipment_type')
+        work_order.capacity = request.POST.get('capacity')
+        work_order.model = request.POST.get('model')
+        work_order.inner_body_moc = request.POST.get('inner_body_moc')
+        work_order.outer_body_moc = request.POST.get('outer_body_moc')
+        work_order.inside_dimensions = request.POST.get('inside_dimensions')
+        work_order.outer_size = request.POST.get('outer_size')
+        work_order.temp_range = request.POST.get('temp_range')
+        work_order.accuracy = request.POST.get('accuracy')
+        work_order.uniformity = request.POST.get('uniformity')
+        work_order.controller_system = request.POST.get('controller_system')
+        work_order.hmi_system = request.POST.get('hmi_system')
+        work_order.gsm_system = request.POST.get('gsm_system') == 'on'
+        work_order.scanner = request.POST.get('scanner', '')
+        work_order.software = request.POST.get('software', '')
+        work_order.door_access_system = request.POST.get('door_access_system')
+        work_order.hooter_system = request.POST.get('hooter_system')
+        work_order.castor_wheels = request.POST.get('castor_wheels') == 'on'
+        work_order.pipe_length = request.POST.get('pipe_length', '')
+        work_order.packaging = request.POST.get('packaging')
+        work_order.fat = request.POST.get('fat')
+        work_order.refrigeration_system = request.POST.get('refrigeration_system')
+        work_order.sg_system = request.POST.get('sg_system')
+        work_order.sensor = request.POST.get('sensor')
+        work_order.tray_qty = request.POST.get('tray_qty')
+        work_order.tray_type = request.POST.get('tray_type')
+        work_order.tray_moc = request.POST.get('tray_moc')
+        work_order.tray_dimension = request.POST.get('tray_dimension')
+        work_order.rack_qty = request.POST.get('rack_qty')
+        work_order.protocol_documents = request.POST.get('protocol_documents') == 'on'
+        work_order.calibration_duration = request.POST.get('calibration_duration')
+        work_order.validation_duration = request.POST.get('validation_duration')
+        work_order.validation_compressor = request.POST.get('validation_compressor')
+        work_order.extra_validation_charge = request.POST.get('extra_validation_charge') == 'on'
+        work_order.calibration_probes = request.POST.get('calibration_probes')
+        work_order.plc_validation = request.POST.get('plc_validation') == 'on'
+        work_order.training_handover = request.POST.get('training_handover') == 'on'
+        work_order.special_instructions = request.POST.get('special_instructions', '')
+        work_order.advance_percentage = request.POST.get('advance_percentage')
+        work_order.against_pi_percentage = request.POST.get('against_pi_percentage')
+        work_order.after_material_percentage = request.POST.get('after_material_percentage')
+        work_order.save()
+        
+        messages.success(request, 'Work Order updated successfully!')
+        return redirect('marketing:work_order_format_detail', pk=work_order.pk)
+    
+    context = {
+        'work_order': work_order,
+        'CONTROLLER_CHOICES': WorkOrderFormat.CONTROLLER_CHOICES,
+        'HMI_CHOICES': WorkOrderFormat.HMI_CHOICES,
+        'DOOR_ACCESS_CHOICES': WorkOrderFormat.DOOR_ACCESS_CHOICES,
+        'HOOTER_CHOICES': WorkOrderFormat.HOOTER_CHOICES,
+        'PACKAGING_CHOICES': WorkOrderFormat.PACKAGING_CHOICES,
+        'FAT_CHOICES': WorkOrderFormat.FAT_CHOICES,
+    }
+    
+    return render(request, 'marketing/work_order_format_form.html', context)
+
+
+@login_required
+def work_order_format_delete(request, pk):
+    """Delete Work Order Format entry"""
+    work_order = get_object_or_404(WorkOrderFormat, pk=pk, created_by=request.user)
+    
+    if request.method == 'POST':
+        work_order.delete()
+        messages.success(request, 'Work Order deleted successfully!')
+        return redirect('marketing:work_order_format_list')
+    
+    context = {
+        'work_order': work_order,
+    }
+    
+    return render(request, 'marketing/work_order_format_confirm_delete.html', context)
 
 

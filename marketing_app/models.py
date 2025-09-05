@@ -1611,3 +1611,142 @@ class POStatus(models.Model):
         self.total_received_amount = sum(received_amounts)
         
         super().save(*args, **kwargs)
+
+
+# Work Order System Model
+class WorkOrderFormat(models.Model):
+    """Work Order Format - Comprehensive Equipment Manufacturing Template"""
+    
+    # Controller System Options
+    CONTROLLER_CHOICES = [
+        ('plc_ab', 'PLC "AB"'),
+        ('plc_delta', 'PLC Delta'),
+        ('digital_controller', 'Digital Controller System'),
+        ('microprocessor_pid', 'Microprocessor based PID Controller'),
+    ]
+    
+    # HMI Options
+    HMI_CHOICES = [
+        ('hmi_43_ab', '4.3" AB'),
+        ('hmi_43_delta', '4.3" Delta'),
+        ('hmi_7_ab', '7" AB'),
+        ('hmi_7_delta', '7" Delta'),
+        ('other_na', 'Any Other/NA'),
+    ]
+    
+    # Door Access System Options
+    DOOR_ACCESS_CHOICES = [
+        ('password', 'Password Protected Door Access System'),
+        ('biometric', 'Biometric Door Access System'),
+        ('na', 'NA'),
+    ]
+    
+    # Hooter System Options
+    HOOTER_CHOICES = [
+        ('4_chamber', 'Yes (4 Chamber Connectivity)'),
+        ('8_chamber', 'Yes (8 Chamber Connectivity)'),
+        ('na', 'NA'),
+        ('other', 'Any Other'),
+    ]
+    
+    # Packaging Options
+    PACKAGING_CHOICES = [
+        ('normal', 'Normal'),
+        ('wooden', 'Wooden'),
+        ('other', 'Any other'),
+    ]
+    
+    # FAT Options
+    FAT_CHOICES = [
+        ('yes', 'Yes'),
+        ('no', 'No'),
+        ('depends', 'Depends'),
+    ]
+    
+    # Header Information
+    date = models.DateField(help_text="Date")
+    work_order_no = models.CharField(max_length=100, help_text="Work Order No.")
+    equipment_no = models.CharField(max_length=100, help_text="Equipment No.")
+    delivery_date = models.DateField(help_text="Delivery Date")
+    
+    # Equipment Details
+    equipment_type = models.CharField(max_length=200, help_text="Equipment type")
+    capacity = models.CharField(max_length=50, help_text="Capacity (Ltr)")
+    model = models.CharField(max_length=100, help_text="Model")
+    
+    # Material of Construction (MOC)
+    inner_body_moc = models.CharField(max_length=100, help_text="Inner Body MOC")
+    outer_body_moc = models.CharField(max_length=100, help_text="Outer Body MOC")
+    
+    # Dimensions
+    inside_dimensions = models.CharField(max_length=100, help_text="Inside dimensions (W x D x H in MM)")
+    outer_size = models.CharField(max_length=100, help_text="Outer Size (W x D x H in MM)")
+    
+    # Temperature Specifications
+    temp_range = models.CharField(max_length=100, help_text="Temp Range")
+    accuracy = models.CharField(max_length=100, help_text="Accuracy")
+    uniformity = models.CharField(max_length=100, help_text="Uniformity")
+    
+    # Control Systems
+    controller_system = models.CharField(max_length=50, choices=CONTROLLER_CHOICES, help_text="Controller System")
+    hmi_system = models.CharField(max_length=50, choices=HMI_CHOICES, help_text="HMI System")
+    
+    # Communication & Monitoring
+    gsm_system = models.BooleanField(default=False, help_text="GSM System")
+    scanner = models.CharField(max_length=200, blank=True, help_text="Scanner")
+    software = models.CharField(max_length=200, blank=True, help_text="Software")
+    
+    # Access Control
+    door_access_system = models.CharField(max_length=50, choices=DOOR_ACCESS_CHOICES, help_text="Door Access System")
+    
+    # Alert Systems
+    hooter_system = models.CharField(max_length=50, choices=HOOTER_CHOICES, help_text="Hooter System")
+    
+    # Physical Features
+    castor_wheels = models.BooleanField(default=False, help_text="Castor Wheels")
+    pipe_length = models.CharField(max_length=50, blank=True, help_text="Pipe Length (Meter/NA)")
+    packaging = models.CharField(max_length=50, choices=PACKAGING_CHOICES, help_text="Packaging Options")
+    fat = models.CharField(max_length=20, choices=FAT_CHOICES, help_text="FAT")
+    
+    # Standby System Section
+    refrigeration_system = models.CharField(max_length=20, choices=[('yes', 'Yes'), ('no', 'No'), ('na', 'NA')], help_text="Refrigeration System")
+    sg_system = models.CharField(max_length=20, choices=[('yes', 'Yes'), ('no', 'No'), ('na', 'NA')], help_text="S.G. System")
+    sensor = models.CharField(max_length=20, choices=[('yes', 'Yes'), ('na', 'NA')], help_text="Sensor")
+    
+    # Tray & Rack Specifications
+    tray_qty = models.CharField(max_length=50, help_text="Tray Qty. (Nos)")
+    tray_type = models.CharField(max_length=100, default="Perforated", help_text="Tray Type")
+    tray_moc = models.CharField(max_length=100, help_text="Tray MOC")
+    tray_dimension = models.CharField(max_length=100, help_text="Tray Dimension (W x D x H in MM)")
+    rack_qty = models.CharField(max_length=50, help_text="Rack Qty. (Nos/NA)")
+    
+    # Documentation Section
+    protocol_documents = models.BooleanField(default=True, help_text="Protocol for DQ, IQ, and OQ, PQ Documents will be provided")
+    calibration_duration = models.CharField(max_length=50, default="1 hour", help_text="Calibration duration")
+    validation_duration = models.CharField(max_length=100, help_text="Validation duration (24/48/72 hours with load and 24/48/72 hours without load)")
+    validation_compressor = models.CharField(max_length=100, help_text="Validation at one set point with one compressor")
+    extra_validation_charge = models.BooleanField(default=True, help_text="Any extra Validation would be charged extra per day")
+    calibration_probes = models.CharField(max_length=100, help_text="Calibration and Validation with probes (8/9/10/Option)")
+    plc_validation = models.BooleanField(default=True, help_text="PLC Based System validation will be carried out")
+    training_handover = models.BooleanField(default=True, help_text="Training and handover of documents")
+    
+    # Special Instructions
+    special_instructions = models.TextField(blank=True, help_text="Special Instructions")
+    
+    # Payment Terms
+    advance_percentage = models.DecimalField(max_digits=5, decimal_places=2, help_text="Advance Percentage")
+    against_pi_percentage = models.DecimalField(max_digits=5, decimal_places=2, help_text="Against PI Percentage")
+    after_material_percentage = models.DecimalField(max_digits=5, decimal_places=2, help_text="After receiving material at site Percentage")
+    
+    # System fields
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-date', '-created_at']
+        verbose_name = "Work Order Format"
+        verbose_name_plural = "Work Order Formats"
+    
+    def __str__(self):
+        return f"{self.work_order_no} - {self.equipment_type}"

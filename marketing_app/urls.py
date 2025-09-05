@@ -82,9 +82,14 @@ urlpatterns = [
     path('payment-followups/update/<int:followup_id>/', views.payment_followup_update, name='payment_followup_update'),
     
     # Production
-    path('work-orders/', views.workorder_list, name='workorder_list'),
-    path('work-orders/create/', views.workorder_create, name='workorder_create'),
-    path('work-orders/<int:workorder_id>/', views.workorder_detail, name='workorder_detail'),
+    # Work Order Format System (replaces existing work orders)
+    path('work-orders/dashboard/', views.work_order_format_dashboard, name='work_order_format_dashboard'),
+    path('work-orders/sheets/', views.work_order_format_sheets, name='work_order_format_sheets'),
+    path('work-orders/', views.work_order_format_list, name='work_order_format_list'),
+    path('work-orders/create/', views.work_order_format_create, name='work_order_format_create'),
+    path('work-orders/<int:pk>/', views.work_order_format_detail, name='work_order_format_detail'),
+    path('work-orders/<int:pk>/edit/', views.work_order_format_edit, name='work_order_format_edit'),
+    path('work-orders/<int:pk>/delete/', views.work_order_format_delete, name='work_order_format_delete'),
     path('production-planning/', views.production_planning, name='production_planning'),
     path('manufacturing/', views.manufacturing_list, name='manufacturing_list'),
     path('manufacturing/<int:manufacturing_id>/', views.manufacturing_detail, name='manufacturing_detail'),
