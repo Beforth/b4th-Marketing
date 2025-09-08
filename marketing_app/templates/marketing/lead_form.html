@@ -6,65 +6,72 @@
 {% block content %}
 <div class="space-y-6">
     <!-- Header -->
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">Add New Lead</h1>
-            <p class="text-gray-600">Create a new lead and start tracking the sales process</p>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Add New Lead</h1>
+            <p class="text-sm sm:text-base text-gray-600">Create a new lead and start tracking the sales process</p>
         </div>
-        <a href="{% url 'marketing:lead_list' %}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+        <a href="{% url 'marketing:lead_list' %}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
             <i data-lucide="arrow-left" class="w-4 h-4"></i>
-            Back to Leads
+            <span class="hidden sm:inline">Back to Leads</span>
+            <span class="sm:hidden">Back</span>
         </a>
     </div>
 
     <!-- Lead Form -->
-    <div class="bg-white rounded-xl border border-gray-200 p-6">
-        <form method="POST" class="space-y-8">
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm" style="padding: 0.75rem 1.5rem 1.5rem 1.5rem;">
+        <form method="POST" class="space-y-6">
             {% csrf_token %}
             
             <!-- Lead Information -->
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Lead Information</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
                         <input type="text" name="first_name" id="first_name" required
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                               style="height: 44px; box-sizing: border-box;"
                                placeholder="Enter first name">
                     </div>
                     
                     <div>
                         <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
                         <input type="text" name="last_name" id="last_name" required
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                               style="height: 44px; box-sizing: border-box;"
                                placeholder="Enter last name">
                     </div>
                     
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
                         <input type="email" name="email" id="email" required
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                               style="height: 44px; box-sizing: border-box;"
                                placeholder="Enter email address">
                     </div>
                     
                     <div>
                         <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
                         <input type="tel" name="phone" id="phone"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                               style="height: 44px; box-sizing: border-box;"
                                placeholder="Enter phone number">
                     </div>
                     
                     <div>
                         <label for="company" class="block text-sm font-medium text-gray-700 mb-2">Company</label>
                         <input type="text" name="company" id="company"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                               style="height: 44px; box-sizing: border-box;"
                                placeholder="Enter company name">
                     </div>
                     
                     <div>
                         <label for="position" class="block text-sm font-medium text-gray-700 mb-2">Position</label>
                         <input type="text" name="position" id="position"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                               style="height: 44px; box-sizing: border-box;"
                                placeholder="Enter job position">
                     </div>
                 </div>
@@ -77,7 +84,8 @@
                     <div>
                         <label for="source" class="block text-sm font-medium text-gray-700 mb-2">Lead Source *</label>
                         <select name="source" id="source" required
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                               style="height: 44px; box-sizing: border-box;">
                             <option value="">Select lead source</option>
                             {% for value, label in source_choices %}
                                 <option value="{{ value }}">{{ label }}</option>
@@ -88,7 +96,8 @@
                     <div>
                         <label for="assigned_to" class="block text-sm font-medium text-gray-700 mb-2">Assign To</label>
                         <select name="assigned_to" id="assigned_to"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                               style="height: 44px; box-sizing: border-box;">
                             <option value="">Select user</option>
                             {% for user in users %}
                                 <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }}</option>
@@ -99,7 +108,8 @@
                     <div>
                         <label for="campaign" class="block text-sm font-medium text-gray-700 mb-2">Campaign</label>
                         <select name="campaign" id="campaign"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                               style="height: 44px; box-sizing: border-box;">
                             <option value="">Select campaign</option>
                             {% for campaign in campaigns %}
                                 <option value="{{ campaign.id }}">{{ campaign.name }}</option>
@@ -110,7 +120,8 @@
                     <div>
                         <label for="score" class="block text-sm font-medium text-gray-700 mb-2">Lead Score</label>
                         <input type="number" name="score" id="score" min="0" max="100" value="0"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                               style="height: 44px; box-sizing: border-box;"
                                placeholder="Enter lead score (0-100)">
                     </div>
                 </div>
@@ -123,21 +134,22 @@
                     <div>
                         <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
                         <textarea name="notes" id="notes" rows="4"
-                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                                  placeholder="Enter any additional notes about the lead"></textarea>
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 resize-vertical"
+                                  placeholder="Enter any additional notes about the lead"
+                                  style="min-height: 100px; box-sizing: border-box;"></textarea>
                     </div>
                 </div>
             </div>
 
             <!-- Form Actions -->
-            <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
+            <div class="flex items-center justify-end gap-3 pt-6 mt-6 border-t border-gray-200">
                 <a href="{% url 'marketing:lead_list' %}" 
                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    Cancel
+                    <i class="w-4 h-4 mr-2">×</i>Cancel
                 </a>
                 <button type="submit" 
-                        class="px-6 py-2 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 transition-colors">
-                    Create Lead
+                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="w-4 h-4 mr-2">📄</i>Create Lead
                 </button>
             </div>
         </form>

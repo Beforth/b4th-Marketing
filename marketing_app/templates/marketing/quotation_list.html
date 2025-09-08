@@ -12,7 +12,7 @@
             <p class="text-gray-600">Manage quotations and track sales pipeline</p>
         </div>
         <div class="flex items-center gap-3">
-            <a href="{% url 'marketing:quotation_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 transition-colors">
+            <a href="{% url 'marketing:quotation_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors">
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 Create Quotation
             </a>
@@ -81,7 +81,7 @@
             <div>
                 <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search</label>
                 <input type="text" name="search" id="search" value="{{ search_query }}" 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-blue-500"
                        placeholder="Search quotations...">
             </div>
             
@@ -89,7 +89,7 @@
             <div>
                 <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
                 <select name="status" id="status" 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-blue-500">
                     <option value="">All Status</option>
                     {% for value, label in status_choices %}
                         <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
@@ -101,7 +101,7 @@
             <div>
                 <label for="customer" class="block text-sm font-medium text-gray-700 mb-2">Customer</label>
                 <select name="customer" id="customer" 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-blue-500">
                     <option value="">All Customers</option>
                     {% for customer in customers %}
                         <option value="{{ customer.id }}" {% if customer_filter == customer.id|stringformat:"s" %}selected{% endif %}>{{ customer.name }}</option>
@@ -111,7 +111,7 @@
             
             <!-- Filter Button -->
             <div class="flex items-end">
-                <button type="submit" class="w-full bg-brand-600 text-white px-4 py-2 rounded-lg hover:bg-brand-700 transition-colors">
+                <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                     <i data-lucide="search" class="w-4 h-4 inline mr-2"></i>
                     Filter
                 </button>
@@ -164,11 +164,11 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="h-10 w-10 bg-brand-100 rounded-lg flex items-center justify-center">
-                                        <i data-lucide="file-text" class="w-5 h-5 text-brand-600"></i>
+                                        <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
                                     </div>
                                     <div class="ml-4">
                                         <div class="text-sm font-medium text-gray-900">
-                                            <a href="{% url 'marketing:quotation_detail' quotation.id %}" class="hover:text-brand-600">
+                                            <a href="{% url 'marketing:quotation_detail' quotation.id %}" class="hover:text-blue-600">
                                                 {{ quotation.quotation_number }}
                                             </a>
                                         </div>
@@ -222,7 +222,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end gap-2">
                                     <a href="{% url 'marketing:quotation_detail' quotation.id %}" 
-                                       class="text-brand-600 hover:text-brand-900">
+                                       class="text-blue-600 hover:text-brand-900">
                                         <i data-lucide="eye" class="w-4 h-4"></i>
                                     </a>
                                     <a href="#" class="text-gray-600 hover:text-gray-900">
@@ -279,7 +279,7 @@
                                 
                                 {% for num in page_obj.paginator.page_range %}
                                     {% if page_obj.number == num %}
-                                        <span class="relative inline-flex items-center px-4 py-2 border border-brand-500 bg-brand-50 text-sm font-medium text-brand-600">
+                                        <span class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600">
                                             {{ num }}
                                         </span>
                                     {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
@@ -307,7 +307,7 @@
                 <i data-lucide="file-text" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
                 <h3 class="text-lg font-medium text-gray-900 mb-2">No quotations found</h3>
                 <p class="text-gray-500 mb-6">Get started by creating your first quotation.</p>
-                <a href="{% url 'marketing:quotation_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 transition-colors">
+                <a href="{% url 'marketing:quotation_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     Create Quotation
                 </a>

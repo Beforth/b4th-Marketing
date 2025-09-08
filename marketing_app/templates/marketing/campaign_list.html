@@ -11,7 +11,7 @@
             <h1 class="text-2xl font-bold text-gray-900">Campaigns</h1>
             <p class="text-gray-600">Manage your marketing campaigns</p>
         </div>
-        <a href="{% url 'marketing:campaign_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 transition-colors">
+        <a href="{% url 'marketing:campaign_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors">
             <i data-lucide="plus" class="w-4 h-4"></i>
             New Campaign
         </a>
@@ -28,7 +28,7 @@
                         <input type="text" name="search" value="{{ search_query }}" placeholder="Search campaigns..." 
                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-transparent">
                     </div>
-                    <button type="submit" class="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors">
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                         Search
                     </button>
                 </form>
@@ -110,7 +110,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end gap-2">
-                                    <a href="{% url 'marketing:campaign_detail' campaign.id %}" class="text-brand-600 hover:text-brand-900">
+                                    <a href="{% url 'marketing:campaign_detail' campaign.id %}" class="text-blue-600 hover:text-brand-900">
                                         <i data-lucide="eye" class="w-4 h-4"></i>
                                     </a>
                                     <a href="#" class="text-gray-600 hover:text-gray-900">
@@ -159,7 +159,7 @@
 
                                 {% for num in page_obj.paginator.page_range %}
                                     {% if page_obj.number == num %}
-                                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-brand-50 text-sm font-medium text-brand-600">
+                                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
                                             {{ num }}
                                         </span>
                                     {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
@@ -186,7 +186,7 @@
                 <i data-lucide="megaphone" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
                 <h3 class="text-lg font-medium text-gray-900 mb-2">No campaigns found</h3>
                 <p class="text-gray-500 mb-6">Get started by creating your first marketing campaign.</p>
-                <a href="{% url 'marketing:campaign_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 transition-colors">
+                <a href="{% url 'marketing:campaign_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors">
                     <i data-lucide="plus" class="w-4 h-4"></i>
                     Create Campaign
                 </a>
