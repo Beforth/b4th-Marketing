@@ -6,19 +6,19 @@
 {% block content %}
 <div class="mx-auto w-full p-2 md:p-4 xl:p-2">
     <!-- Header -->
-    <div class="mb-4">
+    <div class="mb-4 sm:mb-6">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Lead Generation</h1>
-                <p class="text-sm text-gray-600">Generate new leads from various sources</p>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Lead Generation</h1>
+                <p class="text-sm sm:text-base text-gray-600">Generate new leads from various sources</p>
             </div>
-            <div class="flex items-center gap-3">
-                <a href="{% url 'marketing:lead_list' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm transition">
-                    <i data-lucide="list" class="w-4 h-4"></i>
+            <div class="flex items-center gap-2 sm:gap-3">
+                <a href="{% url 'marketing:lead_list' %}" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-xs sm:text-sm transition">
+                    <i data-lucide="list" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                     View Leads
                 </a>
-                <a href="{% url 'marketing:customer_registration' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm transition">
-                    <i data-lucide="user-plus" class="w-4 h-4"></i>
+                <a href="{% url 'marketing:customer_registration' %}" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs sm:text-sm transition">
+                    <i data-lucide="user-plus" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                     New Customer
                 </a>
             </div>
@@ -26,36 +26,36 @@
     </div>
 
     <!-- Lead Generation Form -->
-    <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
-        <form method="post" class="p-6 space-y-6">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <form method="post" class="p-3 sm:p-6 space-y-4 sm:space-y-6">
             {% csrf_token %}
             
             <!-- Customer Selection -->
             <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Customer Information</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="md:col-span-2">
-                        <label for="customer" class="block text-sm font-medium text-gray-700 mb-2">Select Customer <span class="text-red-500">*</span></label>
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Customer Information</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div class="sm:col-span-2">
+                        <label for="customer" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Select Customer <span class="text-red-500">*</span></label>
                         <select id="customer" name="customer" required
-                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             <option value="">Choose a customer</option>
                             {% for customer in customers %}
                             <option value="{{ customer.id }}">{{ customer.name }} - {{ customer.contact_person }}</option>
                             {% endfor %}
                         </select>
-                        <p class="text-sm text-gray-500 mt-1">Select existing customer or <a href="{% url 'marketing:customer_registration' %}" class="text-brand-600 hover:text-brand-700">register new customer</a></p>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-1">Select existing customer or <a href="{% url 'marketing:customer_registration' %}" class="text-blue-600 hover:text-blue-700">register new customer</a></p>
                     </div>
                 </div>
             </div>
 
             <!-- Lead Source Information -->
             <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Lead Source</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="md:col-span-2">
-                        <label for="source" class="block text-sm font-medium text-gray-700 mb-2">Lead Source <span class="text-red-500">*</span></label>
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Lead Source</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div class="sm:col-span-2">
+                        <label for="source" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Lead Source <span class="text-red-500">*</span></label>
                         <select id="source" name="source" required
-                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             <option value="">Select lead source</option>
                             {% for source_value, source_label in lead_sources %}
                             <option value="{{ source_value }}">{{ source_label }}</option>
@@ -64,47 +64,47 @@
                     </div>
                     
                     <!-- Source-specific fields -->
-                    <div id="exhibition-fields" class="source-fields hidden md:col-span-2">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div id="exhibition-fields" class="source-fields hidden sm:col-span-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Exhibition Name</label>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Exhibition Name</label>
                                 <input type="text" name="exhibition_name"
-                                       class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                       class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Exhibition Date</label>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Exhibition Date</label>
                                 <input type="date" name="exhibition_date"
-                                       class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                       class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             </div>
                         </div>
                     </div>
                     
-                    <div id="roadshow-fields" class="source-fields hidden md:col-span-2">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div id="roadshow-fields" class="source-fields hidden sm:col-span-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Road Show Location</label>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Road Show Location</label>
                                 <input type="text" name="roadshow_location"
-                                       class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                       class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Road Show Date</label>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Road Show Date</label>
                                 <input type="date" name="roadshow_date"
-                                       class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                       class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             </div>
                         </div>
                     </div>
                     
-                    <div id="seminar-fields" class="source-fields hidden md:col-span-2">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div id="seminar-fields" class="source-fields hidden sm:col-span-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Seminar Topic</label>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Seminar Topic</label>
                                 <input type="text" name="seminar_topic"
-                                       class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                       class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Seminar Date</label>
+                                <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Seminar Date</label>
                                 <input type="date" name="seminar_date"
-                                       class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                       class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             </div>
                         </div>
                     </div>
@@ -113,29 +113,29 @@
 
             <!-- Lead Details -->
             <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Lead Details</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="md:col-span-2">
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Lead Description <span class="text-red-500">*</span></label>
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Lead Details</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div class="sm:col-span-2">
+                        <label for="description" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Lead Description <span class="text-red-500">*</span></label>
                         <textarea id="description" name="description" rows="4" required
-                                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                  class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                   placeholder="Describe the lead opportunity, requirements, and any specific details"></textarea>
                     </div>
                     <div>
-                        <label for="potential_value" class="block text-sm font-medium text-gray-700 mb-2">Potential Value (₹)</label>
+                        <label for="potential_value" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Potential Value (₹)</label>
                         <input type="number" id="potential_value" name="potential_value" min="0" step="0.01"
-                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                placeholder="Estimated deal value">
                     </div>
                     <div>
-                        <label for="expected_closing_date" class="block text-sm font-medium text-gray-700 mb-2">Expected Closing Date</label>
+                        <label for="expected_closing_date" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Expected Closing Date</label>
                         <input type="date" id="expected_closing_date" name="expected_closing_date"
-                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label for="priority" class="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                        <label for="priority" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Priority</label>
                         <select id="priority" name="priority"
-                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             <option value="low">Low</option>
                             <option value="medium" selected>Medium</option>
                             <option value="high">High</option>
@@ -143,9 +143,9 @@
                         </select>
                     </div>
                     <div>
-                        <label for="lead_score" class="block text-sm font-medium text-gray-700 mb-2">Lead Score</label>
+                        <label for="lead_score" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Lead Score</label>
                         <select id="lead_score" name="lead_score"
-                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             <option value="1">1 - Cold</option>
                             <option value="2">2 - Warm</option>
                             <option value="3" selected>3 - Hot</option>
@@ -158,17 +158,17 @@
 
             <!-- Follow-up Information -->
             <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Follow-up Plan</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Follow-up Plan</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
-                        <label for="next_follow_up_date" class="block text-sm font-medium text-gray-700 mb-2">Next Follow-up Date</label>
+                        <label for="next_follow_up_date" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Next Follow-up Date</label>
                         <input type="date" id="next_follow_up_date" name="next_follow_up_date"
-                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label for="follow_up_method" class="block text-sm font-medium text-gray-700 mb-2">Follow-up Method</label>
+                        <label for="follow_up_method" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Follow-up Method</label>
                         <select id="follow_up_method" name="follow_up_method"
-                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
                             <option value="phone">Phone Call</option>
                             <option value="email">Email</option>
                             <option value="visit">Personal Visit</option>
@@ -176,10 +176,10 @@
                             <option value="presentation">Presentation</option>
                         </select>
                     </div>
-                    <div class="md:col-span-2">
-                        <label for="follow_up_notes" class="block text-sm font-medium text-gray-700 mb-2">Follow-up Notes</label>
+                    <div class="sm:col-span-2">
+                        <label for="follow_up_notes" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Follow-up Notes</label>
                         <textarea id="follow_up_notes" name="follow_up_notes" rows="3"
-                                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                  class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                   placeholder="Notes for the next follow-up"></textarea>
                     </div>
                 </div>
@@ -187,36 +187,36 @@
 
             <!-- Additional Information -->
             <div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Additional Information</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Additional Information</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
-                        <label for="competitors" class="block text-sm font-medium text-gray-700 mb-2">Competitors</label>
+                        <label for="competitors" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Competitors</label>
                         <input type="text" id="competitors" name="competitors"
-                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                placeholder="Known competitors in the deal">
                     </div>
                     <div>
-                        <label for="decision_maker" class="block text-sm font-medium text-gray-700 mb-2">Decision Maker</label>
+                        <label for="decision_maker" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Decision Maker</label>
                         <input type="text" id="decision_maker" name="decision_maker"
-                               class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                placeholder="Key decision maker's name">
                     </div>
-                    <div class="md:col-span-2">
-                        <label for="additional_notes" class="block text-sm font-medium text-gray-700 mb-2">Additional Notes</label>
+                    <div class="sm:col-span-2">
+                        <label for="additional_notes" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Additional Notes</label>
                         <textarea id="additional_notes" name="additional_notes" rows="3"
-                                  class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                  class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                   placeholder="Any additional information about the lead"></textarea>
                     </div>
                 </div>
             </div>
 
             <!-- Form Actions -->
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
-                <a href="{% url 'marketing:lead_list' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
+            <div class="flex items-center justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-200">
+                <a href="{% url 'marketing:lead_list' %}" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
                     Cancel
                 </a>
-                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
-                    <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                <button type="submit" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                    <i data-lucide="plus" class="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2"></i>
                     Generate Lead
                 </button>
             </div>
@@ -224,9 +224,9 @@
     </div>
 
     <!-- Lead Generation Tips -->
-    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-        <h4 class="font-medium text-blue-900 mb-2">Lead Generation Tips</h4>
-        <ul class="text-sm text-blue-800 space-y-1">
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mt-4 sm:mt-6">
+        <h4 class="text-sm sm:text-base font-medium text-blue-900 mb-2">Lead Generation Tips</h4>
+        <ul class="text-xs sm:text-sm text-blue-800 space-y-1">
             <li>• Be specific about the lead description and requirements</li>
             <li>• Set realistic potential values based on market research</li>
             <li>• Schedule follow-ups promptly to maintain momentum</li>

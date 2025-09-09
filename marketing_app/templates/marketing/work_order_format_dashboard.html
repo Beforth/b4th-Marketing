@@ -7,118 +7,130 @@
 <div class="mx-auto w-full p-2 md:p-4 xl:p-2">
     <!-- Header -->
     <div class="mb-6">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Work Order Dashboard</h1>
-                <p class="text-sm text-gray-600">Work Order Format System - Equipment Manufacturing Template</p>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Work Order Dashboard</h1>
+                <p class="text-sm sm:text-base text-gray-600">Work Order Format System - Equipment Manufacturing Template</p>
             </div>
-            <a href="{% url 'marketing:work_order_format_sheets' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm transition">
-                <i data-lucide="table" class="w-4 h-4"></i>
+            <a href="{% url 'marketing:work_order_format_sheets' %}" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-xs sm:text-sm transition">
+                <i data-lucide="table" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                 All Sheets
             </a>
         </div>
     </div>
 
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-4">
         <!-- Work Orders Card -->
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+        <div class="bg-white rounded-lg border border-gray-200 p-2 sm:p-3 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Work Orders</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ work_order_count }}</p>
-                    <p class="text-xs text-gray-500">Total entries</p>
+                    <p class="text-xs font-medium text-gray-600">Work Orders</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">{{ work_order_count }}</p>
+                    <p class="text-xs text-blue-600 flex items-center gap-1 mt-1">
+                        <i data-lucide="clipboard-list" class="w-3 h-3"></i>
+                        All time
+                    </p>
                 </div>
-                <div class="p-3 bg-blue-100 rounded-full">
-                    <i data-lucide="clipboard-list" class="w-6 h-6 text-blue-600"></i>
+                <div class="h-8 w-8 sm:h-10 sm:w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="clipboard-list" class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600"></i>
                 </div>
             </div>
         </div>
 
         <!-- This Month Card -->
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+        <div class="bg-white rounded-lg border border-gray-200 p-2 sm:p-3 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">This Month</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ work_order_count }}</p>
-                    <p class="text-xs text-gray-500">New entries</p>
+                    <p class="text-xs font-medium text-gray-600">This Month</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">{{ work_order_count }}</p>
+                    <p class="text-xs text-green-600 flex items-center gap-1 mt-1">
+                        <i data-lucide="calendar" class="w-3 h-3"></i>
+                        New entries
+                    </p>
                 </div>
-                <div class="p-3 bg-green-100 rounded-full">
-                    <i data-lucide="calendar" class="w-6 h-6 text-green-600"></i>
+                <div class="h-8 w-8 sm:h-10 sm:w-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="calendar" class="w-4 h-4 sm:w-5 sm:h-5 text-green-600"></i>
                 </div>
             </div>
         </div>
 
         <!-- Active Orders Card -->
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+        <div class="bg-white rounded-lg border border-gray-200 p-2 sm:p-3 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Active Orders</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ work_order_count }}</p>
-                    <p class="text-xs text-gray-500">In progress</p>
+                    <p class="text-xs font-medium text-gray-600">Active Orders</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">{{ work_order_count }}</p>
+                    <p class="text-xs text-yellow-600 flex items-center gap-1 mt-1">
+                        <i data-lucide="clock" class="w-3 h-3"></i>
+                        In progress
+                    </p>
                 </div>
-                <div class="p-3 bg-yellow-100 rounded-full">
-                    <i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
+                <div class="h-8 w-8 sm:h-10 sm:w-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="clock" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600"></i>
                 </div>
             </div>
         </div>
 
         <!-- Completed Card -->
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+        <div class="bg-white rounded-lg border border-gray-200 p-2 sm:p-3 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Completed</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ work_order_count }}</p>
-                    <p class="text-xs text-gray-500">Finished orders</p>
+                    <p class="text-xs font-medium text-gray-600">Completed</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">{{ work_order_count }}</p>
+                    <p class="text-xs text-purple-600 flex items-center gap-1 mt-1">
+                        <i data-lucide="check-circle" class="w-3 h-3"></i>
+                        Finished orders
+                    </p>
                 </div>
-                <div class="p-3 bg-purple-100 rounded-full">
-                    <i data-lucide="check-circle" class="w-6 h-6 text-purple-600"></i>
+                <div class="h-8 w-8 sm:h-10 sm:w-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="check-circle" class="w-4 h-4 sm:w-5 sm:h-5 text-purple-600"></i>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Quick Actions -->
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-8">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <a href="{% url 'marketing:work_order_format_create' %}" class="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors">
-                <div class="p-2 bg-green-100 rounded-lg">
-                    <i data-lucide="plus" class="w-5 h-5 text-green-600"></i>
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-3 sm:p-4 mb-4">
+        <h3 class="text-sm sm:text-base font-semibold text-gray-900 mb-3">Quick Actions</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+            <a href="{% url 'marketing:work_order_format_create' %}" class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors">
+                <div class="h-6 w-6 sm:h-8 sm:w-8 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="plus" class="w-3 h-3 sm:w-4 sm:h-4 text-green-600"></i>
                 </div>
                 <div>
-                    <p class="font-medium text-green-900">New Work Order</p>
-                    <p class="text-sm text-green-700">Create new work order</p>
+                    <p class="text-xs sm:text-sm font-medium text-green-900">New Work Order</p>
+                    <p class="text-xs text-green-700">Create new work order</p>
                 </div>
             </a>
             
-            <a href="{% url 'marketing:work_order_format_list' %}" class="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
-                <div class="p-2 bg-blue-100 rounded-lg">
-                    <i data-lucide="list" class="w-5 h-5 text-blue-600"></i>
+            <a href="{% url 'marketing:work_order_format_list' %}" class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                <div class="h-6 w-6 sm:h-8 sm:w-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="list" class="w-3 h-3 sm:w-4 sm:h-4 text-blue-600"></i>
                 </div>
                 <div>
-                    <p class="font-medium text-blue-900">View All Work Orders</p>
-                    <p class="text-sm text-blue-700">Browse all orders</p>
+                    <p class="text-xs sm:text-sm font-medium text-blue-900">View All Work Orders</p>
+                    <p class="text-xs text-blue-700">Browse all orders</p>
                 </div>
             </a>
             
-            <a href="{% url 'marketing:work_order_format_sheets' %}" class="flex items-center gap-3 p-4 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors">
-                <div class="p-2 bg-purple-100 rounded-lg">
-                    <i data-lucide="table" class="w-5 h-5 text-purple-600"></i>
+            <a href="{% url 'marketing:work_order_format_sheets' %}" class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors">
+                <div class="h-6 w-6 sm:h-8 sm:w-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="table" class="w-3 h-3 sm:w-4 sm:h-4 text-purple-600"></i>
                 </div>
                 <div>
-                    <p class="font-medium text-purple-900">Work Order Sheets</p>
-                    <p class="text-sm text-purple-700">Tabbed interface</p>
+                    <p class="text-xs sm:text-sm font-medium text-purple-900">Work Order Sheets</p>
+                    <p class="text-xs text-purple-700">Tabbed interface</p>
                 </div>
             </a>
             
-            <div class="flex items-center gap-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                <div class="p-2 bg-orange-100 rounded-lg">
-                    <i data-lucide="factory" class="w-5 h-5 text-orange-600"></i>
+            <div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <div class="h-6 w-6 sm:h-8 sm:w-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="factory" class="w-3 h-3 sm:w-4 sm:h-4 text-orange-600"></i>
                 </div>
                 <div>
-                    <p class="font-medium text-orange-900">Equipment Manufacturing</p>
-                    <p class="text-sm text-orange-700">Template system</p>
+                    <p class="text-xs sm:text-sm font-medium text-orange-900">Equipment Manufacturing</p>
+                    <p class="text-xs text-orange-700">Template system</p>
                 </div>
             </div>
         </div>
@@ -126,40 +138,40 @@
 
     <!-- Recent Activity -->
     <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-        <div class="p-6 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Recent Work Orders</h3>
+        <div class="p-3 sm:p-6 border-b border-gray-200">
+            <h3 class="text-base sm:text-lg font-semibold text-gray-900">Recent Work Orders</h3>
         </div>
-        <div class="p-6">
+        <div class="p-3 sm:p-6">
             {% if recent_work_orders %}
-                <div class="space-y-4">
+                <div class="space-y-3 sm:space-y-4">
                     {% for work_order in recent_work_orders %}
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg">
                             <div class="flex-1">
-                                <h4 class="font-medium text-gray-900">{{ work_order.equipment_type }}</h4>
-                                <p class="text-sm text-gray-600">WO: {{ work_order.work_order_no }} • Equipment: {{ work_order.equipment_no }}</p>
+                                <h4 class="text-sm sm:text-base font-medium text-gray-900">{{ work_order.equipment_type }}</h4>
+                                <p class="text-xs sm:text-sm text-gray-600">WO: {{ work_order.work_order_no }} • Equipment: {{ work_order.equipment_no }}</p>
                                 <p class="text-xs text-gray-500">{{ work_order.date }}</p>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                            <div class="flex items-center gap-1 sm:gap-2">
+                                <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
                                     Active
                                 </span>
                                 <a href="{% url 'marketing:work_order_format_detail' work_order.pk %}" class="text-blue-600 hover:text-blue-800">
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                    <i data-lucide="eye" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                                 </a>
                             </div>
                         </div>
                     {% endfor %}
                 </div>
-                <div class="mt-4">
-                    <a href="{% url 'marketing:work_order_format_list' %}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                <div class="mt-3 sm:mt-4">
+                    <a href="{% url 'marketing:work_order_format_list' %}" class="text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-medium">
                         View all work orders →
                     </a>
                 </div>
             {% else %}
-                <div class="text-center py-8">
-                    <i data-lucide="clipboard-list" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
-                    <p class="text-gray-500">No work orders yet</p>
-                    <a href="{% url 'marketing:work_order_format_create' %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                <div class="text-center py-6 sm:py-8">
+                    <i data-lucide="clipboard-list" class="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-3 sm:mb-4"></i>
+                    <p class="text-sm sm:text-base text-gray-500">No work orders yet</p>
+                    <a href="{% url 'marketing:work_order_format_create' %}" class="text-blue-600 hover:text-blue-800 text-xs sm:text-sm font-medium">
                         Create your first work order
                     </a>
                 </div>

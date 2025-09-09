@@ -4,209 +4,236 @@
 {% block title %}Exhibition Planning - Marketing Hub{% endblock %}
 
 {% block content %}
-<div class="mx-auto w-full p-2 md:p-4 xl:p-2">
+<div class="space-y-6">
     <!-- Header -->
-    <div class="mb-6">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Exhibition Planning</h1>
-                <p class="text-sm text-gray-600">Plan and organize your exhibition events</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <a href="{% url 'marketing:exhibition_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 transition-colors">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
-                    New Plan
-                </a>
-                <a href="#" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                    <i data-lucide="download" class="w-4 h-4"></i>
-                    Export
-                </a>
-            </div>
+    <div class="flex flex-col gap-3 sm:gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Exhibition Planning</h1>
+            <p class="text-sm sm:text-base text-gray-600">Plan and organize your exhibition events</p>
+        </div>
+        <div class="flex items-center gap-2 sm:gap-3">
+            <a href="{% url 'marketing:exhibition_create' %}" class="inline-flex items-center gap-1 sm:gap-2 rounded-lg bg-blue-600 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white hover:bg-blue-700 transition-colors">
+                <i data-lucide="plus" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                New Plan
+            </a>
+            <a href="#" class="inline-flex items-center gap-1 sm:gap-2 rounded-lg bg-white border border-gray-300 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <i data-lucide="download" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                Export
+            </a>
         </div>
     </div>
 
     <!-- Planning Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div class="rounded-lg border border-gray-200 bg-white shadow-sm p-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+        <div class="rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow p-2 sm:p-3">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Planned Events</p>
-                    <p class="text-2xl font-bold text-gray-900">8</p>
+                    <p class="text-xs sm:text-sm font-medium text-gray-600">Planned Events</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">8</p>
+                    <p class="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                        <i data-lucide="calendar" class="w-3 h-3"></i>
+                        All time
+                    </p>
                 </div>
-                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100">
-                    <i data-lucide="calendar" class="h-6 w-6 text-blue-600"></i>
+                <div class="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-blue-100">
+                    <i data-lucide="calendar" class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600"></i>
                 </div>
             </div>
         </div>
 
-        <div class="rounded-lg border border-gray-200 bg-white shadow-sm p-4">
+        <div class="rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow p-2 sm:p-3">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">In Progress</p>
-                    <p class="text-2xl font-bold text-gray-900">3</p>
+                    <p class="text-xs sm:text-sm font-medium text-gray-600">In Progress</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">3</p>
+                    <p class="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                        <i data-lucide="clock" class="w-3 h-3"></i>
+                        Active
+                    </p>
                 </div>
-                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-100">
-                    <i data-lucide="clock" class="h-6 w-6 text-yellow-600"></i>
+                <div class="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-yellow-100">
+                    <i data-lucide="clock" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600"></i>
                 </div>
             </div>
         </div>
 
-        <div class="rounded-lg border border-gray-200 bg-white shadow-sm p-4">
+        <div class="rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow p-2 sm:p-3">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Completed</p>
-                    <p class="text-2xl font-bold text-gray-900">5</p>
+                    <p class="text-xs sm:text-sm font-medium text-gray-600">Completed</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">5</p>
+                    <p class="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                        <i data-lucide="check-circle" class="w-3 h-3"></i>
+                        Finished
+                    </p>
                 </div>
-                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100">
-                    <i data-lucide="check-circle" class="h-6 w-6 text-green-600"></i>
+                <div class="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-green-100">
+                    <i data-lucide="check-circle" class="w-4 h-4 sm:w-5 sm:h-5 text-green-600"></i>
                 </div>
             </div>
         </div>
 
-        <div class="rounded-lg border border-gray-200 bg-white shadow-sm p-4">
+        <div class="rounded-lg border border-gray-200 bg-white shadow-sm hover:shadow-md transition-shadow p-2 sm:p-3">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Total Budget</p>
-                    <p class="text-2xl font-bold text-gray-900">₹2.4M</p>
+                    <p class="text-xs sm:text-sm font-medium text-gray-600">Total Budget</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">₹2.4M</p>
+                    <p class="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                        <i data-lucide="dollar-sign" class="w-3 h-3"></i>
+                        Allocated
+                    </p>
                 </div>
-                <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100">
-                    <i data-lucide="dollar-sign" class="h-6 w-6 text-purple-600"></i>
+                <div class="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-purple-100">
+                    <i data-lucide="dollar-sign" class="w-4 h-4 sm:w-5 sm:h-5 text-purple-600"></i>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Planning Calendar -->
-    <div class="rounded-lg border border-gray-200 bg-white shadow-sm p-6 mb-6">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-lg font-semibold text-gray-900">Planning Calendar</h2>
-            <div class="flex items-center gap-2">
-                <button class="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Month</button>
-                <button class="px-3 py-1 text-sm bg-brand-600 text-white rounded-lg">Week</button>
-                <button class="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Day</button>
+    <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-2">
+                <h2 class="text-base sm:text-lg font-semibold text-gray-900">Planning Calendar</h2>
+                <div class="flex items-center gap-1 sm:gap-2">
+                    <button class="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Month</button>
+                    <button class="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-blue-600 text-white rounded-lg">Week</button>
+                    <button class="px-2 sm:px-3 py-1 text-xs sm:text-sm border border-gray-300 rounded-lg hover:bg-gray-50">Day</button>
+                </div>
             </div>
         </div>
         
         <!-- Placeholder for calendar -->
-        <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
-            <div class="text-center">
-                <i data-lucide="calendar" class="w-12 h-12 text-gray-400 mx-auto mb-2"></i>
-                <p class="text-gray-500">Exhibition planning calendar will be displayed here</p>
+        <div class="p-3 sm:p-6">
+            <div class="h-48 sm:h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                <div class="text-center">
+                    <i data-lucide="calendar" class="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-2"></i>
+                    <p class="text-sm sm:text-base text-gray-500">Exhibition planning calendar will be displayed here</p>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Planning Tasks -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <!-- Upcoming Tasks -->
-        <div class="rounded-lg border border-gray-200 bg-white shadow-sm p-6">
-            <h2 class="text-lg font-semibold text-gray-900 mb-6">Upcoming Tasks</h2>
-            
-            <div class="space-y-4">
-                <div class="flex items-start gap-3 p-4 bg-blue-50 rounded-lg">
-                    <div class="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
-                    <div class="flex-1">
-                        <p class="font-medium text-gray-900">Book venue for Auto Expo</p>
-                        <p class="text-sm text-gray-600">Due: Dec 1, 2024</p>
-                        <p class="text-sm text-gray-500">Priority: High</p>
+        <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+                <h2 class="text-base sm:text-lg font-semibold text-gray-900">Upcoming Tasks</h2>
+            </div>
+            <div class="p-3 sm:p-6">
+                <div class="space-y-3 sm:space-y-4">
+                    <div class="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-blue-50 rounded-lg">
+                        <div class="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
+                        <div class="flex-1">
+                            <p class="text-sm sm:text-base font-medium text-gray-900">Book venue for Auto Expo</p>
+                            <p class="text-xs sm:text-sm text-gray-600">Due: Dec 1, 2024</p>
+                            <p class="text-xs sm:text-sm text-gray-500">Priority: High</p>
+                        </div>
+                        <button class="text-blue-600 hover:text-blue-700 text-xs sm:text-sm">Complete</button>
                     </div>
-                    <button class="text-blue-600 hover:text-blue-700 text-sm">Complete</button>
-                </div>
 
-                <div class="flex items-start gap-3 p-4 bg-yellow-50 rounded-lg">
-                    <div class="w-2 h-2 bg-yellow-600 rounded-full mt-2"></div>
-                    <div class="flex-1">
-                        <p class="font-medium text-gray-900">Design booth layout</p>
-                        <p class="text-sm text-gray-600">Due: Dec 5, 2024</p>
-                        <p class="text-sm text-gray-500">Priority: Medium</p>
+                    <div class="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-yellow-50 rounded-lg">
+                        <div class="w-2 h-2 bg-yellow-600 rounded-full mt-2"></div>
+                        <div class="flex-1">
+                            <p class="text-sm sm:text-base font-medium text-gray-900">Design booth layout</p>
+                            <p class="text-xs sm:text-sm text-gray-600">Due: Dec 5, 2024</p>
+                            <p class="text-xs sm:text-sm text-gray-500">Priority: Medium</p>
+                        </div>
+                        <button class="text-yellow-600 hover:text-yellow-700 text-xs sm:text-sm">Complete</button>
                     </div>
-                    <button class="text-yellow-600 hover:text-yellow-700 text-sm">Complete</button>
-                </div>
 
-                <div class="flex items-start gap-3 p-4 bg-green-50 rounded-lg">
-                    <div class="w-2 h-2 bg-green-600 rounded-full mt-2"></div>
-                    <div class="flex-1">
-                        <p class="font-medium text-gray-900">Order promotional materials</p>
-                        <p class="text-sm text-gray-600">Due: Dec 8, 2024</p>
-                        <p class="text-sm text-gray-500">Priority: Low</p>
+                    <div class="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-green-50 rounded-lg">
+                        <div class="w-2 h-2 bg-green-600 rounded-full mt-2"></div>
+                        <div class="flex-1">
+                            <p class="text-sm sm:text-base font-medium text-gray-900">Order promotional materials</p>
+                            <p class="text-xs sm:text-sm text-gray-600">Due: Dec 8, 2024</p>
+                            <p class="text-xs sm:text-sm text-gray-500">Priority: Low</p>
+                        </div>
+                        <button class="text-green-600 hover:text-green-700 text-xs sm:text-sm">Complete</button>
                     </div>
-                    <button class="text-green-600 hover:text-green-700 text-sm">Complete</button>
                 </div>
             </div>
         </div>
 
         <!-- Vendor Management -->
-        <div class="rounded-lg border border-gray-200 bg-white shadow-sm p-6">
-            <h2 class="text-lg font-semibold text-gray-900 mb-6">Vendor Management</h2>
-            
-            <div class="space-y-4">
-                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                        <p class="font-medium text-gray-900">Booth Construction</p>
-                        <p class="text-sm text-gray-600">ABC Exhibitions</p>
-                    </div>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        Confirmed
-                    </span>
-                </div>
-
-                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                        <p class="font-medium text-gray-900">Catering Services</p>
-                        <p class="text-sm text-gray-600">XYZ Catering</p>
-                    </div>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                        Pending
-                    </span>
-                </div>
-
-                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                        <p class="font-medium text-gray-900">Audio Visual</p>
-                        <p class="text-sm text-gray-600">Tech Solutions</p>
-                    </div>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        In Progress
-                    </span>
-                </div>
+        <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+                <h2 class="text-base sm:text-lg font-semibold text-gray-900">Vendor Management</h2>
             </div>
+            <div class="p-3 sm:p-6">
+                <div class="space-y-3 sm:space-y-4">
+                    <div class="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="text-sm sm:text-base font-medium text-gray-900">Booth Construction</p>
+                            <p class="text-xs sm:text-sm text-gray-600">ABC Exhibitions</p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Confirmed
+                        </span>
+                    </div>
 
-            <div class="mt-6">
-                <button class="w-full bg-brand-600 text-white py-2 px-4 rounded-lg hover:bg-brand-700 transition-colors">
-                    <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
-                    Add Vendor
-                </button>
+                    <div class="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="text-sm sm:text-base font-medium text-gray-900">Catering Services</p>
+                            <p class="text-xs sm:text-sm text-gray-600">XYZ Catering</p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Pending
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="text-sm sm:text-base font-medium text-gray-900">Audio Visual</p>
+                            <p class="text-xs sm:text-sm text-gray-600">Tech Solutions</p>
+                        </div>
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            In Progress
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mt-4 sm:mt-6">
+                    <button class="w-full bg-blue-600 text-white py-2 px-3 sm:px-4 rounded-lg hover:bg-blue-700 transition-colors text-xs sm:text-sm">
+                        <i data-lucide="plus" class="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2"></i>
+                        Add Vendor
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Budget Tracking -->
-    <div class="rounded-lg border border-gray-200 bg-white shadow-sm p-6 mt-6">
-        <h2 class="text-lg font-semibold text-gray-900 mb-6">Budget Tracking</h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="text-center">
-                <p class="text-2xl font-bold text-green-600">₹1.8M</p>
-                <p class="text-sm text-gray-600">Allocated</p>
-            </div>
-            <div class="text-center">
-                <p class="text-2xl font-bold text-blue-600">₹1.2M</p>
-                <p class="text-sm text-gray-600">Spent</p>
-            </div>
-            <div class="text-center">
-                <p class="text-2xl font-bold text-purple-600">₹600K</p>
-                <p class="text-sm text-gray-600">Remaining</p>
-            </div>
+    <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+            <h2 class="text-base sm:text-lg font-semibold text-gray-900">Budget Tracking</h2>
         </div>
-
-        <!-- Budget Progress Bar -->
-        <div class="mt-6">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-gray-700">Budget Utilization</span>
-                <span class="text-sm text-gray-600">67%</span>
+        <div class="p-3 sm:p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                <div class="text-center">
+                    <p class="text-lg sm:text-xl font-bold text-green-600">₹1.8M</p>
+                    <p class="text-xs sm:text-sm text-gray-600">Allocated</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-lg sm:text-xl font-bold text-blue-600">₹1.2M</p>
+                    <p class="text-xs sm:text-sm text-gray-600">Spent</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-lg sm:text-xl font-bold text-purple-600">₹600K</p>
+                    <p class="text-xs sm:text-sm text-gray-600">Remaining</p>
+                </div>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-                <div class="bg-brand-600 h-2 rounded-full" style="width: 67%"></div>
+
+            <!-- Budget Progress Bar -->
+            <div class="mt-4 sm:mt-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs sm:text-sm font-medium text-gray-700">Budget Utilization</span>
+                    <span class="text-xs sm:text-sm text-gray-600">67%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full" style="width: 67%"></div>
+                </div>
             </div>
         </div>
     </div>

@@ -4,121 +4,131 @@
 {% block title %}Weekly Report Dashboard{% endblock %}
 
 {% block content %}
-<div class="mx-auto w-full p-2 md:p-4 xl:p-2">
+<div class="px-4 space-y-4">
     <!-- Header -->
-    <div class="mb-6">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">Weekly Report Dashboard</h1>
-                <p class="text-sm text-gray-600">Weekly Status Report System - Comprehensive tracking and analysis</p>
-            </div>
-            <a href="{% url 'marketing:wsr_sheets' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm transition">
-                <i data-lucide="table" class="w-4 h-4"></i>
-                All Sheets
-            </a>
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Weekly Report Dashboard</h1>
+            <p class="text-sm text-gray-600">Weekly Status Report System - Comprehensive tracking and analysis</p>
         </div>
+        <a href="{% url 'marketing:wsr_sheets' %}" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs sm:text-sm transition">
+            <i data-lucide="table" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+            All Sheets
+        </a>
     </div>
 
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         <!-- Weekly Summary Card -->
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+        <div class="bg-white rounded-lg border border-gray-200 p-2 sm:p-3 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Weekly Summary</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ weekly_summary_count }}</p>
-                    <p class="text-xs text-gray-500">Total entries</p>
+                    <p class="text-xs font-medium text-gray-600">Weekly Summary</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">{{ weekly_summary_count }}</p>
+                    <p class="text-xs text-blue-600 flex items-center gap-1 mt-1">
+                        <i data-lucide="trending-up" class="w-3 h-3"></i>
+                        +12%
+                    </p>
                 </div>
-                <div class="p-3 bg-blue-100 rounded-full">
-                    <i data-lucide="bar-chart-3" class="w-6 h-6 text-blue-600"></i>
+                <div class="h-8 w-8 sm:h-10 sm:w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600"></i>
                 </div>
             </div>
         </div>
 
         <!-- Hot Orders Card -->
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+        <div class="bg-white rounded-lg border border-gray-200 p-2 sm:p-3 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Hot Orders</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ hot_orders_count }}</p>
-                    <p class="text-xs text-gray-500">High priority orders</p>
+                    <p class="text-xs font-medium text-gray-600">Hot Orders</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">{{ hot_orders_count }}</p>
+                    <p class="text-xs text-red-600 flex items-center gap-1 mt-1">
+                        <i data-lucide="trending-up" class="w-3 h-3"></i>
+                        +8%
+                    </p>
                 </div>
-                <div class="p-3 bg-red-100 rounded-full">
-                    <i data-lucide="flame" class="w-6 h-6 text-red-600"></i>
+                <div class="h-8 w-8 sm:h-10 sm:w-10 bg-red-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="flame" class="w-4 h-4 sm:w-5 sm:h-5 text-red-600"></i>
                 </div>
             </div>
         </div>
 
         <!-- Calling Details Card -->
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+        <div class="bg-white rounded-lg border border-gray-200 p-2 sm:p-3 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Calling Details</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ calling_details_count }}</p>
-                    <p class="text-xs text-gray-500">Call tracking entries</p>
+                    <p class="text-xs font-medium text-gray-600">Calling Details</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">{{ calling_details_count }}</p>
+                    <p class="text-xs text-green-600 flex items-center gap-1 mt-1">
+                        <i data-lucide="trending-up" class="w-3 h-3"></i>
+                        +15%
+                    </p>
                 </div>
-                <div class="p-3 bg-green-100 rounded-full">
-                    <i data-lucide="phone" class="w-6 h-6 text-green-600"></i>
+                <div class="h-8 w-8 sm:h-10 sm:w-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="phone" class="w-4 h-4 sm:w-5 sm:h-5 text-green-600"></i>
                 </div>
             </div>
         </div>
 
         <!-- DSR Card -->
-        <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+        <div class="bg-white rounded-lg border border-gray-200 p-2 sm:p-3 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">DSR Reports</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ dsr_count }}</p>
-                    <p class="text-xs text-gray-500">Daily status reports</p>
+                    <p class="text-xs font-medium text-gray-600">DSR Reports</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">{{ dsr_count }}</p>
+                    <p class="text-xs text-purple-600 flex items-center gap-1 mt-1">
+                        <i data-lucide="trending-up" class="w-3 h-3"></i>
+                        +5%
+                    </p>
                 </div>
-                <div class="p-3 bg-purple-100 rounded-full">
-                    <i data-lucide="users" class="w-6 h-6 text-purple-600"></i>
+                <div class="h-8 w-8 sm:h-10 sm:w-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="users" class="w-4 h-4 sm:w-5 sm:h-5 text-purple-600"></i>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Quick Actions -->
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-8">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <a href="{% url 'marketing:wsr_sheets' %}" class="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
-                <div class="p-2 bg-blue-100 rounded-lg">
-                    <i data-lucide="table" class="w-5 h-5 text-blue-600"></i>
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-2 sm:p-3">
+        <h3 class="text-sm sm:text-base font-semibold text-gray-900 mb-2 sm:mb-3">Quick Actions</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+            <a href="{% url 'marketing:wsr_sheets' %}" class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                <div class="h-6 w-6 sm:h-8 sm:w-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="table" class="w-3 h-3 sm:w-4 sm:h-4 text-blue-600"></i>
                 </div>
                 <div>
-                    <p class="font-medium text-blue-900">All WSR Sheets</p>
-                    <p class="text-sm text-blue-700">8 comprehensive sheets</p>
+                    <p class="text-xs sm:text-sm font-medium text-blue-900">All WSR Sheets</p>
+                    <p class="text-xs text-blue-700">8 comprehensive sheets</p>
                 </div>
             </a>
             
-            <div class="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <div class="p-2 bg-green-100 rounded-lg">
-                    <i data-lucide="bar-chart-3" class="w-5 h-5 text-green-600"></i>
+            <div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div class="h-6 w-6 sm:h-8 sm:w-8 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="bar-chart-3" class="w-3 h-3 sm:w-4 sm:h-4 text-green-600"></i>
                 </div>
                 <div>
-                    <p class="font-medium text-green-900">Weekly Summary</p>
-                    <p class="text-sm text-green-700">Performance tracking</p>
+                    <p class="text-xs sm:text-sm font-medium text-green-900">Weekly Summary</p>
+                    <p class="text-xs text-green-700">Performance tracking</p>
                 </div>
             </div>
             
-            <div class="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div class="p-2 bg-red-100 rounded-lg">
-                    <i data-lucide="flame" class="w-5 h-5 text-red-600"></i>
+            <div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div class="h-6 w-6 sm:h-8 sm:w-8 bg-red-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="flame" class="w-3 h-3 sm:w-4 sm:h-4 text-red-600"></i>
                 </div>
                 <div>
-                    <p class="font-medium text-red-900">Hot Orders</p>
-                    <p class="text-sm text-red-700">Priority tracking</p>
+                    <p class="text-xs sm:text-sm font-medium text-red-900">Hot Orders</p>
+                    <p class="text-xs text-red-700">Priority tracking</p>
                 </div>
             </div>
             
-            <div class="flex items-center gap-3 p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                <div class="p-2 bg-purple-100 rounded-lg">
-                    <i data-lucide="users" class="w-5 h-5 text-purple-600"></i>
+            <div class="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                <div class="h-6 w-6 sm:h-8 sm:w-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="users" class="w-3 h-3 sm:w-4 sm:h-4 text-purple-600"></i>
                 </div>
                 <div>
-                    <p class="font-medium text-purple-900">DSR Reports</p>
-                    <p class="text-sm text-purple-700">Team activity</p>
+                    <p class="text-xs sm:text-sm font-medium text-purple-900">DSR Reports</p>
+                    <p class="text-xs text-purple-700">Team activity</p>
                 </div>
             </div>
         </div>
@@ -126,17 +136,17 @@
 
     <!-- Recent Activity -->
     <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-        <div class="p-6 border-b border-gray-200">
-            <h3 class="text-lg font-semibold text-gray-900">Recent Weekly Summaries</h3>
+        <div class="p-3 sm:p-4 border-b border-gray-200">
+            <h3 class="text-sm sm:text-base font-semibold text-gray-900">Recent Weekly Summaries</h3>
         </div>
-        <div class="p-6">
+        <div class="p-3 sm:p-4">
             {% if recent_weekly_summaries %}
                 <div class="space-y-4">
                     {% for summary in recent_weekly_summaries %}
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg">
                             <div class="flex-1">
-                                <h4 class="font-medium text-gray-900">Week {{ summary.week_no }} - {{ summary.get_region_display }}</h4>
-                                <p class="text-sm text-gray-600">{{ summary.get_product_line_display }} • Quotes: {{ summary.quotes_total }} • PO: {{ summary.po_received }}</p>
+                                <h4 class="text-xs sm:text-sm font-medium text-gray-900">Week {{ summary.week_no }} - {{ summary.get_region_display }}</h4>
+                                <p class="text-xs text-gray-600">{{ summary.get_product_line_display }} • Quotes: {{ summary.quotes_total }} • PO: {{ summary.po_received }}</p>
                                 <p class="text-xs text-gray-500">{{ summary.created_at|date:"M d, Y" }}</p>
                             </div>
                             <div class="flex items-center gap-2">
@@ -147,8 +157,8 @@
                         </div>
                     {% endfor %}
                 </div>
-                <div class="mt-4">
-                    <a href="{% url 'marketing:wsr_sheets' %}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                <div class="mt-3 sm:mt-4">
+                    <a href="{% url 'marketing:wsr_sheets' %}" class="text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-medium">
                         View all weekly reports →
                     </a>
                 </div>

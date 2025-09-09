@@ -6,14 +6,14 @@
 {% block content %}
 <div class="mx-auto w-full p-2 md:p-4 xl:p-2">
     <!-- Header -->
-    <div class="mb-6">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div class="mb-4 sm:mb-6">
+        <div class="flex flex-col gap-3 sm:gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Create Quotation</h1>
-                <p class="text-sm text-gray-600">Generate quotation for approved URS</p>
+                <p class="text-sm sm:text-base text-gray-600">Generate quotation for approved URS</p>
             </div>
-            <a href="{% url 'marketing:quotation_list' %}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-3 sm:px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <a href="{% url 'marketing:quotation_list' %}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <i data-lucide="arrow-left" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                 <span class="hidden sm:inline">Back to Quotations</span>
                 <span class="sm:hidden">Back</span>
             </a>
@@ -22,7 +22,7 @@
 
     <!-- Quotation Form -->
     <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
-        <form method="post" enctype="multipart/form-data" class="space-y-6" style="padding: 0.75rem 1.5rem 1.5rem 1.5rem;">
+        <form method="post" enctype="multipart/form-data" class="space-y-4 sm:space-y-6 p-4 sm:p-6">
             {% csrf_token %}
             
             <!-- URS Selection -->
@@ -30,8 +30,7 @@
                 <label for="urs" class="block text-sm font-medium text-gray-700 mb-2">
                     Select URS <span class="text-red-500">*</span>
                 </label>
-                <select name="urs" id="urs" required class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-                            style="min-height: 100px; box-sizing: border-box;">
+                <select name="urs" id="urs" required class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
                     <option value="">Select Approved URS</option>
                     {% for urs in urs_list %}
                     <option value="{{ urs.id }}" data-customer="{{ urs.customer.name }}" data-project="{{ urs.project_name }}">
@@ -39,18 +38,17 @@
                     </option>
                     {% endfor %}
                 </select>
-                <p class="mt-1 text-sm text-gray-500">Only approved URS evaluations are available for quotation</p>
+                <p class="mt-1 text-xs sm:text-sm text-gray-500">Only approved URS evaluations are available for quotation</p>
             </div>
 
             <!-- Quotation Details -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                     <label for="quotation_number" class="block text-sm font-medium text-gray-700 mb-2">
                         Quotation Number <span class="text-red-500">*</span>
                     </label>
                     <input type="text" name="quotation_number" id="quotation_number" required 
-                           class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-vertical"
-                            style="min-height: 100px; box-sizing: border-box;" 
+                           class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" 
                            placeholder="e.g., QT-2024-001">
                 </div>
                 
@@ -59,27 +57,24 @@
                         Total Amount (₹) <span class="text-red-500">*</span>
                     </label>
                     <input type="number" name="total_amount" id="total_amount" step="0.01" required 
-                           class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-vertical"
-                            style="min-height: 100px; box-sizing: border-box;" 
+                           class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" 
                            placeholder="0.00">
                 </div>
             </div>
 
             <!-- Validity and Terms -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                     <label for="validity_period" class="block text-sm font-medium text-gray-700 mb-2">Validity Period</label>
                     <input type="text" name="validity_period" id="validity_period" 
-                           class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-vertical"
-                            style="min-height: 100px; box-sizing: border-box;" 
+                           class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" 
                            placeholder="e.g., 30 days, 3 months">
                 </div>
                 
                 <div>
                     <label for="delivery_terms" class="block text-sm font-medium text-gray-700 mb-2">Delivery Terms</label>
                     <select name="delivery_terms" id="delivery_terms" 
-                            class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-vertical"
-                            style="min-height: 100px; box-sizing: border-box;">
+                            class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200">
                         <option value="">Select Delivery Terms</option>
                         <option value="ex_works">Ex Works</option>
                         <option value="fob">FOB</option>
@@ -95,8 +90,7 @@
             <div>
                 <label for="payment_terms" class="block text-sm font-medium text-gray-700 mb-2">Payment Terms</label>
                 <textarea name="payment_terms" id="payment_terms" rows="3" 
-                          class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-vertical"
-                            style="min-height: 100px; box-sizing: border-box;" 
+                          class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-vertical" 
                           placeholder="e.g., 50% advance, 50% on delivery"></textarea>
             </div>
 
@@ -104,8 +98,7 @@
             <div>
                 <label for="technical_specs" class="block text-sm font-medium text-gray-700 mb-2">Technical Specifications</label>
                 <textarea name="technical_specs" id="technical_specs" rows="4" 
-                          class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-vertical"
-                            style="min-height: 100px; box-sizing: border-box;" 
+                          class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-vertical" 
                           placeholder="Enter technical specifications, materials, standards..."></textarea>
             </div>
 
@@ -113,27 +106,26 @@
             <div>
                 <label for="terms_conditions" class="block text-sm font-medium text-gray-700 mb-2">Terms & Conditions</label>
                 <textarea name="terms_conditions" id="terms_conditions" rows="6" 
-                          class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-vertical"
-                            style="min-height: 100px; box-sizing: border-box;" 
+                          class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 resize-vertical" 
                           placeholder="Enter terms and conditions..."></textarea>
             </div>
 
             <!-- Form Actions -->
-            <div class="flex items-center justify-end gap-3 pt-6 mt-6 border-t border-gray-200">
-                <a href="{% url 'marketing:quotation_list' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                    <i class="w-4 h-4 mr-2">×</i>Cancel
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-4 sm:pt-6 mt-4 sm:mt-6 border-t border-gray-200">
+                <a href="{% url 'marketing:quotation_list' %}" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                    <i class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2">×</i>Cancel
                 </a>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                    <i class="w-4 h-4 mr-2">📄</i>Create Quotation
+                <button type="submit" class="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg shadow-sm text-xs sm:text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    <i class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2">📄</i>Create Quotation
                 </button>
             </div>
         </form>
     </div>
 
     <!-- Help Section -->
-    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-        <h4 class="font-medium text-blue-900 mb-2">Quotation Guidelines</h4>
-        <ul class="text-sm text-blue-800 space-y-1">
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 mt-4 sm:mt-6">
+        <h4 class="text-sm sm:text-base font-medium text-blue-900 mb-2">Quotation Guidelines</h4>
+        <ul class="text-xs sm:text-sm text-blue-800 space-y-1">
             <li>• <strong>Quotation Number:</strong> Use a consistent numbering system (e.g., QT-YYYY-XXX)</li>
             <li>• <strong>Total Amount:</strong> Include all costs including taxes, transportation, and installation if applicable</li>
             <li>• <strong>Validity Period:</strong> Specify how long the quotation remains valid</li>

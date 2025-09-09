@@ -6,19 +6,19 @@
 {% block content %}
 <div class="mx-auto w-full p-2 md:p-4 xl:p-2">
     <!-- Header -->
-    <div class="mb-6">
-        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div class="mb-4 sm:mb-6">
+        <div class="flex flex-col gap-3 sm:gap-2 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Negotiations</h1>
-                <p class="text-sm text-gray-600">Manage commercial negotiations and pricing discussions</p>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Negotiations</h1>
+                <p class="text-sm sm:text-base text-gray-600">Manage commercial negotiations and pricing discussions</p>
             </div>
-            <div class="flex items-center gap-3">
-                <a href="{% url 'marketing:negotiation_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 transition-colors">
-                    <i data-lucide="plus" class="w-4 h-4"></i>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <a href="{% url 'marketing:negotiation_create' %}" class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white hover:bg-blue-700 transition-colors">
+                    <i data-lucide="plus" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                     New Negotiation
                 </a>
-                <a href="#" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-                    <i data-lucide="download" class="w-4 h-4"></i>
+                <a href="#" class="inline-flex items-center justify-center gap-2 rounded-lg bg-white border border-gray-300 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                    <i data-lucide="download" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                     Export
                 </a>
             </div>
@@ -26,48 +26,71 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-        <div class="rounded-lg border border-gray-200 bg-white shadow-sm p-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
+        <!-- Total Negotiations -->
+        <div class="bg-white rounded-lg border border-gray-200 p-2 sm:p-3 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Total Negotiations</p>
-                    <p class="text-2xl font-bold text-gray-900">24</p>
+                    <p class="text-xs font-medium text-gray-600">Total Negotiations</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">24</p>
+                    <p class="text-xs text-blue-600 flex items-center gap-1 mt-1">
+                        <i data-lucide="handshake" class="w-3 h-3"></i>
+                        All discussions
+                    </p>
                 </div>
-                <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <i data-lucide="handshake" class="w-6 h-6 text-blue-600"></i>
+                <div class="h-8 w-8 sm:h-10 sm:w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="handshake" class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600"></i>
                 </div>
             </div>
         </div>
-        <div class="rounded-lg border border-gray-200 bg-white shadow-sm p-6">
+        
+        <!-- Successful -->
+        <div class="bg-white rounded-lg border border-gray-200 p-2 sm:p-3 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Successful</p>
-                    <p class="text-2xl font-bold text-gray-900">18</p>
+                    <p class="text-xs font-medium text-gray-600">Successful</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">18</p>
+                    <p class="text-xs text-green-600 flex items-center gap-1 mt-1">
+                        <i data-lucide="check-circle" class="w-3 h-3"></i>
+                        Closed deals
+                    </p>
                 </div>
-                <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
-                    <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                <div class="h-8 w-8 sm:h-10 sm:w-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="check-circle" class="w-4 h-4 sm:w-5 sm:h-5 text-green-600"></i>
                 </div>
             </div>
         </div>
-        <div class="rounded-lg border border-gray-200 bg-white shadow-sm p-6">
+        
+        <!-- In Progress -->
+        <div class="bg-white rounded-lg border border-gray-200 p-2 sm:p-3 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">In Progress</p>
-                    <p class="text-2xl font-bold text-gray-900">4</p>
+                    <p class="text-xs font-medium text-gray-600">In Progress</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">4</p>
+                    <p class="text-xs text-yellow-600 flex items-center gap-1 mt-1">
+                        <i data-lucide="clock" class="w-3 h-3"></i>
+                        Ongoing
+                    </p>
                 </div>
-                <div class="h-12 w-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
+                <div class="h-8 w-8 sm:h-10 sm:w-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="clock" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600"></i>
                 </div>
             </div>
         </div>
-        <div class="rounded-lg border border-gray-200 bg-white shadow-sm p-6">
+        
+        <!-- Failed -->
+        <div class="bg-white rounded-lg border border-gray-200 p-2 sm:p-3 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-gray-600">Failed</p>
-                    <p class="text-2xl font-bold text-gray-900">2</p>
+                    <p class="text-xs font-medium text-gray-600">Failed</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">2</p>
+                    <p class="text-xs text-red-600 flex items-center gap-1 mt-1">
+                        <i data-lucide="x-circle" class="w-3 h-3"></i>
+                        Unsuccessful
+                    </p>
                 </div>
-                <div class="h-12 w-12 bg-red-100 rounded-lg flex items-center justify-center">
-                    <i data-lucide="x-circle" class="w-6 h-6 text-red-600"></i>
+                <div class="h-8 w-8 sm:h-10 sm:w-10 bg-red-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="x-circle" class="w-4 h-4 sm:w-5 sm:h-5 text-red-600"></i>
                 </div>
             </div>
         </div>
@@ -75,86 +98,86 @@
 
     <!-- Negotiations Table -->
     <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-semibold text-gray-900">All Negotiations</h2>
+        <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+            <h2 class="text-base sm:text-lg font-semibold text-gray-900">All Negotiations</h2>
         </div>
         <div class="p-6">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quotation</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revisions</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quotation</th>
+                            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revisions</th>
+                            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         {% for negotiation in page_obj %}
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    <div class="h-10 w-10 bg-brand-100 rounded-lg flex items-center justify-center">
-                                        <i data-lucide="user" class="w-5 h-5 text-brand-600"></i>
+                                    <div class="h-8 w-8 sm:h-10 sm:w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i data-lucide="user" class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600"></i>
                                     </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">{{ negotiation.quotation.customer.name }}</div>
-                                        <div class="text-sm text-gray-500">{{ negotiation.quotation.customer.email }}</div>
+                                    <div class="ml-2 sm:ml-4">
+                                        <div class="text-xs sm:text-sm font-medium text-gray-900">{{ negotiation.quotation.customer.name }}</div>
+                                        <div class="text-xs sm:text-sm text-gray-500">{{ negotiation.quotation.customer.email }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900">{{ negotiation.quotation.quotation_number }}</div>
-                                <div class="text-sm text-gray-500">v{{ negotiation.quotation.version }}</div>
+                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                                <div class="text-xs sm:text-sm font-medium text-gray-900">{{ negotiation.quotation.quotation_number }}</div>
+                                <div class="text-xs sm:text-sm text-gray-500">v{{ negotiation.quotation.version }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">₹{{ negotiation.initial_offer|floatformat:0 }}</div>
+                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                                <div class="text-xs sm:text-sm text-gray-900">₹{{ negotiation.initial_offer|floatformat:0 }}</div>
                                 {% if negotiation.final_offer %}
-                                <div class="text-sm text-gray-500">Final: ₹{{ negotiation.final_offer|floatformat:0 }}</div>
+                                <div class="text-xs sm:text-sm text-gray-500">Final: ₹{{ negotiation.final_offer|floatformat:0 }}</div>
                                 {% endif %}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                                     {{ negotiation.revision_count }} revisions
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full
                                     {% if negotiation.outcome == 'successful' %}bg-green-100 text-green-800
                                     {% elif negotiation.outcome == 'pending' %}bg-yellow-100 text-yellow-800
                                     {% else %}bg-red-100 text-red-800{% endif %}">
                                     {{ negotiation.get_outcome_display }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                                 {{ negotiation.negotiation_date|date:"M d, Y" }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div class="flex items-center gap-2">
-                                    <a href="{% url 'marketing:quotation_revision_timeline' negotiation.quotation.id %}" class="text-brand-600 hover:text-brand-900">
-                                        <i data-lucide="timeline" class="w-4 h-4"></i>
+                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium">
+                                <div class="flex items-center gap-1 sm:gap-2">
+                                    <a href="{% url 'marketing:quotation_revision_timeline' negotiation.quotation.id %}" class="text-blue-600 hover:text-blue-900">
+                                        <i data-lucide="timeline" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                                     </a>
                                     <a href="#" class="text-gray-600 hover:text-gray-900">
-                                        <i data-lucide="edit" class="w-4 h-4"></i>
+                                        <i data-lucide="edit" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                                     </a>
                                     <a href="#" class="text-green-600 hover:text-green-900">
-                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                        <i data-lucide="eye" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                                     </a>
                                 </div>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="7" class="px-6 py-12 text-center">
+                            <td colspan="7" class="px-3 sm:px-6 py-8 sm:py-12 text-center">
                                 <div class="flex flex-col items-center">
-                                    <i data-lucide="handshake" class="w-12 h-12 text-gray-400 mb-4"></i>
-                                    <h3 class="text-lg font-medium text-gray-900 mb-2">No negotiations found</h3>
-                                    <p class="text-gray-500 mb-6">Get started by creating your first negotiation.</p>
-                                    <a href="{% url 'marketing:negotiation_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 transition-colors">
-                                        <i data-lucide="plus" class="w-4 h-4"></i>
+                                    <i data-lucide="handshake" class="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mb-3 sm:mb-4"></i>
+                                    <h3 class="text-base sm:text-lg font-medium text-gray-900 mb-2">No negotiations found</h3>
+                                    <p class="text-sm sm:text-base text-gray-500 mb-4 sm:mb-6">Get started by creating your first negotiation.</p>
+                                    <a href="{% url 'marketing:negotiation_create' %}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white hover:bg-blue-700 transition-colors">
+                                        <i data-lucide="plus" class="w-3 h-3 sm:w-4 sm:h-4"></i>
                                         New Negotiation
                                     </a>
                                 </div>

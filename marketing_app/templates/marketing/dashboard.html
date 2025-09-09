@@ -478,4 +478,78 @@
         Logout
     </a>
 </div>
+
+<script>
+// Dynamic Motivational Quotes
+const motivationalQuotes = [
+    "Stay focused and productive!",
+    "Success is the sum of small efforts repeated day in and day out!",
+    "Every expert was once a beginner. Every pro was once an amateur!",
+    "The way to get started is to quit talking and begin doing!",
+    "Don't be afraid to give up the good to go for the great!",
+    "Innovation distinguishes between a leader and a follower!",
+    "The future belongs to those who believe in the beauty of their dreams!",
+    "It is during our darkest moments that we must focus to see the light!",
+    "The only way to do great work is to love what you do!",
+    "Your limitation—it's only your imagination!",
+    "Great things never come from comfort zones!",
+    "Dream it. Wish it. Do it!",
+    "Success doesn't just find you. You have to go out and get it!",
+    "The harder you work for something, the greater you'll feel when you achieve it!",
+    "Dream bigger. Do bigger!",
+    "Don't stop when you're tired. Stop when you're done!",
+    "Wake up with determination. Go to bed with satisfaction!",
+    "Do something today that your future self will thank you for!",
+    "Little things make big days!",
+    "It's going to be hard, but hard does not mean impossible!",
+    "Don't wait for opportunity. Create it!",
+    "Sometimes we're tested not to show our weaknesses, but to discover our strengths!",
+    "The key to success is to focus on goals, not obstacles!",
+    "Dream it. Believe it. Build it!",
+    "What lies behind us and what lies before us are tiny matters compared to what lies within us!",
+    "The only impossible journey is the one you never begin!",
+    "In the middle of difficulty lies opportunity!",
+    "The future depends on what you do today!",
+    "Believe you can and you're halfway there!",
+    "The way to get started is to quit talking and begin doing!"
+];
+
+// Function to get a random quote
+function getRandomQuote() {
+    const randomIndex = Math.floor(Math.random() * motivationalQuotes.length);
+    return motivationalQuotes[randomIndex];
+}
+
+// Function to update the motivational text
+function updateMotivationalText() {
+    const motivationalElement = document.getElementById('motivational-text');
+    if (motivationalElement) {
+        // Add fade out effect
+        motivationalElement.style.opacity = '0';
+        motivationalElement.style.transition = 'opacity 0.3s ease-in-out';
+        
+        setTimeout(() => {
+            motivationalElement.textContent = getRandomQuote();
+            // Add fade in effect
+            motivationalElement.style.opacity = '1';
+        }, 300);
+    }
+}
+
+// Initialize with a random quote when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    updateMotivationalText();
+    
+    // Change quote every 30 seconds
+    setInterval(updateMotivationalText, 30000);
+    
+    // Optional: Change quote on click
+    const motivationalElement = document.getElementById('motivational-text');
+    if (motivationalElement) {
+        motivationalElement.style.cursor = 'pointer';
+        motivationalElement.title = 'Click to get a new motivational quote!';
+        motivationalElement.addEventListener('click', updateMotivationalText);
+    }
+});
+</script>
 {% endblock %}

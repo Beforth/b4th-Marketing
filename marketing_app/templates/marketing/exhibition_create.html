@@ -1,52 +1,56 @@
 {% extends 'marketing/base.html' %}
+{% load static %}
 
 {% block title %}Create Exhibition{% endblock %}
 
 {% block content %}
-<div class="p-6">
+<div class="space-y-6">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col gap-3 sm:gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">Create New Exhibition</h1>
-            <p class="text-gray-600">Add a new exhibition event to your calendar</p>
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900">Create New Exhibition</h1>
+            <p class="text-sm sm:text-base text-gray-600">Add a new exhibition event to your calendar</p>
         </div>
-        <a href="{% url 'marketing:exhibition_list' %}" class="text-purple-600 hover:text-purple-700 font-medium">
-            <i data-lucide="arrow-left" class="w-4 h-4 inline mr-2"></i>
+        <a href="{% url 'marketing:exhibition_list' %}" class="inline-flex items-center gap-1 sm:gap-2 rounded-lg bg-gray-600 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white hover:bg-gray-700 transition-colors">
+            <i data-lucide="arrow-left" class="w-3 h-3 sm:w-4 sm:h-4"></i>
             Back to Exhibitions
         </a>
     </div>
 
     <!-- Form -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <form method="post" class="space-y-6">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+            <h2 class="text-base sm:text-lg font-semibold text-gray-900">Exhibition Details</h2>
+        </div>
+        <form method="post" class="p-3 sm:p-6 space-y-4 sm:space-y-6">
             {% csrf_token %}
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <!-- Exhibition Name -->
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                        Exhibition Name *
+                <div class="sm:col-span-2">
+                    <label for="name" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                        Exhibition Name <span class="text-red-500">*</span>
                     </label>
                     <input 
                         type="text" 
                         name="name" 
                         id="name" 
                         required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        class="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         placeholder="Enter exhibition name"
                     >
                 </div>
 
                 <!-- Exhibition Type -->
                 <div>
-                    <label for="exhibition_type" class="block text-sm font-medium text-gray-700 mb-2">
-                        Exhibition Type *
+                    <label for="exhibition_type" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                        Exhibition Type <span class="text-red-500">*</span>
                     </label>
                     <select 
                         name="exhibition_type" 
                         id="exhibition_type" 
                         required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        class="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     >
                         <option value="">Select type</option>
                         <option value="trade_show">Trade Show</option>
@@ -59,85 +63,85 @@
 
                 <!-- Start Date -->
                 <div>
-                    <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">
-                        Start Date *
+                    <label for="start_date" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                        Start Date <span class="text-red-500">*</span>
                     </label>
                     <input 
                         type="date" 
                         name="start_date" 
                         id="start_date" 
                         required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        class="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     >
                 </div>
 
                 <!-- End Date -->
                 <div>
-                    <label for="end_date" class="block text-sm font-medium text-gray-700 mb-2">
-                        End Date *
+                    <label for="end_date" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                        End Date <span class="text-red-500">*</span>
                     </label>
                     <input 
                         type="date" 
                         name="end_date" 
                         id="end_date" 
                         required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        class="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     >
                 </div>
 
                 <!-- Location -->
                 <div>
-                    <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
-                        Location *
+                    <label for="location" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                        Location <span class="text-red-500">*</span>
                     </label>
                     <input 
                         type="text" 
                         name="location" 
                         id="location" 
                         required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        class="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         placeholder="Enter location"
                     >
                 </div>
 
                 <!-- Venue -->
                 <div>
-                    <label for="venue" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="venue" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                         Venue
                     </label>
                     <input 
                         type="text" 
                         name="venue" 
                         id="venue" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        class="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         placeholder="Enter venue name"
                     >
                 </div>
 
                 <!-- Budget -->
                 <div>
-                    <label for="budget" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="budget" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                         Budget (₹)
                     </label>
                     <input 
                         type="number" 
                         name="budget" 
                         id="budget" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        class="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         placeholder="Enter budget amount"
                     >
                 </div>
 
                 <!-- Expected Visitors -->
                 <div>
-                    <label for="expected_visitors" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="expected_visitors" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                         Expected Visitors
                     </label>
                     <input 
                         type="number" 
                         name="expected_visitors" 
                         id="expected_visitors" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        class="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         placeholder="Enter expected visitor count"
                     >
                 </div>
@@ -145,100 +149,100 @@
 
             <!-- Description -->
             <div>
-                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="description" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                     Description
                 </label>
                 <textarea 
                     name="description" 
                     id="description" 
                     rows="4"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    class="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-vertical"
                     placeholder="Enter exhibition description..."
                 ></textarea>
             </div>
 
             <!-- Objectives -->
             <div>
-                <label for="objectives" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="objectives" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                     Objectives
                 </label>
                 <textarea 
                     name="objectives" 
                     id="objectives" 
                     rows="3"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    class="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-vertical"
                     placeholder="Enter exhibition objectives..."
                 ></textarea>
             </div>
 
             <!-- Contact Information -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
-                    <label for="contact_person" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="contact_person" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                         Contact Person
                     </label>
                     <input 
                         type="text" 
                         name="contact_person" 
                         id="contact_person" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        class="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         placeholder="Enter contact person name"
                     >
                 </div>
 
                 <div>
-                    <label for="contact_email" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="contact_email" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                         Contact Email
                     </label>
                     <input 
                         type="email" 
                         name="contact_email" 
                         id="contact_email" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        class="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         placeholder="Enter contact email"
                     >
                 </div>
 
                 <div>
-                    <label for="contact_phone" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="contact_phone" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                         Contact Phone
                     </label>
                     <input 
                         type="tel" 
                         name="contact_phone" 
                         id="contact_phone" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        class="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         placeholder="Enter contact phone"
                     >
                 </div>
 
                 <div>
-                    <label for="website" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="website" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                         Website
                     </label>
                     <input 
                         type="url" 
                         name="website" 
                         id="website" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        class="w-full px-3 sm:px-4 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         placeholder="Enter website URL"
                     >
                 </div>
             </div>
 
             <!-- Form Actions -->
-            <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-4 sm:pt-6 border-t border-gray-200">
                 <a 
                     href="{% url 'marketing:exhibition_list' %}" 
-                    class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                    class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                     Cancel
                 </a>
                 <button 
                     type="submit"
-                    class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                    class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                    <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>
+                    <i data-lucide="save" class="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2"></i>
                     Create Exhibition
                 </button>
             </div>
