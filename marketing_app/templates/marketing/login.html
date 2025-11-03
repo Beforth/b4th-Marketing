@@ -11,11 +11,12 @@
         body { font-family: 'Outfit', sans-serif; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-purple-50 to-pink-50 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
     <div class="w-full max-w-md">
         <!-- Logo and Brand -->
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full mb-4">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full mb-4">
                 <i data-lucide="trending-up" class="w-8 h-8 text-white"></i>
             </div>
             <h1 class="text-2xl font-bold text-gray-900 mb-2">Marketing System</h1>
@@ -50,7 +51,7 @@
                             name="username" 
                             id="id_username" 
                             required
-                            class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                            class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             placeholder="Enter your username"
                         >
                     </div>
@@ -70,9 +71,23 @@
                             name="password" 
                             id="id_password" 
                             required
-                            class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                            class="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             placeholder="Enter your password"
                         >
+                        <button 
+                            type="button"
+                            onclick="togglePasswordVisibility()"
+                            id="togglePassword"
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
+                        >
+                            <svg id="eyeIconOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            <svg id="eyeIconClosed" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
@@ -83,7 +98,7 @@
                             type="checkbox" 
                             id="remember_me" 
                             name="remember_me"
-                            class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                         >
                         <label for="remember_me" class="ml-2 block text-sm text-gray-700">
                             Remember me
@@ -94,7 +109,7 @@
                 <!-- Submit Button -->
                 <button 
                     type="submit"
-                    class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-[1.02]"
+                    class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-[1.02]"
                 >
                     <i data-lucide="log-in" class="w-5 h-5 inline mr-2"></i>
                     Sign In
@@ -106,7 +121,7 @@
                 <div class="mt-6 pt-6 border-t border-gray-200">
                     <a 
                         href="/admin/" 
-                        class="block text-center text-sm text-purple-600 hover:text-purple-700 font-medium"
+                        class="block text-center text-sm text-blue-600 hover:text-blue-700 font-medium"
                     >
                         <i data-lucide="settings" class="w-4 h-4 inline mr-1"></i>
                         Admin Panel
@@ -118,7 +133,7 @@
         <!-- Footer -->
         <div class="text-center mt-8">
             <p class="text-sm text-gray-500">
-                © 2024 Marketing Management System. All rights reserved.
+                © 2025 Marketing Management System. All rights reserved.
             </p>
         </div>
     </div>
@@ -127,6 +142,23 @@
         // Initialize Lucide icons
         lucide.createIcons();
         
+        // Password visibility toggle function
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('id_password');
+            const eyeIconOpen = document.getElementById('eyeIconOpen');
+            const eyeIconClosed = document.getElementById('eyeIconClosed');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIconOpen.classList.add('hidden');
+                eyeIconClosed.classList.remove('hidden');
+            } else {
+                passwordInput.type = 'password';
+                eyeIconOpen.classList.remove('hidden');
+                eyeIconClosed.classList.add('hidden');
+            }
+        }
+        
         // Add some nice animations
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.querySelector('form');
@@ -134,11 +166,11 @@
             
             inputs.forEach(input => {
                 input.addEventListener('focus', function() {
-                    this.parentElement.classList.add('ring-2', 'ring-purple-500');
+                    this.parentElement.classList.add('ring-2', 'ring-blue-500');
                 });
                 
                 input.addEventListener('blur', function() {
-                    this.parentElement.classList.remove('ring-2', 'ring-purple-500');
+                    this.parentElement.classList.remove('ring-2', 'ring-blue-500');
                 });
             });
         });
