@@ -16,6 +16,7 @@ urlpatterns = [
     path('customers/<int:customer_id>/', views.customer_detail, name='customer_detail'),
     path('customers/regions/', views.customer_regions, name='customer_regions'),
     path('customers/import/', views.customer_import, name='customer_import'),
+    path('regions/teams/', views.region_employee_overview, name='region_employee_overview'),
     
     # Leads
     path('leads/', views.lead_list, name='lead_list'),

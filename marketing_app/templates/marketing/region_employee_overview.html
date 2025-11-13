@@ -1,0 +1,258 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Region Teams & Targets{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Page Header -->
+    <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+            <div class="flex items-center gap-2">
+                <h1 class="text-2xl font-bold text-gray-900">Region Teams & Targets</h1>
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                    {{ user_role|default:"marketing_head"|title }}
+                </span>
+            </div>
+            <p class="text-sm text-gray-600 mt-1">
+                Track regional heads, their teams, and progress against assigned targets.
+            </p>
+        </div>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+            <select class="px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <option>Current Month</option>
+                <option>Quarter to Date</option>
+                <option>Financial Year</option>
+            </select>
+            <button class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                Export Snapshot
+            </button>
+            <a href="{% url 'marketing:region_management' %}" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                Manage Regions
+            </a>
+        </div>
+    </div>
+
+    {% if user_role == 'regional_head' %}
+    <div class="border border-blue-200 bg-blue-50 text-blue-700 rounded-lg px-4 py-3 flex items-start gap-3">
+        <i data-lucide="info" class="w-5 h-5 mt-0.5"></i>
+        <div>
+            <h3 class="text-sm font-semibold">Regional head access</h3>
+            <p class="text-sm">
+                You are viewing team performance for your assigned region only. Contact the marketing head for cross-region visibility.
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Global Summary -->
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div class="px-4 py-4 border-b border-gray-200 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900">Portfolio Snapshot</h2>
+                <p class="text-sm text-gray-600">Aggregated view across the regions you can access.</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-center">
+                    <p class="text-xs uppercase tracking-wide text-gray-500">Regions</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ global_stats.total_regions|default:0 }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-xs uppercase tracking-wide text-gray-500">Team Members</p>
+                    <p class="text-lg font-semibold text-gray-900">{{ global_stats.total_employees|default:0 }}</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-xs uppercase tracking-wide text-gray-500">Deadline</p>
+                    <p class="text-lg font-semibold text-gray-900">
+                        {{ global_stats.deadline|date:"d M Y" }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="p-4">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div class="p-4 border border-gray-200 rounded-lg">
+                    <p class="text-xs uppercase tracking-wide text-gray-500">Total Target</p>
+                    <p class="mt-2 text-xl font-semibold text-gray-900">
+                        ₹{{ global_stats.total_target|floatformat:0 }}
+                    </p>
+                </div>
+                <div class="p-4 border border-gray-200 rounded-lg">
+                    <p class="text-xs uppercase tracking-wide text-gray-500">Achieved</p>
+                    <p class="mt-2 text-xl font-semibold text-green-600">
+                        ₹{{ global_stats.total_achieved|floatformat:0 }}
+                    </p>
+                </div>
+                <div class="p-4 border border-gray-200 rounded-lg">
+                    <p class="text-xs uppercase tracking-wide text-gray-500">Remaining</p>
+                    <p class="mt-2 text-xl font-semibold text-orange-600">
+                        ₹{{ global_stats.total_remaining|floatformat:0 }}
+                    </p>
+                </div>
+                <div class="p-4 border border-gray-200 rounded-lg">
+                    <p class="text-xs uppercase tracking-wide text-gray-500">Overall Progress</p>
+                    <div class="mt-2 flex items-center gap-3">
+                        <div class="flex-1 w-full bg-gray-200 rounded-full h-2">
+                            <div class="h-2 rounded-full bg-blue-600" style="width: {{ global_stats.progress_percent|default:0 }}%"></div>
+                        </div>
+                        <span class="text-sm font-medium text-gray-900">
+                            {{ global_stats.progress_percent|floatformat:1 }}%
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Region Cards -->
+    <div class="space-y-4">
+        {% for region in regions %}
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div class="px-4 py-4 border-b border-gray-200 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div class="flex items-start gap-3">
+                    <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold">
+                        {{ region.name|default_if_none:"" |slice:":2" |upper }}
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-lg font-semibold text-gray-900">{{ region.name }}</h3>
+                            <span class="text-xs text-gray-500">
+                                {{ region.employee_count }} team member{{ region.employee_count|pluralize }}
+                            </span>
+                        </div>
+                        {% if region.head %}
+                        <div class="mt-1 text-sm text-gray-600 flex items-center gap-2">
+                            <i data-lucide="user" class="w-4 h-4 text-gray-400"></i>
+                            <span class="font-medium text-gray-900">{{ region.head.get_full_name|default:region.head.username }}</span>
+                            <span class="text-gray-400">•</span>
+                            <span class="text-gray-500">Regional Head</span>
+                        </div>
+                        {% else %}
+                        <p class="mt-1 text-sm text-gray-500 italic">No regional head assigned</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 text-sm">
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-gray-500">Target</p>
+                        <p class="mt-1 font-semibold text-gray-900">₹{{ region.target_total|floatformat:0 }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-gray-500">Achieved</p>
+                        <p class="mt-1 font-semibold text-green-600">₹{{ region.achieved_amount|floatformat:0 }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-gray-500">Remaining</p>
+                        <p class="mt-1 font-semibold text-orange-600">₹{{ region.remaining_amount|floatformat:0 }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs uppercase tracking-wide text-gray-500">Deadline</p>
+                        <p class="mt-1 font-semibold text-gray-900">{{ region.deadline|date:"d M Y" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-4 pb-4">
+                <div class="mb-4">
+                    <div class="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                        <i data-lucide="target" class="w-4 h-4 text-blue-500"></i>
+                        {{ region.progress_percent|floatformat:1 }}% of region target completed
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div class="h-2 rounded-full bg-blue-600" style="width: {{ region.progress_percent|default:0 }}%"></div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Team Member</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Role</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Target</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Achieved</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Remaining</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Progress</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Last Activity</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for member in region.team_members %}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-sm font-semibold">
+                                            {{ member.name|default:"-"|slice:":2"|upper }}
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">{{ member.name|default:"Unnamed" }}</p>
+                                            <p class="text-xs text-gray-500">{{ member.email|default:"Not shared" }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-600">{{ member.role|default:"Sales Executive" }}</td>
+                                <td class="px-4 py-3 text-sm text-gray-900">₹{{ member.target|floatformat:0 }}</td>
+                                <td class="px-4 py-3 text-sm text-green-600">₹{{ member.achieved|floatformat:0 }}</td>
+                                <td class="px-4 py-3 text-sm text-orange-600">₹{{ member.remaining|floatformat:0 }}</td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-1 bg-gray-200 rounded-full h-1.5">
+                                            <div class="h-1.5 rounded-full bg-blue-600" style="width: {{ member.progress_percent|default:0 }}%"></div>
+                                        </div>
+                                        <span class="text-xs font-medium text-gray-700">{{ member.progress_percent|floatformat:1 }}%</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-500">
+                                    {% if member.last_activity %}
+                                        {{ member.last_activity|date:"d M Y" }}
+                                        <span class="block text-xs text-gray-400">{{ member.deal_count }} deal{{ member.deal_count|pluralize }}</span>
+                                    {% else %}
+                                        <span class="italic text-xs text-gray-400">No recent activity</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="px-4 py-6 text-center text-sm text-gray-500">
+                                    No team members are assigned to this region yet.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex items-center gap-2 text-xs text-gray-500">
+                        <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                        Data updates automatically when new quotations are logged for this region.
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button class="px-3 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                            View Region Summary
+                        </button>
+                        <button class="px-3 py-2 text-sm text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                            Share with Regional Head
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-10 text-center">
+            <i data-lucide="users" class="w-12 h-12 text-gray-300 mx-auto mb-4"></i>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">No regions configured yet</h3>
+            <p class="text-sm text-gray-600">Once regional teams are assigned, their progress will appear here for quick review.</p>
+            <a href="{% url 'marketing:region_management' %}" class="mt-4 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
+                Configure your first region
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

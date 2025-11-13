@@ -11,11 +11,11 @@
         body { font-family: 'Outfit', sans-serif; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-purple-50 to-pink-50 min-h-screen flex items-center justify-center p-4">
+<body class="bg-white min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md">
         <!-- Logo and Brand -->
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full mb-4">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-blue-500 rounded-full mb-4">
                 <i data-lucide="trending-up" class="w-8 h-8 text-white"></i>
             </div>
             <h1 class="text-2xl font-bold text-gray-900 mb-2">Marketing System</h1>
@@ -41,7 +41,7 @@
                     <label for="id_username" class="block text-sm font-medium text-gray-700 mb-2">
                         Username
                     </label>
-                    <div class="relative">
+                    <div class="relative group">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i data-lucide="user" class="w-5 h-5 text-gray-400"></i>
                         </div>
@@ -50,7 +50,7 @@
                             name="username" 
                             id="id_username" 
                             required
-                            class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                            class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             placeholder="Enter your username"
                         >
                     </div>
@@ -61,7 +61,7 @@
                     <label for="id_password" class="block text-sm font-medium text-gray-700 mb-2">
                         Password
                     </label>
-                    <div class="relative">
+                    <div class="relative group">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i data-lucide="lock" class="w-5 h-5 text-gray-400"></i>
                         </div>
@@ -70,7 +70,7 @@
                             name="password" 
                             id="id_password" 
                             required
-                            class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
+                            class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                             placeholder="Enter your password"
                         >
                     </div>
@@ -83,7 +83,7 @@
                             type="checkbox" 
                             id="remember_me" 
                             name="remember_me"
-                            class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                         >
                         <label for="remember_me" class="ml-2 block text-sm text-gray-700">
                             Remember me
@@ -94,7 +94,7 @@
                 <!-- Submit Button -->
                 <button 
                     type="submit"
-                    class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded-lg font-medium hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-[1.02]"
+                    class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-[1.02]"
                 >
                     <i data-lucide="log-in" class="w-5 h-5 inline mr-2"></i>
                     Sign In
@@ -106,7 +106,7 @@
                 <div class="mt-6 pt-6 border-t border-gray-200">
                     <a 
                         href="/admin/" 
-                        class="block text-center text-sm text-purple-600 hover:text-purple-700 font-medium"
+                    class="block text-center text-sm text-blue-600 hover:text-blue-700 font-medium"
                     >
                         <i data-lucide="settings" class="w-4 h-4 inline mr-1"></i>
                         Admin Panel
@@ -134,11 +134,11 @@
             
             inputs.forEach(input => {
                 input.addEventListener('focus', function() {
-                    this.parentElement.classList.add('ring-2', 'ring-purple-500');
+                    this.parentElement.classList.add('ring-2', 'ring-blue-500');
                 });
                 
                 input.addEventListener('blur', function() {
-                    this.parentElement.classList.remove('ring-2', 'ring-purple-500');
+                    this.parentElement.classList.remove('ring-2', 'ring-blue-500');
                 });
             });
         });

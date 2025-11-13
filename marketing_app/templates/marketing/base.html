@@ -222,7 +222,8 @@
       .sidebar-submenu:not(.hidden) {
         opacity: 1;
         transform: translateX(0);
-        max-height: 300px;
+        max-height: none;
+        overflow: visible;
       }
       
       /* Submenu items */
@@ -336,6 +337,19 @@
                     </div>
                 </div>
                 
+                <!-- Employees -->
+                <div class="">
+                    <button id="employees-toggle" type="button" class="sidebar-link flex items-center gap-3 w-full px-4 py-3 text-left">
+                        <i data-lucide="users" class="w-4 h-4 hand-drawn-icon"></i> Employees
+                        <svg id="employees-chevron" class="ml-auto w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="employees-menu" class="sidebar-submenu hidden">
+                        <a href="{% url 'marketing:region_employee_overview' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="map" class="w-3.5 h-3.5 hand-drawn-icon"></i> Region Teams & Targets
+                        </a>
+                    </div>
+                </div>
+                
                 <!-- Leads -->
                 <div class="">
                     <button id="leads-toggle" type="button" class="sidebar-link flex items-center gap-3 w-full px-4 py-3 text-left">
@@ -386,6 +400,22 @@
                         </a>
                         <a href="{% url 'marketing:mis_sheets' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
                             <i data-lucide="table" class="w-3.5 h-3.5 hand-drawn-icon"></i> All Sheets
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Follow-Up Status -->
+                <div class="">
+                    <button id="follow-up-toggle" type="button" class="sidebar-link flex items-center gap-3 w-full px-4 py-3 text-left">
+                        <i data-lucide="clipboard-check" class="w-4 h-4 hand-drawn-icon"></i> Follow-Up Status
+                        <svg id="follow-up-chevron" class="ml-auto w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="follow-up-menu" class="sidebar-submenu hidden">
+                        <a href="{% url 'marketing:follow_up_status_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="list" class="w-3.5 h-3.5 hand-drawn-icon"></i> All Follow-Ups
+                        </a>
+                        <a href="{% url 'marketing:follow_up_status_create' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="plus" class="w-3.5 h-3.5 hand-drawn-icon"></i> Add Follow-Up
                         </a>
                     </div>
                 </div>
@@ -457,6 +487,9 @@
                         <a href="{% url 'marketing:visit_reports' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
                             <i data-lucide="file-text" class="w-3.5 h-3.5 hand-drawn-icon"></i> Visit Reports
                         </a>
+                        <a href="{% url 'marketing:follow_up_reminders' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="bell" class="w-3.5 h-3.5 hand-drawn-icon"></i> Follow-Up Reminders
+                        </a>
                     </div>
                 </div>
                 
@@ -467,20 +500,47 @@
                         <svg id="sales-chevron" class="ml-auto w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                     </button>
                     <div id="sales-menu" class="sidebar-submenu hidden">
+                        <a href="{% url 'marketing:urs_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="file-check" class="w-3.5 h-3.5 hand-drawn-icon"></i> URS
+                        </a>
+                        <a href="{% url 'marketing:urs_evaluation' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="check-circle" class="w-3.5 h-3.5 hand-drawn-icon"></i> URS Evaluation
+                        </a>
+                        <a href="{% url 'marketing:ga_drawing_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="image" class="w-3.5 h-3.5 hand-drawn-icon"></i> GA Drawings
+                        </a>
+                        <a href="{% url 'marketing:ga_drawing_create' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="plus" class="w-3.5 h-3.5 hand-drawn-icon"></i> Create GA Drawing
+                        </a>
                         <a href="{% url 'marketing:quotation_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
                             <i data-lucide="file-text" class="w-3.5 h-3.5 hand-drawn-icon"></i> Quotations
                         </a>
                         <a href="{% url 'marketing:quotation_create' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
                             <i data-lucide="plus" class="w-3.5 h-3.5 hand-drawn-icon"></i> Create Quotation
                         </a>
+                        <a href="{% url 'marketing:technical_discussion_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="message-circle" class="w-3.5 h-3.5 hand-drawn-icon"></i> Technical Discussions
+                        </a>
+                        <a href="{% url 'marketing:technical_discussion' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="plus" class="w-3.5 h-3.5 hand-drawn-icon"></i> Record Discussion
+                        </a>
+                        <a href="{% url 'marketing:negotiation_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="message-square" class="w-3.5 h-3.5 hand-drawn-icon"></i> Negotiations
+                        </a>
+                        <a href="{% url 'marketing:negotiation_create' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="plus" class="w-3.5 h-3.5 hand-drawn-icon"></i> Create Negotiation
+                        </a>
                         <a href="{% url 'marketing:po_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
                             <i data-lucide="shopping-cart" class="w-3.5 h-3.5 hand-drawn-icon"></i> Purchase Orders
+                        </a>
+                        <a href="{% url 'marketing:po_create' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="plus" class="w-3.5 h-3.5 hand-drawn-icon"></i> Create PO
                         </a>
                         <a href="{% url 'marketing:payment_followup_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
                             <i data-lucide="credit-card" class="w-3.5 h-3.5 hand-drawn-icon"></i> Payment Follow-ups
                         </a>
-                        <a href="{% url 'marketing:negotiation_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
-                            <i data-lucide="message-square" class="w-3.5 h-3.5 hand-drawn-icon"></i> Negotiations
+                        <a href="{% url 'marketing:payment_followup_dashboard' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5 hand-drawn-icon"></i> Payment Dashboard
                         </a>
                     </div>
                 </div>
@@ -498,11 +558,26 @@
                         <a href="{% url 'marketing:work_order_format_sheets' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
                             <i data-lucide="table" class="w-3.5 h-3.5 hand-drawn-icon"></i> Work Order Sheets
                         </a>
+                        <a href="{% url 'marketing:work_order_format_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="list" class="w-3.5 h-3.5 hand-drawn-icon"></i> All Work Orders
+                        </a>
+                        <a href="{% url 'marketing:work_order_format_create' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="plus" class="w-3.5 h-3.5 hand-drawn-icon"></i> Create Work Order
+                        </a>
+                        <a href="{% url 'marketing:production_planning' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="calendar" class="w-3.5 h-3.5 hand-drawn-icon"></i> Production Planning
+                        </a>
                         <a href="{% url 'marketing:manufacturing_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
                             <i data-lucide="settings" class="w-3.5 h-3.5 hand-drawn-icon"></i> Manufacturing
                         </a>
                         <a href="{% url 'marketing:qc_tracking' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
                             <i data-lucide="check-circle" class="w-3.5 h-3.5 hand-drawn-icon"></i> QC Tracking
+                        </a>
+                        <a href="{% url 'marketing:qc_create' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="plus" class="w-3.5 h-3.5 hand-drawn-icon"></i> Create QC Record
+                        </a>
+                        <a href="{% url 'marketing:qc_export' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="download" class="w-3.5 h-3.5 hand-drawn-icon"></i> Export QC Data
                         </a>
                         <a href="{% url 'marketing:dispatch_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
                             <i data-lucide="truck" class="w-3.5 h-3.5 hand-drawn-icon"></i> Dispatch
@@ -548,8 +623,17 @@
                         <a href="{% url 'marketing:visitor_database' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
                             <i data-lucide="users" class="w-3.5 h-3.5 hand-drawn-icon"></i> Visitor DB
                         </a>
+                        <a href="{% url 'marketing:visitor_create' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="user-plus" class="w-3.5 h-3.5 hand-drawn-icon"></i> Add Visitor
+                        </a>
+                        <a href="{% url 'marketing:visitor_export' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="download" class="w-3.5 h-3.5 hand-drawn-icon"></i> Export Visitors
+                        </a>
                         <a href="{% url 'marketing:annual_budget_list' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
                             <i data-lucide="dollar-sign" class="w-3.5 h-3.5 hand-drawn-icon"></i> Annual Budgets
+                        </a>
+                        <a href="{% url 'marketing:annual_budget_create' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="plus" class="w-3.5 h-3.5 hand-drawn-icon"></i> Create Budget
                         </a>
                         <a href="{% url 'marketing:budget_dashboard' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
                             <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 hand-drawn-icon"></i> Budget Dashboard
@@ -579,6 +663,9 @@
                         <a href="{% url 'marketing:expense_reports' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
                             <i data-lucide="bar-chart" class="w-3.5 h-3.5 hand-drawn-icon"></i> Reports
                         </a>
+                        <a href="{% url 'marketing:expense_export' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="download" class="w-3.5 h-3.5 hand-drawn-icon"></i> Export Expenses
+                        </a>
                     </div>
                 </div>
                 
@@ -591,6 +678,9 @@
                     <div id="reports-menu" class="sidebar-submenu hidden">
                         <a href="{% url 'marketing:daily_reports' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
                             <i data-lucide="calendar" class="w-3.5 h-3.5 hand-drawn-icon"></i> Daily Reports
+                        </a>
+                        <a href="{% url 'marketing:daily_status_report' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
+                            <i data-lucide="file-check" class="w-3.5 h-3.5 hand-drawn-icon"></i> Daily Status Report
                         </a>
                         <a href="{% url 'marketing:monthly_reports' %}" class="sidebar-link flex items-center gap-3 px-4 py-2">
                             <i data-lucide="calendar-days" class="w-3.5 h-3.5 hand-drawn-icon"></i> Monthly Reports
@@ -943,7 +1033,7 @@
         // Function to restore accordion states from localStorage
         function restoreAccordionStates() {
             const accordionSections = [
-                'customers', 'leads', 'inquiry', 'mis-system', 'od-plan', 'po-details', 'po-status',
+                'customers', 'employees', 'leads', 'inquiry', 'mis-system', 'follow-up', 'od-plan', 'po-details', 'po-status',
                 'visits', 'sales', 'production', 'campaigns', 'exhibitions', 'expenses', 'reports', 'mis', 'settings'
             ];
             
@@ -983,6 +1073,17 @@
                 });
             }
 
+            // Employees accordion
+            const employeesToggle = document.getElementById('employees-toggle');
+            const employeesMenu = document.getElementById('employees-menu');
+            const employeesChevron = document.getElementById('employees-chevron');
+            if (employeesToggle && employeesMenu && employeesChevron) {
+                employeesToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleAccordion(employeesToggle, employeesMenu, employeesChevron, 'employees');
+                });
+            }
+
             // Leads accordion
             const leadsToggle = document.getElementById('leads-toggle');
             const leadsMenu = document.getElementById('leads-menu');
@@ -1002,6 +1103,17 @@
                 inquiryToggle.addEventListener('click', function(e) {
                     e.stopPropagation();
                     toggleAccordion(inquiryToggle, inquiryMenu, inquiryChevron, 'inquiry');
+                });
+            }
+
+            // Follow-Up Status accordion
+            const followUpToggle = document.getElementById('follow-up-toggle');
+            const followUpMenu = document.getElementById('follow-up-menu');
+            const followUpChevron = document.getElementById('follow-up-chevron');
+            if (followUpToggle && followUpMenu && followUpChevron) {
+                followUpToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleAccordion(followUpToggle, followUpMenu, followUpChevron, 'follow-up');
                 });
             }
 

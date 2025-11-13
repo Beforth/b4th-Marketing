@@ -3,9 +3,21 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.core.paginator import Paginator
-from django.db.models import Q, Count, Sum, ExpressionWrapper, F, FloatField
+from django.db.models import (
+    Q,
+    Count,
+    Sum,
+    Max,
+    Value,
+    ExpressionWrapper,
+    F,
+    FloatField,
+    IntegerField,
+)
 from django.utils import timezone
 from datetime import datetime, timedelta
+from decimal import Decimal
+import calendar
 from .models import Campaign, Lead, EmailTemplate, CampaignMetric, LeadActivity, Customer, CustomerLocation, Region, Visit, VisitParticipant, Expense, Exhibition, Quotation, PurchaseOrder, PaymentFollowUp, WorkOrder, Manufacturing, Dispatch, URS, GADrawing, TechnicalDiscussion, Negotiation, QuotationRevision, QCTracking, ProductionPlan, PackingDetails, DispatchChecklist, BudgetCategory, AnnualExhibitionBudget, BudgetAllocation, BudgetApproval, InquiryLog, FollowUpStatus, ProjectToday, OrderExpectedNextMonth, MISPurchaseOrder, NewData, NewDataDetails, ODPlan, ODPlanVisitReport, ODPlanRemarks, PODetails, POStatus, WorkOrderFormat, WeeklySummary, CallingDetails, HotOrders, PendingPayment2024, PendingPayment2025, OrderLoss, DSR
 from django.contrib.auth import get_user_model
 import sys
@@ -4086,61 +4098,93 @@ def audit_trail_system(request):
 def region_management(request):
     """Region Management Interface"""
     if request.method == 'POST':
-        name = request.POST.get('name')
-        description = request.POST.get('description')
-        
-        # Create region (placeholder for now)
-        region_data = {
-            'name': name,
-            'description': description,
-            'created_by': request.user.username,
-            'created_at': timezone.now().isoformat(),
-        }
-        
+        action = request.POST.get('action', 'create')
+
+        if action == 'update':
+            region_id = request.POST.get('region_id')
+            region = get_object_or_404(Region, id=region_id)
+
+            monthly_target_raw = request.POST.get('monthly_target', '').strip()
+            quarterly_target_raw = request.POST.get('quarterly_target', '').strip()
+            manager_id = request.POST.get('manager_id')
+
+            try:
+                monthly_target = Decimal(monthly_target_raw or '0')
+            except Exception:
+                messages.error(request, 'Please provide a valid monthly target amount.')
+                return redirect('marketing:region_management')
+
+            try:
+                quarterly_target = Decimal(quarterly_target_raw or '0')
+            except Exception:
+                messages.error(request, 'Please provide a valid quarterly target amount.')
+                return redirect('marketing:region_management')
+
+            manager = None
+            if manager_id:
+                manager = get_object_or_404(User, id=manager_id)
+
+            region.monthly_target = monthly_target
+            region.quarterly_target = quarterly_target
+            region.manager = manager
+            region.save(update_fields=['monthly_target', 'quarterly_target', 'manager'])
+
+            messages.success(request, f'Targets updated for region "{region.name}".')
+            return redirect('marketing:region_management')
+
+        # create action (default)
+        name = request.POST.get('name', '').strip()
+        description = request.POST.get('description', '').strip()
+        monthly_target_raw = request.POST.get('monthly_target', '').strip()
+        quarterly_target_raw = request.POST.get('quarterly_target', '').strip()
+        manager_id = request.POST.get('manager_id')
+
+        if not name:
+            messages.error(request, 'Region name is required.')
+            return redirect('marketing:region_management')
+
+        if Region.objects.filter(name__iexact=name).exists():
+            messages.warning(request, f'Region "{name}" already exists.')
+            return redirect('marketing:region_management')
+
+        try:
+            monthly_target = Decimal(monthly_target_raw or '0')
+        except Exception:
+            messages.error(request, 'Please provide a valid monthly target amount.')
+            return redirect('marketing:region_management')
+
+        try:
+            quarterly_target = Decimal(quarterly_target_raw or '0')
+        except Exception:
+            messages.error(request, 'Please provide a valid quarterly target amount.')
+            return redirect('marketing:region_management')
+
+        manager = None
+        if manager_id:
+            manager = get_object_or_404(User, id=manager_id)
+
+        Region.objects.create(
+            name=name,
+            description=description,
+            monthly_target=monthly_target,
+            quarterly_target=quarterly_target,
+            manager=manager,
+        )
+
         messages.success(request, f'Region "{name}" created successfully!')
         return redirect('marketing:region_management')
-    
-    # Get regions (placeholder data)
-    regions = [
-        {
-            'id': 1,
-            'name': 'North',
-            'description': 'Northern Region',
-            'customer_count': 45,
-            'lead_count': 23,
-            'created_at': '2024-01-15'
-        },
-        {
-            'id': 2,
-            'name': 'South',
-            'description': 'Southern Region',
-            'customer_count': 38,
-            'lead_count': 19,
-            'created_at': '2024-01-15'
-        },
-        {
-            'id': 3,
-            'name': 'East',
-            'description': 'Eastern Region',
-            'customer_count': 52,
-            'lead_count': 31,
-            'created_at': '2024-01-15'
-        },
-        {
-            'id': 4,
-            'name': 'West',
-            'description': 'Western Region',
-            'customer_count': 41,
-            'lead_count': 27,
-            'created_at': '2024-01-15'
-        }
-    ]
-    
+
+    regions = Region.objects.select_related('manager').annotate(
+        customer_count=Count('customer', distinct=True),
+        lead_count=Value(0, output_field=IntegerField()),
+    ).order_by('name')
+
     context = {
         'regions': regions,
-        'total_regions': len(regions),
-        'total_customers': sum(r['customer_count'] for r in regions),
-        'total_leads': sum(r['lead_count'] for r in regions),
+        'total_regions': regions.count(),
+        'total_customers': Customer.objects.count(),
+        'total_leads': Lead.objects.count(),
+        'managers': User.objects.order_by('first_name', 'last_name', 'username'),
     }
     return render(request, 'marketing/region_management.html', context)
 
@@ -4415,6 +4459,132 @@ def ongoing_projects(request):
         'region_projects': region_projects,
     }
     return render(request, 'marketing/ongoing_projects.html', context)
+
+
+@login_required
+def region_employee_overview(request):
+    """Region wise team and target overview UI"""
+    # Determine user role
+    user_role = 'marketing_head'
+    if request.user.groups.filter(name__iexact='Regional Head').exists():
+        user_role = 'regional_head'
+    elif request.user.groups.filter(name__iexact='Marketing Head').exists():
+        user_role = 'marketing_head'
+    elif request.user.is_superuser:
+        user_role = 'marketing_head'
+
+    # Determine accessible regions
+    regions_qs = Region.objects.select_related('manager').order_by('name')
+    if user_role == 'regional_head':
+        regions_qs = regions_qs.filter(manager=request.user)
+
+    today = timezone.now().date()
+    last_day = calendar.monthrange(today.year, today.month)[1]
+    default_deadline = today.replace(day=last_day)
+
+    region_summaries = []
+
+    for region in regions_qs:
+        region_target = region.monthly_target or Decimal('0')
+
+        region_achievement = Quotation.objects.filter(
+            customer__region=region
+        ).aggregate(
+            total=Sum('total_amount')
+        )['total'] or Decimal('0')
+
+        target_remaining = region_target - region_achievement
+        if target_remaining < 0:
+            target_remaining = Decimal('0')
+
+        progress_percent = 0.0
+        if region_target and region_target > 0:
+            progress_percent = float((region_achievement / region_target) * 100)
+
+        team_queryset = Quotation.objects.filter(
+            customer__region=region,
+            created_by__isnull=False
+        ).values(
+            'created_by',
+            'created_by__first_name',
+            'created_by__last_name',
+            'created_by__email'
+        ).annotate(
+            total_sales=Sum('total_amount'),
+            deal_count=Count('id'),
+            last_activity=Max('updated_at')
+        ).order_by('-total_sales')
+
+        team_members = []
+        team_size = team_queryset.count()
+        individual_target = region_target / team_size if team_size else Decimal('0')
+
+        for member in team_queryset:
+            achieved_amount = member['total_sales'] or Decimal('0')
+            member_remaining = individual_target - achieved_amount
+            if member_remaining < 0:
+                member_remaining = Decimal('0')
+
+            member_progress = 0.0
+            if individual_target and individual_target > 0:
+                member_progress = float((achieved_amount / individual_target) * 100)
+
+            team_members.append({
+                'id': member['created_by'],
+                'name': (f"{member['created_by__first_name']} {member['created_by__last_name']}".strip()
+                         or 'Unnamed User'),
+                'email': member['created_by__email'],
+                'role': 'Sales Executive',
+                'target': individual_target,
+                'achieved': achieved_amount,
+                'remaining': member_remaining,
+                'progress_percent': member_progress,
+                'deal_count': member['deal_count'],
+                'last_activity': member['last_activity'],
+                'deadline': default_deadline,
+            })
+
+        region_summaries.append({
+            'id': region.id,
+            'name': region.name,
+            'description': region.description,
+            'head': region.manager,
+            'employee_count': team_size,
+            'target_total': region_target,
+            'achieved_amount': region_achievement,
+            'remaining_amount': target_remaining,
+            'progress_percent': progress_percent,
+            'deadline': default_deadline,
+            'team_members': team_members,
+        })
+
+    total_regions = len(region_summaries)
+    total_employees = sum(region['employee_count'] for region in region_summaries)
+    total_target = sum(region['target_total'] for region in region_summaries) or Decimal('0')
+    total_achieved = sum(region['achieved_amount'] for region in region_summaries) or Decimal('0')
+    total_remaining = sum(region['remaining_amount'] for region in region_summaries) or Decimal('0')
+
+    overall_progress = 0.0
+    if total_target and total_target > 0:
+        overall_progress = float((total_achieved / total_target) * 100)
+
+    context = {
+        'page_title': 'Region Teams & Targets',
+        'breadcrumb': ['Customers', 'Region Teams'],
+        'user_role': user_role,
+        'regions': region_summaries,
+        'global_stats': {
+            'total_regions': total_regions,
+            'total_employees': total_employees,
+            'total_target': total_target,
+            'total_achieved': total_achieved,
+            'total_remaining': total_remaining,
+            'progress_percent': overall_progress,
+            'deadline': default_deadline,
+        },
+    }
+
+    return render(request, 'marketing/region_employee_overview.html', context)
 
 
 @login_required
