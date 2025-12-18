@@ -6446,3 +6446,24 @@ def wsr_sheets(request):
     return render(request, 'marketing/wsr_sheets.html', context)
 
 
+
+# Dashboard Detail Views
+@login_required
+def sales_pipeline_details(request):
+    """Sales Pipeline Details View"""
+    return render(request, 'marketing/sales_pipeline_details.html')
+
+@login_required
+def regional_performance_details(request):
+    """Regional Performance Details View"""
+    return render(request, 'marketing/regional_performance_details.html')
+
+@login_required
+def recent_activities_details(request):
+    """Recent Activities Details View"""
+    return render(request, 'marketing/recent_activities_details.html')
+
+@login_required
+def alerts_notifications_details(request):
+    """Alerts & Notifications Details View"""
+    return render(request, 'marketing/alerts_notifications_details.html')

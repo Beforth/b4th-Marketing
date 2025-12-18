@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto space-y-6">
+<div class="mx-auto w-full p-2 md:p-4 xl:p-2 space-y-6">
     <!-- Modern Header -->
     <div class="mb-4">
         <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -27,7 +27,7 @@
 
     <!-- User Form -->
     <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
-        <form method="post" class="mx-auto w-full" style="padding: 0.75rem 1.5rem 1.5rem 1.5rem;">
+        <form method="post" class="p-3 sm:p-6">
             {% csrf_token %}
             
             <!-- Basic Information -->

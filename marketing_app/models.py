@@ -166,7 +166,7 @@ class Customer(models.Model):
     
     @property
     def total_orders(self):
-        return self.purchase_orders.count()
+        return self.purchaseorder_set.count()
 
 class CustomerLocation(models.Model):
     """Multiple locations per customer"""

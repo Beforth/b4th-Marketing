@@ -134,107 +134,142 @@
         </div>
     </div>
 
-    <!-- MIS Sheets Overview -->
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-8">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">MIS Sheets Overview</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- How to Use -->
-            <div class="p-4 border border-gray-200 rounded-lg">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="p-2 bg-blue-100 rounded-lg">
-                        <i data-lucide="help-circle" class="w-4 h-4 text-blue-600"></i>
-                    </div>
-                    <h4 class="font-medium text-gray-900">How to Use</h4>
-                </div>
-                <p class="text-sm text-gray-600">Instructions and overview sheet</p>
-            </div>
-
-            <!-- Inquiry Log -->
-            <div class="p-4 border border-gray-200 rounded-lg">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="p-2 bg-purple-100 rounded-lg">
-                        <i data-lucide="clipboard-list" class="w-4 h-4 text-purple-600"></i>
-                    </div>
-                    <h4 class="font-medium text-gray-900">Inquiry Log</h4>
-                </div>
-                <p class="text-sm text-gray-600">Manage business inquiries</p>
-            </div>
-
-            <!-- Follow-Up Status -->
-            <div class="p-4 border border-gray-200 rounded-lg">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="p-2 bg-green-100 rounded-lg">
-                        <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
-                    </div>
-                    <h4 class="font-medium text-gray-900">Follow-Up Status</h4>
-                </div>
-                <p class="text-sm text-gray-600">Track enquiry follow-ups</p>
-            </div>
-
-            <!-- Project Today -->
-            <div class="p-4 border border-gray-200 rounded-lg">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="p-2 bg-blue-100 rounded-lg">
-                        <i data-lucide="briefcase" class="w-4 h-4 text-blue-600"></i>
-                    </div>
-                    <h4 class="font-medium text-gray-900">Project Today</h4>
-                </div>
-                <p class="text-sm text-gray-600">Current active projects</p>
-            </div>
-
-            <!-- Order Expected -->
-            <div class="p-4 border border-gray-200 rounded-lg">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="p-2 bg-purple-100 rounded-lg">
-                        <i data-lucide="calendar" class="w-4 h-4 text-purple-600"></i>
-                    </div>
-                    <h4 class="font-medium text-gray-900">Order Expected</h4>
-                </div>
-                <p class="text-sm text-gray-600">Sales forecast tracking</p>
-            </div>
-
-            <!-- Purchase Order -->
-            <div class="p-4 border border-gray-200 rounded-lg">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="p-2 bg-orange-100 rounded-lg">
-                        <i data-lucide="shopping-cart" class="w-4 h-4 text-orange-600"></i>
-                    </div>
-                    <h4 class="font-medium text-gray-900">Purchase Order</h4>
-                </div>
-                <p class="text-sm text-gray-600">PO management</p>
-            </div>
-
-            <!-- New Data -->
-            <div class="p-4 border border-gray-200 rounded-lg">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="p-2 bg-indigo-100 rounded-lg">
-                        <i data-lucide="trending-up" class="w-4 h-4 text-indigo-600"></i>
-                    </div>
-                    <h4 class="font-medium text-gray-900">New Data</h4>
-                </div>
-                <p class="text-sm text-gray-600">Customer acquisition</p>
-            </div>
-
-            <!-- OD Plan -->
-            <div class="p-4 border border-gray-200 rounded-lg">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="p-2 bg-teal-100 rounded-lg">
-                        <i data-lucide="map-pin" class="w-4 h-4 text-teal-600"></i>
-                    </div>
-                    <h4 class="font-medium text-gray-900">OD Plan</h4>
-                </div>
-                <p class="text-sm text-gray-600">Field visit planning</p>
-            </div>
-
-            <!-- Legends -->
-            <div class="p-4 border border-gray-200 rounded-lg">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="p-2 bg-gray-100 rounded-lg">
-                        <i data-lucide="book-open" class="w-4 h-4 text-gray-600"></i>
-                    </div>
-                    <h4 class="font-medium text-gray-900">Legends</h4>
-                </div>
-                <p class="text-sm text-gray-600">Reference data</p>
+    <!-- Saved MIS Sheets -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+        <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+            <h3 class="text-base sm:text-lg font-semibold text-gray-900">Saved MIS Sheets</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sheet Type</th>
+                        <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                        <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Modified</th>
+                        <th class="px-3 sm:px-6 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <!-- Sample Draft Entry -->
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-2">
+                                <div class="p-1 bg-purple-100 rounded">
+                                    <i data-lucide="clipboard-list" class="w-3 h-3 text-purple-600"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-medium text-gray-900">Inquiry Log</span>
+                            </div>
+                        </td>
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">ABC Company Inquiry - Q1 2024</td>
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <i data-lucide="edit" class="w-3 h-3 mr-1"></i>
+                                Draft
+                            </span>
+                        </td>
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">2 hours ago</td>
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-1 sm:gap-2">
+                                <button class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                                        title="Edit Draft">
+                                    <i data-lucide="edit" class="w-3 h-3"></i>
+                                    <span class="hidden sm:inline">Edit</span>
+                                </button>
+                                <button class="inline-flex items-center gap-1 rounded-lg bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors"
+                                        title="Delete Draft"
+                                        onclick="confirmDelete('ABC Company Inquiry - Q1 2024')">
+                                    <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                    <span class="hidden sm:inline">Delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Sample Saved Entry -->
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-2">
+                                <div class="p-1 bg-green-100 rounded">
+                                    <i data-lucide="check-circle" class="w-3 h-3 text-green-600"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-medium text-gray-900">Follow-Up Status</span>
+                            </div>
+                        </td>
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">XYZ Corp Follow-up Report</td>
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <i data-lucide="check" class="w-3 h-3 mr-1"></i>
+                                Saved
+                            </span>
+                        </td>
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">1 day ago</td>
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-1 sm:gap-2">
+                                <button class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                                        title="View/Edit">
+                                    <i data-lucide="eye" class="w-3 h-3"></i>
+                                    <span class="hidden sm:inline">View</span>
+                                </button>
+                                <button class="inline-flex items-center gap-1 rounded-lg bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors"
+                                        title="Delete"
+                                        onclick="confirmDelete('XYZ Corp Follow-up Report')">
+                                    <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                    <span class="hidden sm:inline">Delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Sample Project Today Entry -->
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-2">
+                                <div class="p-1 bg-blue-100 rounded">
+                                    <i data-lucide="briefcase" class="w-3 h-3 text-blue-600"></i>
+                                </div>
+                                <span class="text-xs sm:text-sm font-medium text-gray-900">Project Today</span>
+                            </div>
+                        </td>
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">Manufacturing Project Update</td>
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                <i data-lucide="edit" class="w-3 h-3 mr-1"></i>
+                                Draft
+                            </span>
+                        </td>
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">3 hours ago</td>
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-1 sm:gap-2">
+                                <button class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                                        title="Edit Draft">
+                                    <i data-lucide="edit" class="w-3 h-3"></i>
+                                    <span class="hidden sm:inline">Edit</span>
+                                </button>
+                                <button class="inline-flex items-center gap-1 rounded-lg bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors"
+                                        title="Delete Draft"
+                                        onclick="confirmDelete('Manufacturing Project Update')">
+                                    <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                    <span class="hidden sm:inline">Delete</span>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Empty State (hidden when there are entries) -->
+        <div class="hidden px-6 py-12 text-center" id="empty-state">
+            <div class="text-gray-500">
+                <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-4 text-gray-300"></i>
+                <p class="text-lg font-medium mb-2">No saved MIS sheets</p>
+                <p class="text-sm text-gray-600 mb-4">Start creating MIS sheets to see them here</p>
+                <a href="{% url 'marketing:mis_sheets' %}" 
+                   class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    Create New Sheet
+                </a>
             </div>
         </div>
     </div>
@@ -277,5 +312,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Create Lucide icons
     lucide.createIcons();
 });
+
+// Delete confirmation function
+function confirmDelete(sheetName) {
+    if (confirm(`Are you sure you want to delete "${sheetName}"? This action cannot be undone.`)) {
+        // Here you would normally make an API call to delete the sheet
+        console.log('Deleting sheet:', sheetName);
+        // For demo purposes, just show an alert
+        alert('Sheet deleted successfully!');
+    }
+}
 </script>
 {% endblock %}

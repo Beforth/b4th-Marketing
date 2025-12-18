@@ -4,6 +4,78 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
+<style>
+/* Notification Dropdown Animations */
+#notification-dropdown {
+    animation: slideDown 0.2s ease-out;
+    transform-origin: top right;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Notification Badge Pulse Animation */
+#notification-badge {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1);
+    }
+}
+
+/* Smooth scrollbar for notification list */
+#notification-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+#notification-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#notification-list::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 2px;
+}
+
+#notification-list::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Bell shake animation on hover */
+#notification-bell:hover i {
+    animation: bellShake 0.5s ease-in-out;
+}
+
+@keyframes bellShake {
+    0%, 100% { transform: rotate(0deg); }
+    10%, 30%, 50%, 70%, 90% { transform: rotate(-10deg); }
+    20%, 40%, 60%, 80% { transform: rotate(10deg); }
+}
+</style>
+
 <!-- Dashboard Header with Greeting -->
 <div class="px-4 py-2 mb-1">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -43,10 +115,31 @@
             </div>
             
             <!-- Notification Icon -->
-            <button class="relative rounded-lg p-2 text-gray-600 hover:bg-gray-100 transition-colors" 
-                    data-animate="fade-in-right" data-delay="1.0s">
-                <i data-lucide="bell" class="h-5 w-5"></i>
-            </button>
+            <div class="relative" data-animate="fade-in-right" data-delay="1.0s">
+                <button id="notification-bell" class="relative rounded-lg p-2 text-gray-600 hover:bg-gray-100 transition-colors">
+                    <i data-lucide="bell" class="h-5 w-5"></i>
+                    <!-- Notification Badge -->
+                    <span id="notification-badge" class="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center hidden">
+                        3
+                    </span>
+                </button>
+                
+                <!-- Notification Dropdown -->
+                <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                    <!-- Header -->
+                    <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                        <h3 class="text-sm font-semibold text-gray-900">Notifications</h3>
+                        <button id="mark-all-read" class="text-xs text-blue-600 hover:text-blue-700">Mark all as read</button>
+                    </div>
+                    
+                    <!-- Notification List -->
+                    <div id="notification-list" class="max-h-96 overflow-y-auto">
+                        <!-- Sample notifications - will be populated by JavaScript -->
+                    </div>
+                    
+
+                </div>
+            </div>
             
             <!-- User Profile Component -->
             <button id="user-profile" class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 hover:bg-gray-50 transition-colors" 
@@ -59,8 +152,7 @@
                 <!-- Username -->
                 <span class="text-sm font-medium text-gray-700">{{ user.username|default:"User" }}</span>
                 
-                <!-- Dropdown Arrow -->
-                <i data-lucide="chevron-down" class="h-4 w-4 text-gray-400 transition-transform"></i>
+
             </button>
         </div>
     </div>
@@ -145,7 +237,7 @@
         <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-base font-semibold text-gray-900">Sales Pipeline</h3>
-                <button class="text-xs text-blue-600 hover:text-blue-700">View Details</button>
+                <a href="{% url 'marketing:sales_pipeline_details' %}" class="text-xs text-blue-600 hover:text-blue-700">View Details</a>
             </div>
             <div class="space-y-3">
                 <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
@@ -218,7 +310,7 @@
         <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-base font-semibold text-gray-900">Regional Performance</h3>
-                <button class="text-xs text-blue-600 hover:text-blue-700">View All</button>
+                <a href="{% url 'marketing:regional_performance_details' %}" class="text-xs text-blue-600 hover:text-blue-700">View All</a>
             </div>
             <div class="space-y-3">
                 <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
@@ -294,7 +386,7 @@
         <div class="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-base font-semibold text-gray-900">Recent Activities</h3>
-                <button class="text-xs text-blue-600 hover:text-blue-700">View All</button>
+                <a href="{% url 'marketing:recent_activities_details' %}" class="text-xs text-blue-600 hover:text-blue-700">View All</a>
             </div>
             <div class="space-y-3">
                 <div class="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
@@ -424,7 +516,7 @@
     <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-base font-semibold text-gray-900">Alerts & Notifications</h3>
-            <button class="text-xs text-blue-600 hover:text-blue-700">View All</button>
+            <a href="{% url 'marketing:alerts_notifications_details' %}" class="text-xs text-blue-600 hover:text-blue-700">View All</a>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -480,6 +572,258 @@
 </div>
 
 <script>
+// Notification System
+const notifications = [
+    {
+        id: 1,
+        title: "New Purchase Order Received",
+        message: "PO #PO-2024-001 from ABC Corp worth ₹2.5L",
+        type: "success",
+        time: "2 hours ago",
+        read: false,
+        icon: "shopping-cart"
+    },
+    {
+        id: 2,
+        title: "Quotation Expiring Soon",
+        message: "Quotation #QT-2024-045 expires today",
+        type: "warning",
+        time: "4 hours ago",
+        read: false,
+        icon: "clock"
+    },
+    {
+        id: 3,
+        title: "Visit Completed",
+        message: "Technical discussion with XYZ Ltd completed successfully",
+        type: "info",
+        time: "1 day ago",
+        read: true,
+        icon: "map-pin"
+    }
+];
+
+function renderNotifications() {
+    const notificationList = document.getElementById('notification-list');
+    const notificationBadge = document.getElementById('notification-badge');
+    
+    if (!notificationList) return;
+    
+    const unreadCount = notifications.filter(n => !n.read).length;
+    
+    // Update badge
+    if (unreadCount > 0) {
+        notificationBadge.textContent = unreadCount;
+        notificationBadge.classList.remove('hidden');
+    } else {
+        notificationBadge.classList.add('hidden');
+    }
+    
+    // Clear existing notifications
+    notificationList.innerHTML = '';
+    
+    if (notifications.length === 0) {
+        // No notifications state
+        notificationList.innerHTML = `
+            <div class="px-4 py-8 text-center">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="bell-off" class="w-8 h-8 text-gray-400"></i>
+                </div>
+                <p class="text-sm font-medium text-gray-900 mb-1">No notifications</p>
+                <p class="text-xs text-gray-500">You're all caught up! Check back later for updates.</p>
+            </div>
+        `;
+    } else {
+        // Render notifications
+        notifications.forEach(notification => {
+            const notificationElement = document.createElement('div');
+            notificationElement.className = `px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${!notification.read ? 'bg-blue-50' : ''}`;
+            
+            let iconColor = 'text-gray-400';
+            let bgColor = 'bg-gray-100';
+            
+            switch(notification.type) {
+                case 'success':
+                    iconColor = 'text-green-600';
+                    bgColor = 'bg-green-100';
+                    break;
+                case 'warning':
+                    iconColor = 'text-orange-600';
+                    bgColor = 'bg-orange-100';
+                    break;
+                case 'error':
+                    iconColor = 'text-red-600';
+                    bgColor = 'bg-red-100';
+                    break;
+                case 'info':
+                    iconColor = 'text-blue-600';
+                    bgColor = 'bg-blue-100';
+                    break;
+            }
+            
+            notificationElement.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 ${bgColor} rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="${notification.icon}" class="w-4 h-4 ${iconColor}"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between">
+                            <p class="text-sm font-medium text-gray-900 truncate">${notification.title}</p>
+                            ${!notification.read ? '<div class="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 ml-2 mt-1"></div>' : ''}
+                        </div>
+                        <p class="text-xs text-gray-600 mt-1 line-clamp-2">${notification.message}</p>
+                        <p class="text-xs text-gray-400 mt-1">${notification.time}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Add click handler to mark as read
+            notificationElement.addEventListener('click', () => {
+                markNotificationAsRead(notification.id);
+            });
+            
+            notificationList.appendChild(notificationElement);
+        });
+    }
+    
+    // Re-initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+function markNotificationAsRead(notificationId) {
+    const notification = notifications.find(n => n.id === notificationId);
+    if (notification) {
+        notification.read = true;
+        renderNotifications();
+    }
+}
+
+function markAllNotificationsAsRead() {
+    notifications.forEach(n => n.read = true);
+    renderNotifications();
+}
+
+// Initialize notification system
+document.addEventListener('DOMContentLoaded', function() {
+    const notificationBell = document.getElementById('notification-bell');
+    const notificationDropdown = document.getElementById('notification-dropdown');
+    const markAllReadBtn = document.getElementById('mark-all-read');
+    
+    if (notificationBell && notificationDropdown) {
+        // Toggle dropdown
+        notificationBell.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notificationDropdown.classList.toggle('hidden');
+            if (!notificationDropdown.classList.contains('hidden')) {
+                renderNotifications();
+            }
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!notificationDropdown.contains(e.target) && !notificationBell.contains(e.target)) {
+                notificationDropdown.classList.add('hidden');
+            }
+        });
+        
+        // Mark all as read
+        if (markAllReadBtn) {
+            markAllReadBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                markAllNotificationsAsRead();
+            });
+        }
+        
+        // Initial render
+        renderNotifications();
+    }
+});
+
+// Test functions for different notification states
+function clearAllNotifications() {
+    notifications.length = 0;
+    renderNotifications();
+}
+
+function loadSampleNotifications() {
+    notifications.length = 0;
+    notifications.push(
+        {
+            id: 1,
+            title: "New Purchase Order Received",
+            message: "PO #PO-2024-001 from ABC Corp worth ₹2.5L",
+            type: "success",
+            time: "2 hours ago",
+            read: false,
+            icon: "shopping-cart"
+        },
+        {
+            id: 2,
+            title: "Quotation Expiring Soon",
+            message: "Quotation #QT-2024-045 expires today",
+            type: "warning",
+            time: "4 hours ago",
+            read: false,
+            icon: "clock"
+        },
+        {
+            id: 3,
+            title: "Visit Completed",
+            message: "Technical discussion with XYZ Ltd completed successfully",
+            type: "info",
+            time: "1 day ago",
+            read: true,
+            icon: "map-pin"
+        },
+        {
+            id: 4,
+            title: "Payment Follow-up Required",
+            message: "Payment pending from DEF Industries for PO #PO-2024-002",
+            type: "warning",
+            time: "1 day ago",
+            read: false,
+            icon: "credit-card"
+        },
+        {
+            id: 5,
+            title: "Production Completed",
+            message: "Batch #B001 ready for dispatch to GHI Corp",
+            type: "success",
+            time: "2 days ago",
+            read: true,
+            icon: "factory"
+        }
+    );
+    renderNotifications();
+}
+
+function addNewNotification(title, message, type = 'info', icon = 'bell') {
+    const newNotification = {
+        id: Date.now(),
+        title: title,
+        message: message,
+        type: type,
+        time: 'Just now',
+        read: false,
+        icon: icon
+    };
+    
+    notifications.unshift(newNotification);
+    renderNotifications();
+    
+    // Show toast notification if available
+    if (typeof showToast === 'function') {
+        showToast(`New notification: ${title}`, 'info');
+    }
+}
+
+// Console commands for testing:
+// clearAllNotifications() - to test empty state
+// loadSampleNotifications() - to load sample notifications
+// addNewNotification("Test Title", "Test message", "success", "check-circle") - to add a new notification
+
 // Dynamic Motivational Quotes
 const motivationalQuotes = [
     "Stay focused and productive!",
