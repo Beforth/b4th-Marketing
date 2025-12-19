@@ -14,7 +14,7 @@ SECRET_KEY = 'django-insecure-your-secret-key-here-change-in-production'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
@@ -124,7 +124,8 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/hrms-login/'
 
 # HRMS RBAC API Configuration
-HRMS_RBAC_API_URL = 'https://hrms.aureolegroup.com/api/rbac'
+# Can be overridden with environment variable HRMS_RBAC_API_URL
+HRMS_RBAC_API_URL = os.getenv('HRMS_RBAC_API_URL', 'https://hrms.aureolegroup.com/api/rbac')
 HRMS_RBAC_EXEMPT_URLS = [
     '/hrms-login/',
     '/hrms-logout/',
