@@ -1,5 +1,6 @@
 {% extends 'marketing/base.html' %}
 {% load static %}
+{% load user_display %}
 
 {% block title %}Leads - Marketing Hub{% endblock %}
 
@@ -252,7 +253,7 @@
                                 {{ lead.get_source_display }}
                             </td>
                             <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
-                                {{ lead.assigned_to.get_full_name|default:lead.assigned_to.username|default:"Unassigned" }}
+                                {{ lead|user_display:"assigned_to" }}
                             </td>
                             <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                                 <div class="flex items-center">

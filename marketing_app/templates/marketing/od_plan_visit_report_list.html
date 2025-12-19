@@ -1,0 +1,266 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}OD Plan Visit Reports - Marketing Hub{% endblock %}
+
+{% block content %}
+    <!-- Modern Header -->
+    <div class="mb-4">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">OD Plan Visit Reports</h1>
+                <p class="text-sm text-gray-600">View and manage outdoor planning visit reports</p>
+            </div>
+            <a href="{% url 'marketing:od_plan_visit_report_create' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm transition">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                Add Visit Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Total Reports</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_reports|default:0 }}</p>
+                </div>
+                <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="file-text" class="w-6 h-6 text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">This Month</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ monthly_reports|default:0 }}</p>
+                </div>
+                <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="calendar" class="w-6 h-6 text-green-600"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600">Completed Visits</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ completed_visits|default:0 }}</p>
+                </div>
+                <div class="h-12 w-12 bg-teal-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-teal-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm mb-6">
+        <div class="p-6">
+            <form method="get" class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                    <input type="text" 
+                           id="search" 
+                           name="search" 
+                           value="{{ request.GET.search }}"
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                           placeholder="Search by region, location, or company name">
+                </div>
+                <div class="md:w-64">
+                    <label for="region" class="block text-sm font-medium text-gray-700 mb-2">Region Filter</label>
+                    <select id="region" 
+                            name="region" 
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        <option value="">All Regions</option>
+                        {% for region in regions %}
+                            <option value="{{ region }}" {% if request.GET.region == region %}selected{% endif %}>{{ region }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex items-end gap-2">
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                        <i data-lucide="search" class="w-4 h-4 inline mr-2"></i>
+                        Search
+                    </button>
+                    <a href="{% url 'marketing:od_plan_visit_report_list' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
+                        <i data-lucide="x" class="w-4 h-4 inline mr-2"></i>
+                        Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Visit Reports Table -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Report ID
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Region & Location
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Visit Date
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Companies Visited
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Created By
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for report in reports %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            #{{ report.id|default:"001" }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            <div>
+                                <div class="font-medium">{{ report.region|default:"North Region" }}</div>
+                                <div class="text-gray-500 text-xs">{{ report.location|default:"Mumbai, Maharashtra" }}</div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ report.visit_date|date:"M d, Y"|default:"Dec 18, 2024" }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-900">
+                            <div class="max-w-xs">
+                                {{ report.companies_visited|default:"ABC Pharmaceuticals, XYZ Chemicals" }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                {{ report.status|default:"Completed" }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ report.created_by|default:"Admin User" }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="#" 
+                                   class="text-blue-600 hover:text-blue-900 transition-colors"
+                                   title="View Details">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </a>
+                                <a href="#" 
+                                   class="text-indigo-600 hover:text-indigo-900 transition-colors"
+                                   title="Edit">
+                                    <i data-lucide="edit" class="w-4 h-4"></i>
+                                </a>
+                                <a href="#" 
+                                   class="text-red-600 hover:text-red-900 transition-colors"
+                                   title="Delete">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                            <div class="flex flex-col items-center gap-2">
+                                <i data-lucide="file-text" class="w-12 h-12 text-gray-400"></i>
+                                <p class="text-lg font-medium">No visit reports found</p>
+                                <p class="text-sm">Get started by creating your first OD plan visit report.</p>
+                                <a href="{% url 'marketing:od_plan_visit_report_create' %}" class="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm transition">
+                                    <i data-lucide="plus" class="w-4 h-4"></i>
+                                    Add Visit Report
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div class="flex-1 flex justify-between sm:hidden">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.region %}&region={{ request.GET.region }}{% endif %}" 
+                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Previous
+                    </a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.region %}&region={{ request.GET.region }}{% endif %}" 
+                       class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        Next
+                    </a>
+                {% endif %}
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        Showing
+                        <span class="font-medium">{{ page_obj.start_index|default:1 }}</span>
+                        to
+                        <span class="font-medium">{{ page_obj.end_index|default:1 }}</span>
+                        of
+                        <span class="font-medium">{{ page_obj.paginator.count|default:0 }}</span>
+                        results
+                    </p>
+                </div>
+                <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.region %}&region={{ request.GET.region }}{% endif %}" 
+                               class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            </a>
+                        {% endif %}
+                        
+                        {% if page_obj %}
+                            {% for num in page_obj.paginator.page_range %}
+                                {% if page_obj.number == num %}
+                                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
+                                        {{ num }}
+                                    </span>
+                                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                    <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.region %}&region={{ request.GET.region }}{% endif %}" 
+                                       class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                        {{ num }}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.region %}&region={{ request.GET.region }}{% endif %}" 
+                               class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create Lucide icons
+    lucide.createIcons();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permission Denied - Marketing System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="w-full max-w-md mx-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 text-center">
+            <!-- Icon -->
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-red-100 rounded-full mb-6">
+                <i data-lucide="lock" class="w-10 h-10 text-red-600"></i>
+            </div>
+
+            <!-- Title -->
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">Access Denied</h1>
+            
+            <!-- Message -->
+            <p class="text-gray-600 mb-2">
+                You don't have permission to access this resource.
+            </p>
+            
+            {% if permission %}
+            <p class="text-sm text-gray-500 mb-6">
+                Required permission: <code class="bg-gray-100 px-2 py-1 rounded">{{ permission }}</code>
+            </p>
+            {% endif %}
+
+            <!-- Actions -->
+            <div class="space-y-3">
+                <a href="{% url 'marketing:dashboard' %}" 
+                   class="block w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                    <span class="flex items-center justify-center">
+                        <i data-lucide="home" class="w-5 h-5 mr-2"></i>
+                        Go to Dashboard
+                    </span>
+                </a>
+                
+                <a href="{% url 'user_profile' %}" 
+                   class="block w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+                    <span class="flex items-center justify-center">
+                        <i data-lucide="user" class="w-5 h-5 mr-2"></i>
+                        View My Permissions
+                    </span>
+                </a>
+            </div>
+
+            <!-- Footer -->
+            <p class="text-xs text-gray-500 mt-6">
+                If you believe this is an error, please contact your administrator.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>
+

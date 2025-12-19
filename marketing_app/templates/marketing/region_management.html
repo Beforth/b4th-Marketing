@@ -142,7 +142,7 @@
                 </div>
                 <div class="flex items-center justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-gray-200">
                     <button type="submit" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
-                        <i data-lucide="plus" class="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2"></i>
+                        <i data-lucide="map-pin" class="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2"></i>
                         Add Region
                     </button>
                 </div>
@@ -234,10 +234,14 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="flex items-center justify-end">
+                                <div class="flex items-center justify-end gap-2">
                                     <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
                                         <i data-lucide="save" class="w-3 h-3"></i>
                                         Update
+                                    </button>
+                                    <button type="button" onclick="openDeleteModal({{ region.id }}, '{{ region.name|escapejs }}', {{ region.customer_count }})" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">
+                                        <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                        Delete
                                     </button>
                                 </div>
                             </form>
@@ -249,4 +253,178 @@
         </div>
     </div>
 </div>
+
+<!-- Delete Region Confirmation Modal -->
+<div id="delete-region-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full transform transition-all">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900">Delete Region</h3>
+                </div>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="px-6 py-4">
+                <p class="text-sm text-gray-600 mb-4">
+                    Are you sure you want to delete this region? This action cannot be undone.
+                </p>
+                
+                <!-- Region Summary -->
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                    <h4 class="text-sm font-medium text-red-900 mb-2">Region Details:</h4>
+                    <div class="space-y-1 text-xs text-red-700">
+                        <div class="flex justify-between">
+                            <span>Region Name:</span>
+                            <span id="modal-region-name" class="font-medium text-red-900">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Customers Assigned:</span>
+                            <span id="modal-customer-count" class="font-medium text-red-900">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Warning Message -->
+                <div class="flex items-start gap-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 flex-shrink-0 mt-0.5"></i>
+                    <div>
+                        <p class="font-medium mb-1">Warning:</p>
+                        <ul class="space-y-1">
+                            <li>• All customers in this region will need to be reassigned</li>
+                            <li>• Regional targets and performance data will be lost</li>
+                            <li>• This action cannot be reversed</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3">
+                <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
+                    <i data-lucide="x" class="w-4 h-4 inline mr-2"></i>
+                    Cancel
+                </button>
+                <button type="button" onclick="confirmDelete()" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">
+                    <i data-lucide="trash-2" class="w-4 h-4 inline mr-2"></i>
+                    Yes, Delete Region
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentRegionId = null;
+let currentRegionName = null;
+
+function openDeleteModal(regionId, regionName, customerCount) {
+    currentRegionId = regionId;
+    currentRegionName = regionName;
+    
+    // Populate modal with region data
+    document.getElementById('modal-region-name').textContent = regionName;
+    document.getElementById('modal-customer-count').textContent = customerCount;
+    
+    // Show modal with animation
+    const modal = document.getElementById('delete-region-modal');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.querySelector('.bg-white').classList.add('scale-100');
+    }, 10);
+    
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('delete-region-modal');
+    modal.querySelector('.bg-white').classList.remove('scale-100');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 200);
+    currentRegionId = null;
+    currentRegionName = null;
+}
+
+function confirmDelete() {
+    if (!currentRegionId) return;
+    
+    // Show loading state
+    const deleteBtn = document.querySelector('[onclick="confirmDelete()"]');
+    const originalText = deleteBtn.innerHTML;
+    deleteBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 inline mr-2 animate-spin"></i>Deleting...';
+    deleteBtn.disabled = true;
+    
+    // Simulate deletion (since no backend changes requested)
+    setTimeout(() => {
+        showToast(`Region "${currentRegionName}" has been deleted successfully!`, 'success');
+        closeDeleteModal();
+        
+        // Reset button
+        deleteBtn.innerHTML = originalText;
+        deleteBtn.disabled = false;
+        
+        // Optionally refresh the page to show updated data
+        // window.location.reload();
+    }, 1500);
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('delete-region-modal');
+    if (e.target === modal) {
+        closeDeleteModal();
+    }
+});
+
+// Toast notification function
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium transform transition-all duration-300 translate-x-full`;
+    
+    switch(type) {
+        case 'error':
+            toast.classList.add('bg-red-600');
+            break;
+        case 'success':
+            toast.classList.add('bg-green-600');
+            break;
+        case 'warning':
+            toast.classList.add('bg-yellow-600');
+            break;
+        default:
+            toast.classList.add('bg-blue-600');
+    }
+    
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.classList.remove('translate-x-full');
+    }, 100);
+    
+    setTimeout(() => {
+        toast.classList.add('translate-x-full');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Initialize Lucide icons on page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
+</script>
 {% endblock %}

@@ -36,6 +36,45 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
+        /* Override default focus colors to use blue theme */
+        input:focus,
+        textarea:focus,
+        select:focus,
+        button:focus {
+            outline: none !important;
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+        }
+        
+        /* Specific focus styles for form elements */
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        input[type="password"]:focus,
+        input[type="number"]:focus,
+        input[type="search"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+            outline: none !important;
+        }
+        
+        /* Remove purple/violet focus colors */
+        *:focus {
+            outline: none !important;
+        }
+        
+        /* Ensure consistent blue focus for all interactive elements */
+        .focus\:ring-blue-500:focus {
+            --tw-ring-color: rgb(59 130 246 / 0.5) !important;
+        }
+        
+        .focus\:border-blue-500:focus {
+            --tw-border-opacity: 1 !important;
+            border-color: rgb(59 130 246 / var(--tw-border-opacity)) !important;
+        }
+        
         /* Sidebar scrollbar styling - matches theme */
         .sidebar-scroll::-webkit-scrollbar {
             width: 4px;
@@ -783,12 +822,7 @@
                             <i data-lucide="edit" class="w-3.5 h-3.5 hand-drawn-icon"></i>
                             Edit Profile
                         </a>
-                        {% if user.is_superuser %}
-                        <a href="/admin/" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-all duration-200">
-                            <i data-lucide="settings" class="w-3.5 h-3.5 hand-drawn-icon"></i>
-                            Admin Panel
-                        </a>
-                        {% endif %}
+
                         <div class="border-t border-gray-100 my-1"></div>
                         <a href="{% url 'logout' %}" class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-all duration-200">
                             <i data-lucide="log-out" class="w-3.5 h-3.5 hand-drawn-icon"></i>

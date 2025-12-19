@@ -31,7 +31,13 @@ class Campaign(models.Model):
     budget = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     target_audience = models.TextField(blank=True)
     goals = models.TextField(blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -79,6 +85,12 @@ class Lead(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='new')
     score = models.IntegerField(default=0)
     notes = models.TextField(blank=True)
+    # HRMS User Information (replaces ForeignKey to User)
+    assigned_to_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    assigned_to_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    assigned_to_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    assigned_to_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
     assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     campaign = models.ForeignKey(Campaign, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -96,7 +108,13 @@ class EmailTemplate(models.Model):
     subject = models.CharField(max_length=200)
     content = models.TextField()
     is_active = models.BooleanField(default=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -131,6 +149,12 @@ class Region(models.Model):
     """Marketing regions (North, South, East, West)"""
     name = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True)
+    # HRMS User Information (replaces ForeignKey to User)
+    manager_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    manager_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    manager_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    manager_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
     manager = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='managed_regions')
     monthly_target = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     quarterly_target = models.DecimalField(max_digits=12, decimal_places=2, default=0)
@@ -153,7 +177,13 @@ class Customer(models.Model):
     email = models.EmailField()
     phone = models.CharField(max_length=20)
     region = models.ForeignKey(Region, on_delete=models.CASCADE)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -166,7 +196,7 @@ class Customer(models.Model):
     
     @property
     def total_orders(self):
-        return self.purchase_orders.count()
+        return self.purchaseorder_set.count()
 
 class CustomerLocation(models.Model):
     """Multiple locations per customer"""
@@ -221,7 +251,13 @@ class Visit(models.Model):
     purpose = models.TextField()
     outcome = models.TextField(blank=True)
     next_follow_up_date = models.DateTimeField(null=True, blank=True)
-    assigned_to = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigned_visits')
+    # HRMS User Information (replaces ForeignKey to User)
+    assigned_to_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    assigned_to_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    assigned_to_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    assigned_to_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_visits')
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
@@ -255,7 +291,13 @@ class VisitParticipant(models.Model):
     ]
     
     visit = models.ForeignKey(Visit, on_delete=models.CASCADE, related_name='participants')
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    participant_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    participant_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    participant_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    participant_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='secondary')
     is_primary = models.BooleanField(default=False)
     notes = models.TextField(blank=True, help_text="Specific notes about this participant's role in the visit")
@@ -287,13 +329,30 @@ class Expense(models.Model):
         ('rejected', 'Rejected'),
     ]
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    expense_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    expense_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    expense_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    expense_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     date = models.DateField()
     expense_type = models.CharField(max_length=20, choices=EXPENSE_TYPES)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField()
     receipt = models.FileField(upload_to='expenses/', null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='prepared')
+    # HRMS User Information for verified_by
+    verified_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    verified_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    verified_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    verified_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # HRMS User Information for approved_by
+    approved_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    approved_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    approved_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    approved_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy fields kept for backward compatibility
     verified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_expenses')
     approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_expenses')
     verified_at = models.DateTimeField(null=True, blank=True)
@@ -346,7 +405,18 @@ class AnnualExhibitionBudget(models.Model):
     remaining_budget = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     notes = models.TextField(blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_budgets')
+    # HRMS User Information for created_by
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # HRMS User Information for approved_by
+    approved_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    approved_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    approved_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    approved_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy fields kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_budgets')
     approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_budgets')
     approved_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -425,6 +495,12 @@ class BudgetApproval(models.Model):
     approval_level = models.CharField(max_length=20, choices=APPROVAL_LEVELS)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     comments = models.TextField(blank=True)
+    # HRMS User Information (replaces ForeignKey to User)
+    approved_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    approved_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    approved_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    approved_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
     approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     approved_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -466,7 +542,13 @@ class Exhibition(models.Model):
     visitor_count = models.IntegerField(default=0)
     total_expense = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     notes = models.TextField(blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
@@ -521,7 +603,13 @@ class Quotation(models.Model):
     customer_feedback = models.TextField(blank=True)
     sent_date = models.DateTimeField(null=True, blank=True)
     follow_up_date = models.DateTimeField(null=True, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -622,7 +710,13 @@ class PaymentFollowUp(models.Model):
     follow_up_date = models.DateField()
     status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
     notes = models.TextField(blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -649,7 +743,13 @@ class WorkOrder(models.Model):
     work_order_number = models.CharField(max_length=50, unique=True)
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='allocated')
-    allocated_to = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    allocated_to_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    allocated_to_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    allocated_to_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    allocated_to_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    allocated_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     start_date = models.DateField()
     completion_date = models.DateField()
     actual_start_date = models.DateField(null=True, blank=True)
@@ -749,10 +849,21 @@ class ProductionPlan(models.Model):
         ('urgent', 'Urgent'),
     ], default='medium')
     department = models.CharField(max_length=100)
+    # HRMS User Information for assigned_to
+    assigned_to_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    assigned_to_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    assigned_to_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    assigned_to_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # HRMS User Information for created_by
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy fields kept for backward compatibility
     assigned_to = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     resource_requirements = models.TextField(blank=True)
     special_instructions = models.TextField(blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_production_plans')
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_production_plans')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -773,6 +884,12 @@ class QCTracking(models.Model):
     qc_number = models.CharField(max_length=50, unique=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     qc_date = models.DateField()
+    # HRMS User Information (replaces ForeignKey to User)
+    inspector_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    inspector_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    inspector_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    inspector_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
     inspector = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     inspection_type = models.CharField(max_length=50, choices=[
         ('visual', 'Visual Inspection'),
@@ -795,6 +912,12 @@ class PackingDetails(models.Model):
     """Packing and packaging details"""
     manufacturing = models.ForeignKey(Manufacturing, on_delete=models.CASCADE)
     packing_date = models.DateField()
+    # HRMS User Information (replaces ForeignKey to User)
+    packed_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    packed_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    packed_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    packed_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
     packed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     packaging_type = models.CharField(max_length=100, choices=[
         ('wooden_crate', 'Wooden Crate'),
@@ -821,6 +944,12 @@ class DispatchChecklist(models.Model):
     department = models.CharField(max_length=100)
     checklist_item = models.CharField(max_length=200)
     is_completed = models.BooleanField(default=False)
+    # HRMS User Information (replaces ForeignKey to User)
+    completed_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    completed_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    completed_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    completed_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
     completed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     remarks = models.TextField(blank=True)
@@ -845,7 +974,13 @@ class URS(models.Model):
     timeline = models.CharField(max_length=100)
     budget_range = models.CharField(max_length=100)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -868,7 +1003,13 @@ class GADrawing(models.Model):
     details = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     feedback = models.TextField(blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -891,7 +1032,13 @@ class TechnicalDiscussion(models.Model):
     decisions_made = models.TextField()
     action_items = models.TextField()
     next_follow_up = models.DateTimeField(null=True, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
@@ -951,7 +1098,13 @@ class Negotiation(models.Model):
     delivery_terms = models.TextField()
     outcome = models.CharField(max_length=20, choices=OUTCOME_CHOICES, default='pending')
     notes = models.TextField(blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     @property
@@ -985,7 +1138,13 @@ class LeadActivity(models.Model):
     lead = models.ForeignKey(Lead, on_delete=models.CASCADE)
     activity_type = models.CharField(max_length=20, choices=ACTIVITY_TYPES)
     description = models.TextField()
-    performed_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    performed_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    performed_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    performed_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    performed_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    performed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     performed_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -1062,7 +1221,13 @@ class InquiryLog(models.Model):
     follow_up = models.TextField(blank=True, help_text="Follow up notes and status")
     
     # System fields
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1138,7 +1303,13 @@ class FollowUpStatus(models.Model):
     requirements = models.TextField()
     follow_up_date = models.DateField()
     follow_up_status = models.CharField(max_length=30, choices=FOLLOW_UP_STATUS_CHOICES)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1193,7 +1364,13 @@ class ProjectToday(models.Model):
     contractor_name = models.CharField(max_length=100, blank=True)
     followup_date = models.DateField()
     followup_status = models.CharField(max_length=30, choices=FollowUpStatus.FOLLOW_UP_STATUS_CHOICES)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1228,7 +1405,13 @@ class OrderExpectedNextMonth(models.Model):
     last_status_date = models.DateField()
     order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES)
     expected_in_month = models.CharField(max_length=50)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1262,7 +1445,13 @@ class MISPurchaseOrder(models.Model):
     po_amount = models.DecimalField(max_digits=12, decimal_places=2)
     ap_quote_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     percentage_order = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1291,7 +1480,13 @@ class NewData(models.Model):
     april = models.IntegerField(default=0)
     may = models.IntegerField(default=0)
     total = models.IntegerField(default=0)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1327,7 +1522,13 @@ class NewDataDetails(models.Model):
     mail_id = models.EmailField()
     description = models.TextField()
     status = models.CharField(max_length=100)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1351,7 +1552,13 @@ class ODPlan(models.Model):
     location = models.CharField(max_length=200)
     total_days = models.IntegerField()
     company_visits = models.IntegerField()
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1427,7 +1634,13 @@ class ODPlanVisitReport(models.Model):
     comments = models.TextField(blank=True, help_text="Additional comments if any")
     
     # System fields
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1443,7 +1656,13 @@ class ODPlanVisitReport(models.Model):
 class ODPlanRemarks(models.Model):
     """OD Plan Remarks - General remarks section"""
     remarks = models.TextField(help_text="General remarks if any")
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1502,7 +1721,13 @@ class PODetails(models.Model):
     additional_contact = models.CharField(max_length=100, default="Mr. Harshal Ghoge", help_text="Additional Contact")
     
     # System fields
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1583,7 +1808,13 @@ class POStatus(models.Model):
     total_received_amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Total Received Amount")
     
     # System fields
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1739,7 +1970,13 @@ class WorkOrderFormat(models.Model):
     after_material_percentage = models.DecimalField(max_digits=5, decimal_places=2, help_text="After receiving material at site Percentage")
     
     # System fields
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1791,7 +2028,13 @@ class WeeklySummary(models.Model):
     pending_payment = models.DecimalField(max_digits=12, decimal_places=2, default=0, help_text="Pending Payment")
     
     # System fields
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1817,7 +2060,13 @@ class CallingDetails(models.Model):
     number_of_enquiries = models.IntegerField(default=0, help_text="Number of Enquiries")
     
     # System fields
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1864,7 +2113,13 @@ class HotOrders(models.Model):
     follow_up_in = models.CharField(max_length=100, blank=True, help_text="Need to take follow up in")
     
     # System fields
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1890,7 +2145,13 @@ class PendingPayment2024(models.Model):
     status = models.CharField(max_length=100, help_text="Status")
     
     # System fields
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1917,7 +2178,13 @@ class PendingPayment2025(models.Model):
     status = models.CharField(max_length=100, help_text="Status")
     
     # System fields
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1953,7 +2220,13 @@ class OrderLoss(models.Model):
     reason = models.TextField(help_text="Reason")
     
     # System fields
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -1996,7 +2269,13 @@ class DSR(models.Model):
     live_location_dont = models.BooleanField(default=False, help_text="Live Location Don't")
     
     # System fields
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
