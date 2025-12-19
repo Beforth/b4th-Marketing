@@ -12,7 +12,7 @@
                 <h1 class="text-2xl font-bold text-gray-900">Customer Registration</h1>
                 <p class="text-sm text-gray-600">Register new customer with multiple locations</p>
             </div>
-            <a href="{% url 'marketing:customer_list' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm transition">
+            <a href="{% url 'marketing:customer_list' %}" class="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 text-sm transition-colors">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i>
                 Back to Customers
             </a>
@@ -175,7 +175,7 @@
                 <a href="{% url 'marketing:customer_list' %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
                     Cancel
                 </a>
-                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                <button type="button" id="register-customer-btn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
                     <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>
                     Register Customer
                 </button>
@@ -193,6 +193,70 @@
             <li>• GPS coordinates can be captured automatically during visits</li>
             <li>• Customer will be assigned to the selected region for reporting</li>
         </ul>
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full transform transition-all">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="help-circle" class="w-5 h-5 text-blue-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900">Confirm Registration</h3>
+                </div>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="px-6 py-4">
+                <p class="text-sm text-gray-600 mb-4">
+                    Are you sure you want to register this customer? Please review all the information before submitting.
+                </p>
+                
+                <!-- Customer Summary -->
+                <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Customer Summary:</h4>
+                    <div class="space-y-1 text-xs text-gray-600">
+                        <div class="flex justify-between">
+                            <span>Customer Name:</span>
+                            <span id="modal-customer-name" class="font-medium text-gray-900">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Contact Person:</span>
+                            <span id="modal-contact-person" class="font-medium text-gray-900">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Email:</span>
+                            <span id="modal-email" class="font-medium text-gray-900">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Region:</span>
+                            <span id="modal-region" class="font-medium text-gray-900">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 flex-shrink-0"></i>
+                    <span>Once registered, the customer will be added to your database and can be assigned to visits and quotations.</span>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3">
+                <button type="button" id="cancel-registration" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
+                    <i data-lucide="x" class="w-4 h-4 inline mr-2"></i>
+                    Cancel
+                </button>
+                <button type="button" id="confirm-registration" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">
+                    <i data-lucide="check" class="w-4 h-4 inline mr-2"></i>
+                    Yes, Register Customer
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -282,6 +346,138 @@ function captureGPS() {
 // Capture GPS on page load
 document.addEventListener('DOMContentLoaded', function() {
     captureGPS();
+    
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 });
+
+// Confirmation Modal Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const registerBtn = document.getElementById('register-customer-btn');
+    const modal = document.getElementById('confirmation-modal');
+    const cancelBtn = document.getElementById('cancel-registration');
+    const confirmBtn = document.getElementById('confirm-registration');
+    const form = document.querySelector('form');
+    
+    // Show confirmation modal
+    registerBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Validate required fields first
+        const requiredFields = form.querySelectorAll('[required]');
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                field.focus();
+                field.classList.add('border-red-500');
+                
+                // Show error message
+                showToast('Please fill in all required fields', 'error');
+                return;
+            } else {
+                field.classList.remove('border-red-500');
+            }
+        });
+        
+        if (!isValid) return;
+        
+        // Populate modal with form data
+        populateModalSummary();
+        
+        // Show modal with animation
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.querySelector('.bg-white').classList.add('scale-100');
+        }, 10);
+    });
+    
+    // Hide modal
+    function hideModal() {
+        modal.querySelector('.bg-white').classList.remove('scale-100');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 200);
+    }
+    
+    // Cancel registration
+    cancelBtn.addEventListener('click', hideModal);
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            hideModal();
+        }
+    });
+    
+    // Confirm registration
+    confirmBtn.addEventListener('click', function() {
+        // Show loading state
+        confirmBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 inline mr-2 animate-spin"></i>Registering...';
+        confirmBtn.disabled = true;
+        
+        // Submit the form
+        setTimeout(() => {
+            form.submit();
+        }, 500);
+    });
+    
+    // Populate modal summary
+    function populateModalSummary() {
+        const customerName = document.getElementById('customer_name').value;
+        const contactPerson = document.getElementById('contact_person').value;
+        const email = document.getElementById('email').value;
+        const regionSelect = document.getElementById('region');
+        const regionText = regionSelect.options[regionSelect.selectedIndex].text;
+        
+        document.getElementById('modal-customer-name').textContent = customerName || '-';
+        document.getElementById('modal-contact-person').textContent = contactPerson || '-';
+        document.getElementById('modal-email').textContent = email || '-';
+        document.getElementById('modal-region').textContent = regionText !== 'Select Region' ? regionText : '-';
+    }
+});
+
+// Toast notification function (if not already defined)
+function showToast(message, type = 'info') {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium transform transition-all duration-300 translate-x-full`;
+    
+    // Set color based on type
+    switch(type) {
+        case 'error':
+            toast.classList.add('bg-red-600');
+            break;
+        case 'success':
+            toast.classList.add('bg-green-600');
+            break;
+        case 'warning':
+            toast.classList.add('bg-yellow-600');
+            break;
+        default:
+            toast.classList.add('bg-blue-600');
+    }
+    
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.add('translate-x-full');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }, 3000);
+}
 </script>
 {% endblock %}

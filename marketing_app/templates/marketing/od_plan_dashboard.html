@@ -161,7 +161,7 @@
                                         {% else %}bg-gray-100 text-gray-800{% endif %}">
                                         {{ report.visit_status|title }}
                                     </span>
-                                    <a href="{% url 'marketing:od_plan_visit_report_detail' report.pk %}" class="text-blue-600 hover:text-blue-800">
+                                    <a href="{% url 'marketing:od_plan_visit_report_list' %}" class="text-blue-600 hover:text-blue-800">
                                         <i data-lucide="eye" class="w-4 h-4"></i>
                                     </a>
                                 </div>

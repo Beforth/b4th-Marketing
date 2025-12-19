@@ -1,0 +1,47 @@
+# version: '3.8'  # Version is obsolete in newer Docker Compose
+
+services:
+  web:
+    build: .
+    container_name: marketing_web
+    volumes:
+      - .:/app
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=marketing_system.settings
+      - PYTHONUNBUFFERED=1
+      # Override HRMS API URL if needed (uncomment and set)
+      # - HRMS_RBAC_API_URL=https://hrms.aureolegroup.com/api/rbac
+    networks:
+      - backend
+    restart: unless-stopped
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: marketing_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - web
+    volumes:
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
+      - /etc/letsencrypt:/etc/letsencrypt
+    networks:
+      - backend
+    restart: unless-stopped
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  staticfiles:
+  media:
+

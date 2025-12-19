@@ -16,7 +16,7 @@ class HRMSRBACClient:
     Client for interacting with HRMS RBAC API
     """
     def __init__(self, base_url=None):
-        self.base_url = base_url or getattr(settings, 'HRMS_RBAC_API_URL', 'http://localhost:8000/api/rbac')
+        self.base_url = base_url or getattr(settings, 'HRMS_RBAC_API_URL', 'https://hrms.aureolegroup.com/api/rbac')
         self.token = None
         self.user_info = None
     
@@ -31,21 +31,80 @@ class HRMSRBACClient:
             response = requests.post(
                 f'{self.base_url}/login/',
                 json={'username': username, 'password': password},
-                timeout=10
+                headers={'Content-Type': 'application/json', 'Accept': 'application/json'},
+                timeout=10,
+                verify=True  # Verify SSL certificate
             )
-            data = response.json()
             
-            if data.get('success'):
-                self.token = data['token']
+            # Try to parse JSON response regardless of status code
+            try:
+                data = response.json()
+            except ValueError:
+                # If response is not JSON, log the actual response and create error response
+                response_text = response.text[:500]  # First 500 chars
+                logger.error(
+                    f"HRMS RBAC API returned non-JSON response. "
+                    f"Status: {response.status_code}, "
+                    f"URL: {response.url}, "
+                    f"Response: {response_text}"
+                )
+                # Check for common error status codes
+                if response.status_code == 502:
+                    error_msg = (
+                        f'HRMS server is unreachable (502 Bad Gateway). '
+                        f'Please check if the HRMS API is running and accessible. '
+                        f'URL: {self.base_url}/login/'
+                    )
+                elif response.status_code == 503:
+                    error_msg = 'HRMS server is temporarily unavailable (503 Service Unavailable)'
+                elif response.status_code == 504:
+                    error_msg = 'HRMS server request timeout (504 Gateway Timeout)'
+                else:
+                    error_msg = f'Invalid response format. Status: {response.status_code}'
+                
+                data = {
+                    'success': False,
+                    'error': error_msg
+                }
+            
+            # Check if request was successful
+            if response.status_code == 200 and data.get('success'):
+                self.token = data.get('token')
                 self.user_info = data
                 logger.info(f"User {username} authenticated successfully via HRMS RBAC")
                 return data
             else:
-                logger.warning(f"Authentication failed for {username}: {data.get('error')}")
-                return None
+                # Handle error responses (401, 400, etc.)
+                error_msg = data.get('error', f'Authentication failed. Status: {response.status_code}')
+                logger.warning(f"Authentication failed for {username}: {error_msg}")
+                return {'success': False, 'error': error_msg}
+                
+        except requests.exceptions.Timeout:
+            logger.error(f"HRMS RBAC login timeout for {username}")
+            return {'success': False, 'error': 'Connection timeout. Please try again.'}
+        except requests.exceptions.ConnectionError as e:
+            logger.error(
+                f"HRMS RBAC connection error: {str(e)}. "
+                f"URL: {self.base_url}/login/. "
+                f"This usually means the HRMS server is down or unreachable from this network."
+            )
+            return {
+                'success': False, 
+                'error': f'Cannot connect to HRMS server at {self.base_url}. Please check if the server is running and accessible.'
+            }
+        except requests.exceptions.RequestException as e:
+            logger.error(
+                f"HRMS RBAC login error: {str(e)}. "
+                f"URL: {self.base_url}/login/. "
+                f"Error type: {type(e).__name__}"
+            )
+            return {
+                'success': False, 
+                'error': f'Connection error: {str(e)}. Please check network connectivity and HRMS server status.'
+            }
         except Exception as e:
             logger.error(f"HRMS RBAC login error: {str(e)}")
-            return None
+            return {'success': False, 'error': f'Unexpected error: {str(e)}'}
     
     def check_permission(self, permission_code):
         """
@@ -63,15 +122,30 @@ class HRMSRBACClient:
         try:
             response = requests.post(
                 f'{self.base_url}/check-permission/',
-                headers={'Authorization': f'Token {self.token}'},
+                headers={
+                    'Authorization': f'Token {self.token}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 json={'permission': permission_code},
-                timeout=10
+                timeout=10,
+                verify=True  # Verify SSL certificate
             )
+            response.raise_for_status()
             data = response.json()
             return data.get('has_permission', False)
+        except requests.exceptions.ConnectionError as e:
+            logger.error(f"HRMS RBAC connection error (server may be down): {str(e)}")
+            raise  # Re-raise to let caller handle it
+        except requests.exceptions.Timeout:
+            logger.error(f"HRMS RBAC timeout while checking permission: {permission_code}")
+            raise
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Permission check error for {permission_code}: {str(e)}")
+            raise
         except Exception as e:
-            logger.error(f"Permission check error: {str(e)}")
-            return False
+            logger.error(f"Unexpected error checking permission {permission_code}: {str(e)}")
+            raise
     
     def check_multiple_permissions(self, permissions):
         """
@@ -89,12 +163,21 @@ class HRMSRBACClient:
         try:
             response = requests.post(
                 f'{self.base_url}/check-permissions/',
-                headers={'Authorization': f'Token {self.token}'},
+                headers={
+                    'Authorization': f'Token {self.token}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 json={'permissions': permissions},
-                timeout=10
+                timeout=10,
+                verify=True  # Verify SSL certificate
             )
+            response.raise_for_status()
             data = response.json()
             return data.get('permissions', {})
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Multiple permission check error: {str(e)}")
+            return {perm: False for perm in permissions}
         except Exception as e:
             logger.error(f"Multiple permission check error: {str(e)}")
             return {perm: False for perm in permissions}
@@ -112,12 +195,27 @@ class HRMSRBACClient:
         try:
             response = requests.get(
                 f'{self.base_url}/user/info/',
-                headers={'Authorization': f'Token {self.token}'},
-                timeout=10
+                headers={
+                    'Authorization': f'Token {self.token}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                timeout=10,
+                verify=True  # Verify SSL certificate
             )
+            response.raise_for_status()
             data = response.json()
             if data.get('success'):
                 return data
+            return None
+        except requests.exceptions.ConnectionError as e:
+            logger.error(f"HRMS RBAC connection error (server may be down): {str(e)}")
+            return None
+        except requests.exceptions.Timeout:
+            logger.error(f"HRMS RBAC timeout while getting user info")
+            return None
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Get user info error: {str(e)}")
             return None
         except Exception as e:
             logger.error(f"Get user info error: {str(e)}")
@@ -133,15 +231,51 @@ class HRMSRBACClient:
         try:
             response = requests.post(
                 f'{self.base_url}/logout/',
-                headers={'Authorization': f'Token {self.token}'},
-                timeout=10
+                headers={
+                    'Authorization': f'Token {self.token}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                timeout=10,
+                verify=True  # Verify SSL certificate
             )
+            response.raise_for_status()
+            self.token = None
+            self.user_info = None
+            return True
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Logout error: {str(e)}")
+            # Even if logout fails, clear local state
             self.token = None
             self.user_info = None
             return True
         except Exception as e:
             logger.error(f"Logout error: {str(e)}")
-            return False
+            self.token = None
+            self.user_info = None
+            return True
+
+
+def hrms_login_required(view_func):
+    """
+    Decorator to require HRMS authentication for a view
+    
+    Usage:
+        @hrms_login_required
+        def my_view(request):
+            pass
+    """
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        # Check if user has HRMS token
+        token = request.session.get('hrms_rbac_token')
+        if not token:
+            from django.shortcuts import redirect
+            from django.urls import reverse
+            return redirect(f"{reverse('hrms_login')}?next={request.path}")
+        
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 
 def require_hrms_permission(permission_code):
@@ -159,10 +293,9 @@ def require_hrms_permission(permission_code):
             # Get RBAC client from session
             token = request.session.get('hrms_rbac_token')
             if not token:
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Authentication required'
-                }, status=401)
+                from django.shortcuts import redirect
+                from django.urls import reverse
+                return redirect(f"{reverse('hrms_login')}?next={request.path}")
             
             # Check permission
             client = HRMSRBACClient()
@@ -170,12 +303,14 @@ def require_hrms_permission(permission_code):
             
             if not client.check_permission(permission_code):
                 logger.warning(
-                    f"Permission denied: {request.user} tried to access "
+                    f"Permission denied: User tried to access "
                     f"{view_func.__name__} without {permission_code}"
                 )
-                return JsonResponse({
-                    'success': False,
-                    'error': f'Permission denied. Required: {permission_code}'
+                from django.http import HttpResponseForbidden
+                from django.shortcuts import render
+                return render(request, 'marketing_app/403_permission_denied.html', {
+                    'permission': permission_code,
+                    'view_name': view_func.__name__
                 }, status=403)
             
             return view_func(request, *args, **kwargs)
