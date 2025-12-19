@@ -1,6 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from marketing_app.hrms_rbac import hrms_login_required
+from marketing_app.permissions import (
+    require_permission, require_any_permission, check_permission,
+    MARKETING_PERMISSIONS
+)
+from marketing_app.user_utils import get_django_user
+from marketing_app.user_helpers import get_user_info_dict, set_user_info_on_model
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.db.models import (
@@ -24,16 +31,24 @@ import sys
 
 User = get_user_model()
 
-@login_required
+@hrms_login_required
+@require_permission(MARKETING_PERMISSIONS['campaign.view'])
 def marketing_dashboard(request):
     """Marketing Dashboard View"""
+    from marketing_app.permission_filters import (
+        filter_campaigns_by_permission, filter_leads_by_permission,
+        filter_customers_by_permission, can_view_reports
+    )
+    
     # Get current date and calculate date ranges
     today = timezone.now().date()
     last_30_days = today - timedelta(days=30)
     last_7_days = today - timedelta(days=7)
     
-    # Dashboard statistics for marketing process flow
-    total_customers = Customer.objects.count()
+    # Filter data based on permissions
+    customers_qs = Customer.objects.all()
+    customers_qs = filter_customers_by_permission(request, customers_qs)
+    total_customers = customers_qs.count()
     active_leads = Lead.objects.filter(status__in=['new', 'contacted', 'qualified']).count()
     pending_quotations = Quotation.objects.filter(status='sent').count()
     production_orders = Manufacturing.objects.filter(status__in=['started', 'in_progress', 'qc_started']).count()
@@ -113,7 +128,8 @@ def campaign_form(request):
     return render(request, 'marketing/campaign_form.html', context)
 
 
-@login_required
+@hrms_login_required
+@require_permission(MARKETING_PERMISSIONS['campaign.view'])
 def campaign_list(request):
     """Campaign List View"""
     campaigns = Campaign.objects.select_related('created_by').order_by('-created_at')
@@ -161,6 +177,10 @@ def campaign_create(request):
         goals = request.POST.get('goals')
         
         try:
+            # Get user info from HRMS session
+            user_info = get_user_info_dict(request)
+
+            
             campaign = Campaign.objects.create(
                 name=name,
                 description=description,
@@ -170,7 +190,11 @@ def campaign_create(request):
                 budget=budget,
                 target_audience=target_audience,
                 goals=goals,
-                created_by=request.user
+                # Store HRMS user info instead of Django User
+                created_by_user_id=user_info['user_id'],
+                created_by_username=user_info['username'],
+                created_by_email=user_info['email'],
+                created_by_full_name=user_info['full_name'],
             )
             messages.success(request, f'Campaign "{campaign.name}" created successfully!')
             return redirect('campaign_detail', campaign_id=campaign.id)
@@ -205,7 +229,7 @@ def campaign_detail(request, campaign_id):
 @login_required
 def lead_list(request):
     """Lead List View"""
-    leads = Lead.objects.select_related('assigned_to', 'campaign').order_by('-created_at')
+    leads = Lead.objects.select_related('campaign').order_by('-created_at')
     
     # Search functionality
     search_query = request.GET.get('search', '')
@@ -228,10 +252,14 @@ def lead_list(request):
     if source_filter:
         leads = leads.filter(source=source_filter)
     
-    # Filter by assigned user
+    # Filter by assigned user (using HRMS user_id or Django User ID)
     assigned_filter = request.GET.get('assigned_to', '')
     if assigned_filter:
-        leads = leads.filter(assigned_to_id=assigned_filter)
+        # Try filtering by HRMS user_id first, then fall back to Django User ID
+        leads = leads.filter(
+            Q(assigned_to_user_id=assigned_filter) | 
+            Q(assigned_to_id=assigned_filter)
+        )
     
     # Filter by campaign
     campaign_filter = request.GET.get('campaign', '')
@@ -440,6 +468,9 @@ def production_planning(request):
         date = timezone.now()
         plan_number = f"PP{date.strftime('%Y%m%d')}{str(date.microsecond)[-3:]}"
         
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+        
         production_plan = ProductionPlan.objects.create(
             work_order_id=work_order_id,
             plan_number=plan_number,
@@ -450,7 +481,11 @@ def production_planning(request):
             planned_end_date=planned_end_date,
             resource_requirements=resource_requirements,
             special_instructions=special_instructions,
-            created_by=request.user,
+            # Store HRMS user info
+            created_by_user_id=user_info['user_id'],
+            created_by_username=user_info['username'],
+            created_by_email=user_info['email'],
+            created_by_full_name=user_info['full_name'],
             status='draft'
         )
         
@@ -786,6 +821,9 @@ def exhibition_planning_interface(request):
         objectives = request.POST.get('objectives')
         target_audience = request.POST.get('target_audience')
         
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+        
         exhibition = Exhibition.objects.create(
             name=exhibition_name,
             event_date=event_date,
@@ -797,7 +835,11 @@ def exhibition_planning_interface(request):
             budget=budget,
             objectives=objectives,
             target_audience=target_audience,
-            created_by=request.user,
+            # Store HRMS user info
+            created_by_user_id=user_info['user_id'],
+            created_by_username=user_info['username'],
+            created_by_email=user_info['email'],
+            created_by_full_name=user_info['full_name'],
             status='planning'
         )
         
@@ -1130,6 +1172,9 @@ def customer_registration(request):
         phone = request.POST.get('phone')
         region_id = request.POST.get('region')
         
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+        
         # Create customer
         customer = Customer.objects.create(
             name=customer_name,
@@ -1137,7 +1182,11 @@ def customer_registration(request):
             email=email,
             phone=phone,
             region_id=region_id,
-            created_by=request.user
+            # Store HRMS user info instead of Django User
+            created_by_user_id=user_info['user_id'],
+            created_by_username=user_info['username'],
+            created_by_email=user_info['email'],
+            created_by_full_name=user_info['full_name'],
         )
         
         # Handle multiple locations
@@ -1330,14 +1379,60 @@ def lead_generation(request):
         expected_closing_date = request.POST.get('expected_closing_date')
         
         # Create lead
-        lead = Lead.objects.create(
-            customer_id=customer_id,
-            source=source,
-            description=description,
-            potential_value=potential_value,
-            expected_closing_date=expected_closing_date,
-            created_by=request.user
-        )
+        # Get customer to extract lead information
+        try:
+            customer = Customer.objects.get(id=customer_id)
+        except Customer.DoesNotExist:
+            messages.error(request, 'Customer not found')
+            return redirect('marketing:lead_generation')
+        
+        # Get user info from HRMS session
+
+        
+        # Build notes with all information
+        notes_parts = []
+        if description:
+            notes_parts.append(f"Description: {description}")
+        if potential_value:
+            notes_parts.append(f"Potential Value: {potential_value}")
+        if expected_closing_date:
+            notes_parts.append(f"Expected Closing Date: {expected_closing_date}")
+        notes_parts.append(f"Lead generated from customer: {customer.name}")
+        notes = "\n".join(notes_parts)
+        
+        # Split contact person name
+        contact_name = customer.contact_person or 'Unknown'
+        name_parts = contact_name.split()
+        first_name = name_parts[0] if name_parts else 'Unknown'
+        last_name = ' '.join(name_parts[1:]) if len(name_parts) > 1 else ''
+        
+        # Create lead with fields that exist in Lead model
+        try:
+            # Get user info from HRMS session
+            user_info = get_user_info_dict(request)
+
+
+            lead = Lead.objects.create(
+                first_name=first_name,
+                last_name=last_name,
+                email=customer.email,
+                phone=customer.phone,
+                company=customer.name,
+                source=source or 'other',
+                notes=notes,
+                # Store HRMS user info instead of Django User
+                assigned_to_user_id=user_info['user_id'],
+                assigned_to_username=user_info['username'],
+                assigned_to_email=user_info['email'],
+                assigned_to_full_name=user_info['full_name'],
+            )
+            messages.success(request, f'Lead "{lead.full_name}" generated successfully!')
+            return redirect('marketing:lead_list')
+        except Exception as e:
+            messages.error(request, f'Error creating lead: {str(e)}')
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error creating lead: {str(e)}")
         
         messages.success(request, 'Lead generated successfully!')
         return redirect('marketing:lead_list')
@@ -1374,7 +1469,7 @@ def customer_visit(request):
             next_follow_up_date=next_follow_up,
             gps_latitude=latitude,
             gps_longitude=longitude,
-            assigned_to=request.user
+            assigned_to=get_django_user(request)
         )
         
         # Handle multiple participants
@@ -1564,6 +1659,9 @@ def urs_evaluation(request):
         timeline = request.POST.get('timeline')
         budget_range = request.POST.get('budget_range')
         
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+
         urs = URS.objects.create(
             customer_id=customer_id,
             project_name=project_name,
@@ -1572,7 +1670,20 @@ def urs_evaluation(request):
             site_requirements=site_requirements,
             timeline=timeline,
             budget_range=budget_range,
-            created_by=request.user,
+            # Get user info from HRMS session
+
+
+            
+
+            # Store HRMS user info
+
+            created_by_user_id=user_info['user_id'],
+
+            created_by_username=user_info['username'],
+
+            created_by_email=user_info['email'],
+
+            created_by_full_name=user_info['full_name'],
             status='pending'
         )
         
@@ -1650,13 +1761,29 @@ def ga_drawing_create(request):
         drawing_details = request.POST.get('drawing_details')
         version = request.POST.get('version', '1.0')
         
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+
         ga_drawing = GADrawing.objects.create(
             urs_id=urs_id,
             title=drawing_title,
             drawing_file=drawing_file,
             details=drawing_details,
             version=version,
-            created_by=request.user,
+            # Get user info from HRMS session
+
+
+            
+
+            # Store HRMS user info
+
+            created_by_user_id=user_info['user_id'],
+
+            created_by_username=user_info['username'],
+
+            created_by_email=user_info['email'],
+
+            created_by_full_name=user_info['full_name'],
             status='draft'
         )
         
@@ -1723,6 +1850,9 @@ def quotation_create(request):
         technical_specs = request.POST.get('technical_specs')
         terms_conditions = request.POST.get('terms_conditions')
         
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+
         quotation = Quotation.objects.create(
             urs_id=urs_id,
             quotation_number=quotation_number,
@@ -1732,7 +1862,20 @@ def quotation_create(request):
             delivery_terms=delivery_terms,
             technical_specs=technical_specs,
             terms_conditions=terms_conditions,
-            created_by=request.user,
+            # Get user info from HRMS session
+
+
+            
+
+            # Store HRMS user info
+
+            created_by_user_id=user_info['user_id'],
+
+            created_by_username=user_info['username'],
+
+            created_by_email=user_info['email'],
+
+            created_by_full_name=user_info['full_name'],
             status='draft'
         )
         
@@ -1894,6 +2037,9 @@ def negotiation_create(request):
         outcome = request.POST.get('outcome')
         notes = request.POST.get('notes')
         
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+
         negotiation = Negotiation.objects.create(
             quotation_id=quotation_id,
             negotiation_date=negotiation_date,
@@ -1907,7 +2053,20 @@ def negotiation_create(request):
             delivery_terms=delivery_terms,
             outcome=outcome,
             notes=notes,
-            created_by=request.user
+            # Get user info from HRMS session
+
+
+            
+
+            # Store HRMS user info
+
+            created_by_user_id=user_info['user_id'],
+
+            created_by_username=user_info['username'],
+
+            created_by_email=user_info['email'],
+
+            created_by_full_name=user_info['full_name'],
         )
         
         messages.success(request, 'Negotiation record created successfully!')
@@ -1996,6 +2155,9 @@ def create_quotation_revision(request, quotation_id):
         next_revision_number = (last_revision.revision_number + 1) if last_revision else 1
         
         # Create revision record
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+
         revision = QuotationRevision.objects.create(
             quotation=quotation,
             revision_number=next_revision_number,
@@ -2003,7 +2165,20 @@ def create_quotation_revision(request, quotation_id):
             previous_amount=quotation.total_amount,
             new_amount=new_amount,
             changes_summary=changes_summary,
-            created_by=request.user,
+            # Get user info from HRMS session
+
+
+            
+
+            # Store HRMS user info
+
+            created_by_user_id=user_info['user_id'],
+
+            created_by_username=user_info['username'],
+
+            created_by_email=user_info['email'],
+
+            created_by_full_name=user_info['full_name'],
             negotiation_id=negotiation_id if negotiation_id else None
         )
         
@@ -2092,7 +2267,11 @@ def workorder_create(request):
             description = request.POST.get('description', '')
             special_instructions = request.POST.get('special_instructions', '')
             
+            # Get user info from HRMS session
+            user_info = get_user_info_dict(request)
+            
             # Create Work Order
+
             work_order = WorkOrder.objects.create(
                 work_order_number=work_order_number,
                 purchase_order_id=purchase_order_id,
@@ -2102,7 +2281,20 @@ def workorder_create(request):
                 due_date=due_date,
                 description=description,
                 special_instructions=special_instructions,
-                created_by=request.user
+                # Get user info from HRMS session
+
+
+                
+
+                # Store HRMS user info
+
+                created_by_user_id=user_info['user_id'],
+
+                created_by_username=user_info['username'],
+
+                created_by_email=user_info['email'],
+
+                created_by_full_name=user_info['full_name'],
             )
             
             messages.success(request, f'Work Order {work_order_number} created successfully!')
@@ -2205,6 +2397,9 @@ def qc_create(request):
             corrective_actions = request.POST.get('corrective_actions', '')
             notes = request.POST.get('notes', '')
             
+            # Get user info from HRMS session
+            user_info = get_user_info_dict(request)
+            
             # Create QC Record
             qc_record = QCTracking.objects.create(
                 qc_number=qc_number,
@@ -2217,7 +2412,20 @@ def qc_create(request):
                 defects_found=defects_found,
                 corrective_actions=corrective_actions,
                 notes=notes,
-                created_by=request.user
+                # Get user info from HRMS session
+
+
+                
+
+                # Store HRMS user info
+
+                created_by_user_id=user_info['user_id'],
+
+                created_by_username=user_info['username'],
+
+                created_by_email=user_info['email'],
+
+                created_by_full_name=user_info['full_name'],
             )
             
             messages.success(request, f'QC Record {qc_number} created successfully!')
@@ -3261,14 +3469,17 @@ def follow_up_reminders(request):
 @login_required
 def customer_regions(request):
     """Customer Regions Management"""
-    regions = Region.objects.prefetch_related('customerlocation_set__customer').all()
+    # Prefetch customers and their locations for each region
+    regions = Region.objects.prefetch_related('customer_set', 'customer_set__locations').all()
     
     # Calculate statistics for each region
     for region in regions:
         region.customer_count = region.customer_set.count()
-        region.total_customers = Customer.objects.filter(
-            region=region
-        ).distinct().count()
+        region.total_customers = region.customer_set.count()
+        # Get customer types breakdown
+        region.prospects = region.customer_set.filter(customer_type='prospect').count()
+        region.existing_customers = region.customer_set.filter(customer_type='existing').count()
+        region.lapsed_customers = region.customer_set.filter(customer_type='lapsed').count()
     
     context = {
         'regions': regions,
@@ -3512,6 +3723,9 @@ def po_create(request):
             payment_terms_declared = request.POST.get('payment_terms_declared', '')
             special_requirements = request.POST.get('special_requirements', '')
             
+            # Get user info from HRMS session
+            user_info = get_user_info_dict(request)
+            
             # Create Purchase Order
             purchase_order = PurchaseOrder.objects.create(
                 po_number=po_number,
@@ -3524,7 +3738,20 @@ def po_create(request):
                 payment_method=payment_method,
                 payment_terms_declared=payment_terms_declared,
                 special_requirements=special_requirements,
-                created_by=request.user
+                # Get user info from HRMS session
+
+
+                
+
+                # Store HRMS user info
+
+                created_by_user_id=user_info['user_id'],
+
+                created_by_username=user_info['username'],
+
+                created_by_email=user_info['email'],
+
+                created_by_full_name=user_info['full_name'],
             )
             
             messages.success(request, f'Purchase Order {po_number} created successfully!')
@@ -4707,13 +4934,29 @@ def payment_followup_create(request, po_id):
         notes = request.POST.get('notes', '')
         
         # Create payment follow-up
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+
         followup = PaymentFollowUp.objects.create(
             purchase_order=purchase_order,
             payment_method=payment_method,
             payment_terms_declared=payment_terms_declared,
             follow_up_date=follow_up_date,
             notes=notes,
-            created_by=request.user
+            # Get user info from HRMS session
+
+
+            
+
+            # Store HRMS user info
+
+            created_by_user_id=user_info['user_id'],
+
+            created_by_username=user_info['username'],
+
+            created_by_email=user_info['email'],
+
+            created_by_full_name=user_info['full_name'],
         )
         
         # Update purchase order with payment method if not set
@@ -4851,11 +5094,27 @@ def annual_budget_create(request):
         notes = request.POST.get('notes', '')
         
         # Create annual budget
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+
         budget = AnnualExhibitionBudget.objects.create(
             year=year,
             total_budget=total_budget,
             notes=notes,
-            created_by=request.user
+            # Get user info from HRMS session
+
+
+            
+
+            # Store HRMS user info
+
+            created_by_user_id=user_info['user_id'],
+
+            created_by_username=user_info['username'],
+
+            created_by_email=user_info['email'],
+
+            created_by_full_name=user_info['full_name'],
         )
         
         # Create budget allocations for each category
@@ -4946,7 +5205,20 @@ def annual_budget_approve(request, budget_id):
             approval_level=approval_level,
             status=status,
             comments=comments,
-            approved_by=request.user if status == 'approved' else None,
+            # Get user info from HRMS session
+
+
+            
+
+            # Store HRMS user info
+
+            approved_by_user_id=user_info['user_id'],
+
+            approved_by_username=user_info['username'],
+
+            approved_by_email=user_info['email'],
+
+            approved_by_full_name=user_info['full_name'] if status == 'approved' else '',
             approved_at=timezone.now() if status == 'approved' else None
         )
         
@@ -5194,8 +5466,14 @@ def inquiry_log_list(request):
     page_obj = paginator.get_page(page_number)
     
     # Statistics
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
     total_inquiries = InquiryLog.objects.count()
     quotes_sent = InquiryLog.objects.filter(quote_send='yes').count()
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
     pending_followups = InquiryLog.objects.filter(follow_up='').count()
     total_value = InquiryLog.objects.aggregate(
         total=Sum('quote_price')
@@ -5242,6 +5520,9 @@ def inquiry_log_create(request):
         form_data = request.POST.copy()
         form_data['created_by'] = request.user.id
         
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+        
         # Create InquiryLog instance
         inquiry = InquiryLog(
             month=form_data.get('month'),
@@ -5264,12 +5545,19 @@ def inquiry_log_create(request):
             discounted_price=form_data.get('discounted_price') or None,
             follow_up_status=form_data.get('follow_up_status') or None,
             follow_up=form_data.get('follow_up') or '',
-            created_by=request.user
+            # Store HRMS user info
+            created_by_user_id=user_info['user_id'],
+            created_by_username=user_info['username'],
+            created_by_email=user_info['email'],
+            created_by_full_name=user_info['full_name'],
         )
         
         try:
             inquiry.save()
             messages.success(request, f'Inquiry log {inquiry.enquiry_number} created successfully!')
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
             return redirect('marketing:inquiry_log_detail', pk=inquiry.pk)
         except Exception as e:
             messages.error(request, f'Error creating inquiry log: {str(e)}')
@@ -5310,6 +5598,9 @@ def inquiry_log_edit(request, pk):
         inquiry.follow_up_status = request.POST.get('follow_up_status') or None
         inquiry.follow_up = request.POST.get('follow_up') or ''
         
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
         try:
             inquiry.save()
             messages.success(request, f'Inquiry log {inquiry.enquiry_number} updated successfully!')
@@ -5327,6 +5618,10 @@ def inquiry_log_edit(request, pk):
 
 @login_required
 def inquiry_log_delete(request, pk):
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
+
     """Delete an inquiry log entry"""
     inquiry = get_object_or_404(InquiryLog, pk=pk)
     
@@ -5334,6 +5629,9 @@ def inquiry_log_delete(request, pk):
         enquiry_number = inquiry.enquiry_number
         inquiry.delete()
         messages.success(request, f'Inquiry log {enquiry_number} deleted successfully!')
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
         return redirect('marketing:inquiry_log_list')
     
     context = {
@@ -5355,6 +5653,9 @@ def mis_dashboard(request):
     new_data_count = NewData.objects.count()
     new_data_details_count = NewDataDetails.objects.count()
     od_plan_count = ODPlan.objects.count()
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
     inquiry_log_count = InquiryLog.objects.count()
     
     # Recent activities
@@ -5376,6 +5677,9 @@ def mis_dashboard(request):
         'recent_orders': recent_orders,
     }
     
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
     return render(request, 'marketing/mis_dashboard.html', context)
 
 
@@ -5392,6 +5696,7 @@ def follow_up_status_list(request):
             Q(contact_person__icontains=search_query) |
             Q(quote_no__icontains=search_query)
         )
+
     
     # Filter by status
     status_filter = request.GET.get('status', '')
@@ -5436,9 +5741,27 @@ def follow_up_status_create(request):
             contact_no=request.POST.get('contact_no'),
             mail_id=request.POST.get('mail_id'),
             requirements=request.POST.get('requirements'),
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
             follow_up_date=request.POST.get('follow_up_date'),
             follow_up_status=request.POST.get('follow_up_status'),
-            created_by=request.user
+            # Get user info from HRMS session
+
+
+            
+
+            # Store HRMS user info
+
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
+            created_by_user_id=user_info['user_id'],
+
+            created_by_username=user_info['username'],
+
+            created_by_email=user_info['email'],
+
         )
         
         try:
@@ -5463,6 +5786,9 @@ def follow_up_status_detail(request, pk):
     context = {
         'follow_up': follow_up,
     }
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
     
     return render(request, 'marketing/follow_up_status_detail.html', context)
 
@@ -5497,7 +5823,13 @@ def follow_up_status_edit(request, pk):
         'follow_up': follow_up,
         'status_choices': FollowUpStatus.FOLLOW_UP_STATUS_CHOICES,
     }
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
     
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
     return render(request, 'marketing/follow_up_status_form.html', context)
 
 
@@ -5647,7 +5979,15 @@ def od_plan_visit_report_create(request):
             next_follow_up_visit=request.POST.get('next_follow_up_visit') or None,
             mail_status_about_visit=request.POST.get('mail_status_about_visit', 'not_sent'),
             comments=request.POST.get('comments'),
-            created_by=request.user
+            # Get user info from HRMS session
+
+
+            
+
+
+
+
+
         )
         report.save()
         messages.success(request, 'OD Plan Visit Report created successfully!')
@@ -5666,7 +6006,7 @@ def od_plan_visit_report_create(request):
 @login_required
 def od_plan_visit_report_detail(request, pk):
     """View OD Plan Visit Report details"""
-    report = get_object_or_404(ODPlanVisitReport, pk=pk, created_by=request.user)
+    report = get_object_or_404(ODPlanVisitReport, pk=pk)
     
     context = {
         'report': report,
@@ -5678,7 +6018,7 @@ def od_plan_visit_report_detail(request, pk):
 @login_required
 def od_plan_visit_report_edit(request, pk):
     """Edit OD Plan Visit Report"""
-    report = get_object_or_404(ODPlanVisitReport, pk=pk, created_by=request.user)
+ 
     
     if request.method == 'POST':
         report.month = request.POST.get('month')
@@ -5693,6 +6033,9 @@ def od_plan_visit_report_edit(request, pk):
         report.mail_id = request.POST.get('mail_id')
         report.reason_for_visit = request.POST.get('reason_for_visit')
         report.appointment_status = request.POST.get('appointment_status')
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
         report.visit_status = request.POST.get('visit_status')
         report.visited_on_date = request.POST.get('visited_on_date') or None
         report.meeting_output = request.POST.get('meeting_output')
@@ -5708,6 +6051,7 @@ def od_plan_visit_report_edit(request, pk):
     context = {
         'report': report,
         'REASON_FOR_VISIT_CHOICES': ODPlanVisitReport.REASON_FOR_VISIT_CHOICES,
+
         'APPOINTMENT_STATUS_CHOICES': ODPlanVisitReport.APPOINTMENT_STATUS_CHOICES,
         'VISIT_STATUS_CHOICES': ODPlanVisitReport.VISIT_STATUS_CHOICES,
         'MAIL_STATUS_CHOICES': ODPlanVisitReport.MAIL_STATUS_CHOICES,
@@ -5719,13 +6063,16 @@ def od_plan_visit_report_edit(request, pk):
 @login_required
 def od_plan_visit_report_delete(request, pk):
     """Delete OD Plan Visit Report"""
-    report = get_object_or_404(ODPlanVisitReport, pk=pk, created_by=request.user)
+ 
     
     if request.method == 'POST':
         report.delete()
         messages.success(request, 'OD Plan Visit Report deleted successfully!')
         return redirect('marketing:od_plan_visit_report_list')
     
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
     context = {
         'report': report,
     }
@@ -5748,6 +6095,9 @@ def od_plan_remarks_list(request):
     }
     
     return render(request, 'marketing/od_plan_remarks_list.html', context)
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
 
 
 @login_required
@@ -5756,11 +6106,27 @@ def od_plan_remarks_create(request):
     if request.method == 'POST':
         remark = ODPlanRemarks(
             remarks=request.POST.get('remarks'),
-            created_by=request.user
+            # Get user info from HRMS session
+
+
+            
+
+            # Store HRMS user info
+
+            created_by_user_id=user_info['user_id'],
+
+            created_by_username=user_info['username'],
+
+            created_by_email=user_info['email'],
+
+            created_by_full_name=user_info['full_name'],
         )
         remark.save()
         messages.success(request, 'OD Plan Remarks added successfully!')
         return redirect('marketing:od_plan_remarks_list')
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
     
     return render(request, 'marketing/od_plan_remarks_form.html')
 
@@ -5768,8 +6134,7 @@ def od_plan_remarks_create(request):
 @login_required
 def od_plan_remarks_edit(request, pk):
     """Edit OD Plan Remarks"""
-    remark = get_object_or_404(ODPlanRemarks, pk=pk, created_by=request.user)
-    
+    odplanremarks = get_object_or_404(ODPlanRemarks, pk=pk)
     if request.method == 'POST':
         remark.remarks = request.POST.get('remarks')
         remark.save()
@@ -5779,6 +6144,9 @@ def od_plan_remarks_edit(request, pk):
     context = {
         'remark': remark,
     }
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
     
     return render(request, 'marketing/od_plan_remarks_form.html', context)
 
@@ -5786,8 +6154,7 @@ def od_plan_remarks_edit(request, pk):
 @login_required
 def od_plan_remarks_delete(request, pk):
     """Delete OD Plan Remarks"""
-    remark = get_object_or_404(ODPlanRemarks, pk=pk, created_by=request.user)
-    
+    odplanremarks = get_object_or_404(ODPlanRemarks, pk=pk)
     if request.method == 'POST':
         remark.delete()
         messages.success(request, 'OD Plan Remarks deleted successfully!')
@@ -5798,6 +6165,7 @@ def od_plan_remarks_delete(request, pk):
     }
     
     return render(request, 'marketing/od_plan_remarks_confirm_delete.html', context)
+
 
 
 # Purchase Order Details System Views
@@ -5848,6 +6216,9 @@ def po_details_list(request):
         po_details = po_details.filter(customer_name__icontains=customer_filter)
     
     # Pagination
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
     paginator = Paginator(po_details, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -5864,6 +6235,9 @@ def po_details_list(request):
 @login_required
 def po_details_create(request):
     """Create new PO Details"""
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
     if request.method == 'POST':
         po_detail = PODetails(
             customer_name=request.POST.get('customer_name'),
@@ -5885,7 +6259,18 @@ def po_details_create(request):
             marketing_dept=request.POST.get('marketing_dept', 'Miss. Pooja Kolse'),
             accounts_dept=request.POST.get('accounts_dept', 'Mr. Jitendra Tajanpure'),
             additional_contact=request.POST.get('additional_contact', 'Mr. Harshal Ghoge'),
-            created_by=request.user
+            # Get user info from HRMS session
+
+
+            
+
+            # Store HRMS user info
+
+            created_by_user_id=user_info['user_id'],
+
+            created_by_username=user_info['username'],
+
+
         )
         po_detail.save()
         messages.success(request, 'PO Details created successfully!')
@@ -5894,6 +6279,9 @@ def po_details_create(request):
     context = {
         'PACKING_FORWARDING_CHOICES': PODetails.PACKING_FORWARDING_CHOICES,
         'TRANSPORTATION_CHOICES': PODetails.TRANSPORTATION_CHOICES,
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
     }
     
     return render(request, 'marketing/po_details_form.html', context)
@@ -5902,8 +6290,7 @@ def po_details_create(request):
 @login_required
 def po_details_detail(request, pk):
     """View PO Details"""
-    po_detail = get_object_or_404(PODetails, pk=pk, created_by=request.user)
-    
+    podetails = get_object_or_404(PODetails, pk=pk)
     context = {
         'po_detail': po_detail,
     }
@@ -5913,9 +6300,12 @@ def po_details_detail(request, pk):
 
 @login_required
 def po_details_edit(request, pk):
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
+
     """Edit PO Details"""
-    po_detail = get_object_or_404(PODetails, pk=pk, created_by=request.user)
-    
+    podetails = get_object_or_404(PODetails, pk=pk)
     if request.method == 'POST':
         po_detail.customer_name = request.POST.get('customer_name')
         po_detail.po_no = request.POST.get('po_no')
@@ -5934,6 +6324,7 @@ def po_details_edit(request, pk):
         po_detail.packing_forwarding = request.POST.get('packing_forwarding')
         po_detail.transportation = request.POST.get('transportation')
         po_detail.marketing_dept = request.POST.get('marketing_dept', 'Miss. Pooja Kolse')
+
         po_detail.accounts_dept = request.POST.get('accounts_dept', 'Mr. Jitendra Tajanpure')
         po_detail.additional_contact = request.POST.get('additional_contact', 'Mr. Harshal Ghoge')
         po_detail.save()
@@ -5953,8 +6344,7 @@ def po_details_edit(request, pk):
 @login_required
 def po_details_delete(request, pk):
     """Delete PO Details"""
-    po_detail = get_object_or_404(PODetails, pk=pk, created_by=request.user)
-    
+    podetails = get_object_or_404(PODetails, pk=pk)
     if request.method == 'POST':
         po_detail.delete()
         messages.success(request, 'PO Details deleted successfully!')
@@ -5998,6 +6388,9 @@ def po_status_list(request):
     }
     
     return render(request, 'marketing/po_status_list.html', context)
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
 
 
 @login_required
@@ -6014,6 +6407,9 @@ def po_status_create(request):
             coordinator=request.POST.get('coordinator'),
             po_date=request.POST.get('po_date'),
             po_value_without_gst=request.POST.get('po_value_without_gst'),
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
             gst=request.POST.get('gst'),
             po_acceptance_date=request.POST.get('po_acceptance_date') or None,
             wo_date=request.POST.get('wo_date') or None,
@@ -6047,7 +6443,15 @@ def po_status_create(request):
             payr05_received_percentage=request.POST.get('payr05_received_percentage') or None,
             payr05_received_amount=request.POST.get('payr05_received_amount') or None,
             payr05_received_date=request.POST.get('payr05_received_date') or None,
-            created_by=request.user
+            # Get user info from HRMS session
+
+
+            
+
+
+
+
+
         )
         po_status.save()
         messages.success(request, 'PO Status created successfully!')
@@ -6063,8 +6467,7 @@ def po_status_create(request):
 @login_required
 def po_status_detail(request, pk):
     """View PO Status details"""
-    po_status = get_object_or_404(POStatus, pk=pk, created_by=request.user)
-    
+    postatus = get_object_or_404(POStatus, pk=pk)
     context = {
         'po_status': po_status,
     }
@@ -6075,11 +6478,13 @@ def po_status_detail(request, pk):
 @login_required
 def po_status_edit(request, pk):
     """Edit PO Status entry"""
-    po_status = get_object_or_404(POStatus, pk=pk, created_by=request.user)
-    
+    postatus = get_object_or_404(POStatus, pk=pk)
     if request.method == 'POST':
         po_status.month = request.POST.get('month')
         po_status.region = request.POST.get('region')
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
         po_status.company = request.POST.get('company')
         po_status.order_is_for = request.POST.get('order_is_for')
         po_status.po_number = request.POST.get('po_number')
@@ -6105,6 +6510,9 @@ def po_status_edit(request, pk):
         # PayR-03
         po_status.payr03_agreed_percentage = request.POST.get('payr03_agreed_percentage') or None
         po_status.payr03_agreed_amount = request.POST.get('payr03_agreed_amount') or None
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
         po_status.payr03_received_percentage = request.POST.get('payr03_received_percentage') or None
         po_status.payr03_received_amount = request.POST.get('payr03_received_amount') or None
         po_status.payr03_received_date = request.POST.get('payr03_received_date') or None
@@ -6133,11 +6541,13 @@ def po_status_edit(request, pk):
     return render(request, 'marketing/po_status_form.html', context)
 
 
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
 @login_required
 def po_status_delete(request, pk):
     """Delete PO Status entry"""
-    po_status = get_object_or_404(POStatus, pk=pk, created_by=request.user)
-    
+    postatus = get_object_or_404(POStatus, pk=pk)
     if request.method == 'POST':
         po_status.delete()
         messages.success(request, 'PO Status deleted successfully!')
@@ -6154,6 +6564,7 @@ def po_status_delete(request, pk):
 @login_required
 def po_status_dashboard(request):
     """PO Status Dashboard - Main overview of all PO Status"""
+
     # Get statistics
     po_status_count = POStatus.objects.filter(created_by=request.user).count()
     
@@ -6232,6 +6643,9 @@ def work_order_format_list(request):
     # Pagination
     paginator = Paginator(work_orders, 20)
     page_number = request.GET.get('page')
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
     page_obj = paginator.get_page(page_number)
     
     context = {
@@ -6248,6 +6662,9 @@ def work_order_format_create(request):
     """Create new Work Order Format entry"""
     if request.method == 'POST':
         work_order = WorkOrderFormat(
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
             date=request.POST.get('date'),
             work_order_no=request.POST.get('work_order_no'),
             equipment_no=request.POST.get('equipment_no'),
@@ -6293,7 +6710,15 @@ def work_order_format_create(request):
             advance_percentage=request.POST.get('advance_percentage'),
             against_pi_percentage=request.POST.get('against_pi_percentage'),
             after_material_percentage=request.POST.get('after_material_percentage'),
-            created_by=request.user
+            # Get user info from HRMS session
+
+
+            
+
+
+
+
+
         )
         work_order.save()
         messages.success(request, 'Work Order created successfully!')
@@ -6308,14 +6733,16 @@ def work_order_format_create(request):
         'FAT_CHOICES': WorkOrderFormat.FAT_CHOICES,
     }
     
+    # Get user info from HRMS session
+# Removed - user_info not needed here
+
     return render(request, 'marketing/work_order_format_form.html', context)
 
 
 @login_required
 def work_order_format_detail(request, pk):
     """View Work Order Format details"""
-    work_order = get_object_or_404(WorkOrderFormat, pk=pk, created_by=request.user)
-    
+    workorderformat = get_object_or_404(WorkOrderFormat, pk=pk)
     context = {
         'work_order': work_order,
     }
@@ -6326,8 +6753,7 @@ def work_order_format_detail(request, pk):
 @login_required
 def work_order_format_edit(request, pk):
     """Edit Work Order Format entry"""
-    work_order = get_object_or_404(WorkOrderFormat, pk=pk, created_by=request.user)
-    
+    workorderformat = get_object_or_404(WorkOrderFormat, pk=pk)
     if request.method == 'POST':
         work_order.date = request.POST.get('date')
         work_order.work_order_no = request.POST.get('work_order_no')
@@ -6395,8 +6821,7 @@ def work_order_format_edit(request, pk):
 @login_required
 def work_order_format_delete(request, pk):
     """Delete Work Order Format entry"""
-    work_order = get_object_or_404(WorkOrderFormat, pk=pk, created_by=request.user)
-    
+    workorderformat = get_object_or_404(WorkOrderFormat, pk=pk)
     if request.method == 'POST':
         work_order.delete()
         messages.success(request, 'Work Order deleted successfully!')

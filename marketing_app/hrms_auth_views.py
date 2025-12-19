@@ -29,19 +29,52 @@ def hrms_login(request):
         
         if result and result.get('success'):
             # Store token and user info in session
-            request.session['hrms_rbac_token'] = result['token']
-            request.session['hrms_user_info'] = result
-            request.session['username'] = username
-            
-            messages.success(request, f"Welcome, {result['user']['first_name']}!")
-            logger.info(f"User {username} logged in successfully")
-            
-            # Redirect to dashboard or next page
-            next_url = request.GET.get('next', 'dashboard')
-            return redirect(next_url)
+            token = result.get('token')
+            if token:
+                # Store session data
+                request.session['hrms_rbac_token'] = token
+                request.session['hrms_user_info'] = result
+                request.session['username'] = username
+                
+                # Mark session as modified and save
+                request.session.modified = True
+                
+                # Force session save
+                try:
+                    request.session.save()
+                    # Verify session was saved
+                    saved_token = request.session.get('hrms_rbac_token')
+                    if saved_token == token:
+                        logger.info(f"Session saved successfully for user {username}. Token verified.")
+                    else:
+                        logger.error(f"Session save verification failed for {username}")
+                except Exception as e:
+                    logger.error(f"Error saving session: {str(e)}")
+                
+                # Get user name from response
+                user_data = result.get('user', {})
+                first_name = user_data.get('first_name', username)
+                employee_data = result.get('employee', {})
+                if employee_data:
+                    first_name = employee_data.get('first_name', first_name)
+                
+                messages.success(request, f"Welcome, {first_name}!")
+                logger.info(f"User {username} logged in successfully via HRMS RBAC. Token: {token[:10]}...")
+                
+                # Redirect to dashboard or next page
+                next_url = request.GET.get('next', '/dashboard/')
+                # Ensure next_url is safe and doesn't redirect to login
+                if next_url == '/hrms-login/' or next_url.startswith('/hrms-login'):
+                    next_url = '/dashboard/'
+                logger.info(f"Redirecting user {username} to: {next_url}")
+                return redirect(next_url)
+            else:
+                messages.error(request, 'Login successful but no token received')
+                logger.error(f"Login succeeded but no token for {username}")
         else:
-            messages.error(request, 'Invalid credentials or HRMS authentication failed')
-            logger.warning(f"Failed login attempt for {username}")
+            error_msg = result.get('error', 'Invalid credentials or HRMS authentication failed') if result else 'Connection error'
+            messages.error(request, error_msg)
+            logger.warning(f"Failed login attempt for {username}: {error_msg}")
     
     return render(request, 'marketing_app/hrms_login.html')
 
