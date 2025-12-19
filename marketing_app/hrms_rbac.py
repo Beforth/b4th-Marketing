@@ -40,10 +40,31 @@ class HRMSRBACClient:
             try:
                 data = response.json()
             except ValueError:
-                # If response is not JSON, create error response
+                # If response is not JSON, log the actual response and create error response
+                response_text = response.text[:500]  # First 500 chars
+                logger.error(
+                    f"HRMS RBAC API returned non-JSON response. "
+                    f"Status: {response.status_code}, "
+                    f"URL: {response.url}, "
+                    f"Response: {response_text}"
+                )
+                # Check for common error status codes
+                if response.status_code == 502:
+                    error_msg = (
+                        f'HRMS server is unreachable (502 Bad Gateway). '
+                        f'Please check if the HRMS API is running and accessible. '
+                        f'URL: {self.base_url}/login/'
+                    )
+                elif response.status_code == 503:
+                    error_msg = 'HRMS server is temporarily unavailable (503 Service Unavailable)'
+                elif response.status_code == 504:
+                    error_msg = 'HRMS server request timeout (504 Gateway Timeout)'
+                else:
+                    error_msg = f'Invalid response format. Status: {response.status_code}'
+                
                 data = {
                     'success': False,
-                    'error': f'Invalid response format. Status: {response.status_code}'
+                    'error': error_msg
                 }
             
             # Check if request was successful
@@ -62,11 +83,25 @@ class HRMSRBACClient:
             logger.error(f"HRMS RBAC login timeout for {username}")
             return {'success': False, 'error': 'Connection timeout. Please try again.'}
         except requests.exceptions.ConnectionError as e:
-            logger.error(f"HRMS RBAC connection error: {str(e)}")
-            return {'success': False, 'error': 'Cannot connect to HRMS server. Please check your connection.'}
+            logger.error(
+                f"HRMS RBAC connection error: {str(e)}. "
+                f"URL: {self.base_url}/login/. "
+                f"This usually means the HRMS server is down or unreachable from this network."
+            )
+            return {
+                'success': False, 
+                'error': f'Cannot connect to HRMS server at {self.base_url}. Please check if the server is running and accessible.'
+            }
         except requests.exceptions.RequestException as e:
-            logger.error(f"HRMS RBAC login error: {str(e)}")
-            return {'success': False, 'error': f'Connection error: {str(e)}'}
+            logger.error(
+                f"HRMS RBAC login error: {str(e)}. "
+                f"URL: {self.base_url}/login/. "
+                f"Error type: {type(e).__name__}"
+            )
+            return {
+                'success': False, 
+                'error': f'Connection error: {str(e)}. Please check network connectivity and HRMS server status.'
+            }
         except Exception as e:
             logger.error(f"HRMS RBAC login error: {str(e)}")
             return {'success': False, 'error': f'Unexpected error: {str(e)}'}
