@@ -14,7 +14,13 @@ SECRET_KEY = 'django-insecure-your-secret-key-here-change-in-production'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'marketing.aureolegroup.com']
+
+# CSRF Configuration
+CSRF_TRUSTED_ORIGINS = [
+    'https://marketing.aureolegroup.com',
+    'http://marketing.aureolegroup.com',
+]
 
 # Application definition
 INSTALLED_APPS = [
@@ -22,7 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages',
+    'django.contrib.messages',h
     'django.contrib.staticfiles',
     'crispy_forms',
     'crispy_bootstrap5',
