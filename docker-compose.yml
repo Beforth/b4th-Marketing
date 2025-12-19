@@ -19,23 +19,23 @@ services:
       - backend
     restart: unless-stopped
 
-  # nginx:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile.nginx
-  #   container_name: marketing_nginx
-  #   ports:
-  #     - "8080:80"
-  #     - "8443:443"
-  #   depends_on:
-  #     - web
-  #   volumes:
-  #     - ./staticfiles:/app/staticfiles
-  #     - ./media:/app/media
-  #     - /etc/letsencrypt:/etc/letsencrypt
-  #   networks:
-  #     - backend
-  #   restart: unless-stopped
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: marketing_nginx
+    ports:
+      - "8080:80"
+      - "8443:443"
+    depends_on:
+      - web
+    volumes:
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
+      - /etc/letsencrypt:/etc/letsencrypt
+    networks:
+      - backend
+    restart: unless-stopped
 
 networks:
   backend:
