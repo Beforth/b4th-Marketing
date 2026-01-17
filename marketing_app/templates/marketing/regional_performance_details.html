@@ -33,10 +33,10 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Total Revenue</p>
-                    <p class="text-2xl font-bold text-gray-900">₹147L</p>
+                    <p class="text-2xl font-bold text-gray-900">₹{{ total_revenue|floatformat:0 }}</p>
                     <p class="text-xs text-green-600 flex items-center gap-1 mt-1">
                         <i data-lucide="trending-up" class="w-3 h-3"></i>
-                        +12.5% vs target
+                        {{ overall_achievement|floatformat:1 }}% vs target
                     </p>
                 </div>
                 <div class="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -49,10 +49,10 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Best Performing</p>
-                    <p class="text-2xl font-bold text-gray-900">West</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ best_region.region.name|default:"N/A" }}</p>
                     <p class="text-xs text-green-600 flex items-center gap-1 mt-1">
                         <i data-lucide="award" class="w-3 h-3"></i>
-                        91% target achieved
+                        {{ best_region.achievement_pct|default:0|floatformat:1 }}% target achieved
                     </p>
                 </div>
                 <div class="h-12 w-12 bg-yellow-100 rounded-lg flex items-center justify-center">
@@ -65,10 +65,10 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Average Achievement</p>
-                    <p class="text-2xl font-bold text-gray-900">86.8%</p>
-                    <p class="text-xs text-green-600 flex items-center gap-1 mt-1">
-                        <i data-lucide="trending-up" class="w-3 h-3"></i>
-                        +4.2% from last quarter
+                    <p class="text-2xl font-bold text-gray-900">{{ avg_achievement|floatformat:1 }}%</p>
+                    <p class="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                        <i data-lucide="target" class="w-3 h-3"></i>
+                        Across all regions
                     </p>
                 </div>
                 <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -81,10 +81,10 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm font-medium text-gray-600">Total Customers</p>
-                    <p class="text-2xl font-bold text-gray-900">1,247</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_customers|default:0 }}</p>
                     <p class="text-xs text-green-600 flex items-center gap-1 mt-1">
                         <i data-lucide="users" class="w-3 h-3"></i>
-                        +89 new this month
+                        +{{ new_customers_this_month|default:0 }} new this month
                     </p>
                 </div>
                 <div class="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -113,126 +113,45 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
+                    {% for region_info in regional_data %}
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-3">
-                                    <i data-lucide="map-pin" class="w-4 h-4 text-red-600"></i>
+                                <div class="w-8 h-8 {% cycle 'bg-red-100' 'bg-blue-100' 'bg-green-100' 'bg-purple-100' %} rounded-lg flex items-center justify-center mr-3">
+                                    <i data-lucide="map-pin" class="w-4 h-4 {% cycle 'text-red-600' 'text-blue-600' 'text-green-600' 'text-purple-600' %}"></i>
                                 </div>
                                 <div>
-                                    <div class="text-sm font-medium text-gray-900">North Region</div>
-                                    <div class="text-sm text-gray-500">Delhi, Punjab, Haryana</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ region_info.region.name }}</div>
+                                    <div class="text-sm text-gray-500">{{ region_info.region.description|default:"" }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹50L</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹42L</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{{ region_info.target|floatformat:0 }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{{ region_info.achieved|floatformat:0 }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                                    <div class="bg-green-600 h-2 rounded-full" style="width: 84%"></div>
+                                    <div class="{% if region_info.achievement_pct >= 80 %}bg-green-600{% elif region_info.achievement_pct >= 60 %}bg-yellow-500{% else %}bg-red-500{% endif %} h-2 rounded-full" 
+                                         style="width: {% if region_info.target > 0 %}{{ region_info.achievement_pct }}{% else %}0{% endif %}%"></div>
                                 </div>
-                                <span class="text-sm font-medium text-gray-900">84%</span>
+                                <span class="text-sm font-medium text-gray-900">{{ region_info.achievement_pct }}%</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">312</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">8 members</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ region_info.customers }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ region_info.team_size|default:"N/A" }} {% if region_info.team_size %}members{% endif %}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                On Track
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ region_info.status_class }}">
+                                {{ region_info.status }}
                             </span>
                         </td>
                     </tr>
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                                    <i data-lucide="map-pin" class="w-4 h-4 text-blue-600"></i>
-                                </div>
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">South Region</div>
-                                    <div class="text-sm text-gray-500">Karnataka, Tamil Nadu, Kerala</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹45L</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹38L</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                                    <div class="bg-green-600 h-2 rounded-full" style="width: 84%"></div>
-                                </div>
-                                <span class="text-sm font-medium text-gray-900">84%</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">298</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">7 members</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                On Track
-                            </span>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
+                            No regional data available
                         </td>
                     </tr>
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                                    <i data-lucide="map-pin" class="w-4 h-4 text-green-600"></i>
-                                </div>
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">East Region</div>
-                                    <div class="text-sm text-gray-500">West Bengal, Odisha, Assam</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹40L</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹35L</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 88%"></div>
-                                </div>
-                                <span class="text-sm font-medium text-gray-900">88%</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">267</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">6 members</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                Excellent
-                            </span>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
-                                    <i data-lucide="map-pin" class="w-4 h-4 text-purple-600"></i>
-                                </div>
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">West Region</div>
-                                    <div class="text-sm text-gray-500">Maharashtra, Gujarat, Rajasthan</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹35L</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹32L</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                                    <div class="bg-green-600 h-2 rounded-full" style="width: 91%"></div>
-                                </div>
-                                <span class="text-sm font-medium text-gray-900">91%</span>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">370</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">9 members</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Outstanding
-                            </span>
-                        </td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

@@ -151,110 +151,51 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <!-- Sample Draft Entry -->
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <div class="flex items-center gap-2">
-                                <div class="p-1 bg-purple-100 rounded">
-                                    <i data-lucide="clipboard-list" class="w-3 h-3 text-purple-600"></i>
+                    {% if saved_sheets %}
+                        {% for sheet in saved_sheets %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                                <div class="flex items-center gap-2">
+                                    <div class="p-1 bg-purple-100 rounded">
+                                        <i data-lucide="clipboard-list" class="w-3 h-3 text-purple-600"></i>
+                                    </div>
+                                    <span class="text-xs sm:text-sm font-medium text-gray-900">{{ sheet.type }}</span>
                                 </div>
-                                <span class="text-xs sm:text-sm font-medium text-gray-900">Inquiry Log</span>
-                            </div>
-                        </td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">ABC Company Inquiry - Q1 2024</td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                <i data-lucide="edit" class="w-3 h-3 mr-1"></i>
-                                Draft
-                            </span>
-                        </td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">2 hours ago</td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <div class="flex items-center gap-1 sm:gap-2">
-                                <button class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
-                                        title="Edit Draft">
-                                    <i data-lucide="edit" class="w-3 h-3"></i>
-                                    <span class="hidden sm:inline">Edit</span>
-                                </button>
-                                <button class="inline-flex items-center gap-1 rounded-lg bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors"
-                                        title="Delete Draft"
-                                        onclick="confirmDelete('ABC Company Inquiry - Q1 2024')">
-                                    <i data-lucide="trash-2" class="w-3 h-3"></i>
-                                    <span class="hidden sm:inline">Delete</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    
-                    <!-- Sample Saved Entry -->
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <div class="flex items-center gap-2">
-                                <div class="p-1 bg-green-100 rounded">
-                                    <i data-lucide="check-circle" class="w-3 h-3 text-green-600"></i>
-                                </div>
-                                <span class="text-xs sm:text-sm font-medium text-gray-900">Follow-Up Status</span>
-                            </div>
-                        </td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">XYZ Corp Follow-up Report</td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                <i data-lucide="check" class="w-3 h-3 mr-1"></i>
-                                Saved
-                            </span>
-                        </td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">1 day ago</td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <div class="flex items-center gap-1 sm:gap-2">
-                                <button class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
-                                        title="View/Edit">
-                                    <i data-lucide="eye" class="w-3 h-3"></i>
-                                    <span class="hidden sm:inline">View</span>
-                                </button>
-                                <button class="inline-flex items-center gap-1 rounded-lg bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors"
+                            </td>
+                            <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">{{ sheet.title }}</td>
+                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium 
+                                    {% if sheet.status == 'saved' %}bg-green-100 text-green-800
+                                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                    <i data-lucide="{% if sheet.status == 'saved' %}check{% else %}edit{% endif %}" class="w-3 h-3 mr-1"></i>
+                                    {{ sheet.status|title }}
+                                </span>
+                            </td>
+                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">{{ sheet.modified_at|timesince }} ago</td>
+                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                                <div class="flex items-center gap-1 sm:gap-2">
+                                    <a href="{{ sheet.edit_url }}" class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                                        title="{% if sheet.status == 'saved' %}View{% else %}Edit{% endif %}">
+                                        <i data-lucide="{% if sheet.status == 'saved' %}eye{% else %}edit{% endif %}" class="w-3 h-3"></i>
+                                        <span class="hidden sm:inline">{% if sheet.status == 'saved' %}View{% else %}Edit{% endif %}</span>
+                                    </a>
+                                    <button class="inline-flex items-center gap-1 rounded-lg bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors"
                                         title="Delete"
-                                        onclick="confirmDelete('XYZ Corp Follow-up Report')">
-                                    <i data-lucide="trash-2" class="w-3 h-3"></i>
-                                    <span class="hidden sm:inline">Delete</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    
-                    <!-- Sample Project Today Entry -->
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <div class="flex items-center gap-2">
-                                <div class="p-1 bg-blue-100 rounded">
-                                    <i data-lucide="briefcase" class="w-3 h-3 text-blue-600"></i>
+                                        onclick="confirmDelete('{{ sheet.title }}')">
+                                        <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                        <span class="hidden sm:inline">Delete</span>
+                                    </button>
                                 </div>
-                                <span class="text-xs sm:text-sm font-medium text-gray-900">Project Today</span>
-                            </div>
-                        </td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-gray-900">Manufacturing Project Update</td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                <i data-lucide="edit" class="w-3 h-3 mr-1"></i>
-                                Draft
-                            </span>
-                        </td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">3 hours ago</td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <div class="flex items-center gap-1 sm:gap-2">
-                                <button class="inline-flex items-center gap-1 rounded-lg bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
-                                        title="Edit Draft">
-                                    <i data-lucide="edit" class="w-3 h-3"></i>
-                                    <span class="hidden sm:inline">Edit</span>
-                                </button>
-                                <button class="inline-flex items-center gap-1 rounded-lg bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors"
-                                        title="Delete Draft"
-                                        onclick="confirmDelete('Manufacturing Project Update')">
-                                    <i data-lucide="trash-2" class="w-3 h-3"></i>
-                                    <span class="hidden sm:inline">Delete</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm text-gray-500">
+                                No saved sheets found
+                            </td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>
@@ -286,7 +227,7 @@
                     </div>
                     <div class="flex-1">
                         <p class="text-sm font-medium text-gray-900">Follow-Up Added</p>
-                        <p class="text-xs text-gray-600">{{ follow_up.company_name }} - {{ follow_up.follow_up_status }}</p>
+                        <p class="text-xs text-gray-600">{{ follow_up.company_group }} - {{ follow_up.get_follow_up_status_display }}</p>
                     </div>
                     <span class="text-xs text-gray-500">{{ follow_up.created_at|timesince }} ago</span>
                 </div>

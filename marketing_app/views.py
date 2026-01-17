@@ -98,12 +98,112 @@ def marketing_dashboard(request):
     # Sort activities by time
     recent_activities.sort(key=lambda x: x['time'], reverse=True)
     
+    # Sales Pipeline Data (This Month)
+    first_day_of_month = today.replace(day=1)
+    new_leads_this_month = Lead.objects.filter(created_at__date__gte=first_day_of_month).count()
+    new_leads_last_month = Lead.objects.filter(
+        created_at__date__gte=first_day_of_month - timedelta(days=30),
+        created_at__date__lt=first_day_of_month
+    ).count()
+    leads_growth = ((new_leads_this_month - new_leads_last_month) / new_leads_last_month * 100) if new_leads_last_month > 0 else 0
+    
+    quotations_sent_this_month = Quotation.objects.filter(
+        sent_date__date__gte=first_day_of_month,
+        sent_date__isnull=False
+    ).count()
+    quotations_sent_last_month = Quotation.objects.filter(
+        sent_date__date__gte=first_day_of_month - timedelta(days=30),
+        sent_date__date__lt=first_day_of_month,
+        sent_date__isnull=False
+    ).count()
+    quotations_growth = ((quotations_sent_this_month - quotations_sent_last_month) / quotations_sent_last_month * 100) if quotations_sent_last_month > 0 else 0
+    
+    pos_this_month = PurchaseOrder.objects.filter(created_at__date__gte=first_day_of_month).count()
+    pos_last_month = PurchaseOrder.objects.filter(
+        created_at__date__gte=first_day_of_month - timedelta(days=30),
+        created_at__date__lt=first_day_of_month
+    ).count()
+    pos_growth = ((pos_this_month - pos_last_month) / pos_last_month * 100) if pos_last_month > 0 else 0
+    
+    deliveries_this_month = Dispatch.objects.filter(
+        dispatch_date__date__gte=first_day_of_month,
+        dispatch_date__isnull=False
+    ).count()
+    deliveries_last_month = Dispatch.objects.filter(
+        dispatch_date__date__gte=first_day_of_month - timedelta(days=30),
+        dispatch_date__date__lt=first_day_of_month,
+        dispatch_date__isnull=False
+    ).count()
+    deliveries_growth = ((deliveries_this_month - deliveries_last_month) / deliveries_last_month * 100) if deliveries_last_month > 0 else 0
+    
+    # Regional Performance Data
+    regional_performance = []
+    regions = Region.objects.all()
+    for region in regions:
+        region_customers = customers_qs.filter(region=region)
+        region_pos = PurchaseOrder.objects.filter(customer__region=region)
+        
+        # Calculate total sales for this month
+        region_sales_this_month = region_pos.filter(
+            created_at__date__gte=first_day_of_month
+        ).aggregate(total=Sum('total_amount'))['total'] or Decimal('0')
+        
+        # Get monthly target (if set)
+        monthly_target = region.monthly_target or Decimal('0')
+        target_percentage = (region_sales_this_month / monthly_target * 100) if monthly_target > 0 else 0
+        
+        regional_performance.append({
+            'region': region.name,
+            'sales': region_sales_this_month,
+            'target': monthly_target,
+            'percentage': round(target_percentage, 1),
+        })
+    
+    # Alerts & Notifications
+    expiring_quotations_today = Quotation.objects.filter(
+        valid_until=today,
+        status__in=['sent', 'shared']
+    ).count()
+    
+    # Follow-ups due today (visits scheduled for today)
+    follow_ups_due_today = Visit.objects.filter(
+        scheduled_date__date=today,
+        status__in=['scheduled', 'in_progress']
+    ).count()
+    
+    # QC inspections pending
+    qc_pending = QCTracking.objects.filter(status__in=['pending', 'in_progress']).count()
+    
+    # Deliveries scheduled today
+    deliveries_today = Dispatch.objects.filter(
+        expected_delivery_date=today,
+        status__in=['pending', 'dispatched', 'in_transit']
+    ).count()
+    
     context = {
         'total_customers': total_customers,
         'active_leads': active_leads,
         'pending_quotations': pending_quotations,
         'production_orders': production_orders,
         'recent_activities': recent_activities[:4],
+        # Sales Pipeline
+        'new_leads_this_month': new_leads_this_month,
+        'leads_growth': round(leads_growth, 1),
+        'quotations_sent_this_month': quotations_sent_this_month,
+        'quotations_growth': round(quotations_growth, 1),
+        'pos_this_month': pos_this_month,
+        'pos_growth': round(pos_growth, 1),
+        'deliveries_this_month': deliveries_this_month,
+        'deliveries_growth': round(deliveries_growth, 1),
+        # Regional Performance
+        'regional_performance': regional_performance,
+        # Alerts
+        'expiring_quotations_today': expiring_quotations_today,
+        'follow_ups_due_today': follow_ups_due_today,
+        'qc_pending': qc_pending,
+        'deliveries_today': deliveries_today,
+        # Date
+        'today': today,
     }
     
     return render(request, 'marketing/dashboard.html', context)
@@ -116,15 +216,7 @@ def campaign_form(request):
         messages.success(request, 'Campaign updated successfully!')
         return redirect('marketing:campaign_list')
     
-    context = {
-        'campaign': {
-            'name': 'Sample Campaign',
-            'type': 'Email',
-            'start_date': '2024-01-15',
-            'end_date': '2024-02-15',
-            'description': 'Sample campaign description'
-        }
-    }
+    context = {}
     return render(request, 'marketing/campaign_form.html', context)
 
 
@@ -342,7 +434,8 @@ def lead_detail(request, lead_id):
 @login_required
 def email_templates(request):
     """Email Templates List"""
-    templates = EmailTemplate.objects.filter(created_by=request.user).order_by('-created_at')
+    user_info = get_user_info_dict(request)
+    templates = EmailTemplate.objects.filter(created_by_username=user_info['username']).order_by('-created_at')
     
     context = {
         'templates': templates,
@@ -354,17 +447,26 @@ def email_templates(request):
 def campaign_analytics(request):
     """Campaign Analytics View"""
     # Get analytics data
-    campaigns = Campaign.objects.all()
+    campaigns = Campaign.objects.all().prefetch_related('leads')
     
     # Calculate metrics
     total_campaigns = campaigns.count()
     active_campaigns = campaigns.filter(status='active').count()
     total_budget = campaigns.aggregate(total=Sum('budget'))['total'] or 0
     
+    # Calculate total leads from all campaigns
+    total_leads = Lead.objects.filter(campaign__in=campaigns).count()
+    
+    # Calculate conversion rate
+    converted_leads = Lead.objects.filter(campaign__in=campaigns, status='converted').count()
+    conversion_rate = (converted_leads / total_leads * 100) if total_leads > 0 else 0
+    
     context = {
         'total_campaigns': total_campaigns,
         'active_campaigns': active_campaigns,
         'total_budget': total_budget,
+        'total_leads': total_leads,
+        'conversion_rate': conversion_rate,
         'campaigns': campaigns,
     }
     
@@ -541,30 +643,34 @@ def live_gps_tracking(request):
         scheduled_date__date__gt=timezone.now().date()
     ).select_related('customer', 'location', 'assigned_to').order_by('scheduled_date')[:10]
     
-    # Get all users with their current status
-    users = User.objects.filter(is_active=True)
+    # Get all unique users from visits (using RBAC username)
+    # Get unique usernames from active and completed visits
+    active_usernames = set(active_visits.values_list('assigned_to_username', flat=True).exclude(assigned_to_username=''))
+    completed_usernames = set(completed_visits.values_list('assigned_to_username', flat=True).exclude(assigned_to_username=''))
+    all_usernames = active_usernames | completed_usernames
+    
     user_status = {}
     
-    for user in users:
+    for username in all_usernames:
         # Check if user has any active visits today
-        active_visit = active_visits.filter(assigned_to=user).first()
+        active_visit = active_visits.filter(assigned_to_username=username).first()
         if active_visit:
-            user_status[user.id] = {
+            user_status[username] = {
                 'status': 'active',
                 'visit': active_visit,
                 'location': f"{active_visit.location.city if active_visit.location else 'Unknown'}, {active_visit.location.state if active_visit.location else 'Unknown'}"
             }
         else:
             # Check if user has completed visits today
-            completed_visit = completed_visits.filter(assigned_to=user).first()
+            completed_visit = completed_visits.filter(assigned_to_username=username).first()
             if completed_visit:
-                user_status[user.id] = {
+                user_status[username] = {
                     'status': 'completed',
                     'visit': completed_visit,
                     'location': f"{completed_visit.location.city if completed_visit.location else 'Unknown'}, {completed_visit.location.state if completed_visit.location else 'Unknown'}"
                 }
             else:
-                user_status[user.id] = {
+                user_status[username] = {
                     'status': 'available',
                     'visit': None,
                     'location': 'Office'
@@ -901,44 +1007,17 @@ def vendor_management(request):
         messages.success(request, f'Vendor "{vendor_name}" added successfully!')
         return redirect('marketing:vendor_management')
     
-    # Get vendors (placeholder data for now)
-    vendors = [
-        {
-            'name': 'ABC Stall Design',
-            'type': 'Stall Design',
-            'contact_person': 'John Smith',
-            'email': 'john@abcdesign.com',
-            'phone': '+91-9876543210',
-            'rating': 4.5,
-            'services': 'Stall design, fabrication, installation',
-            'status': 'active'
-        },
-        {
-            'name': 'XYZ Printing Services',
-            'type': 'Printing',
-            'contact_person': 'Sarah Johnson',
-            'email': 'sarah@xyzprint.com',
-            'phone': '+91-9876543211',
-            'rating': 4.2,
-            'services': 'Banners, brochures, business cards',
-            'status': 'active'
-        },
-        {
-            'name': 'EventPro Logistics',
-            'type': 'Logistics',
-            'contact_person': 'Mike Wilson',
-            'email': 'mike@eventpro.com',
-            'phone': '+91-9876543212',
-            'rating': 4.8,
-            'services': 'Transportation, setup, dismantling',
-            'status': 'active'
-        }
-    ]
+    # Get vendors from Customer model (filtering by vendor-related types or using a tag/field)
+    # For now, we'll use customers that might be vendors, or return empty list
+    # In a real implementation, you'd have a Vendor model or a customer_type='vendor'
+    vendors = []
+    # Option: Use Customer model if you have vendor customers
+    # vendors_customers = Customer.objects.filter(customer_type='vendor') if 'vendor' in [c[0] for c in Customer.CUSTOMER_TYPES] else Customer.objects.none()
     
     # Calculate statistics
     total_vendors = len(vendors)
-    active_vendors = len([v for v in vendors if v['status'] == 'active'])
-    avg_rating = sum(v['rating'] for v in vendors) / len(vendors) if vendors else 0
+    active_vendors = len([v for v in vendors if v.get('status') == 'active'])
+    avg_rating = sum(v.get('rating', 0) for v in vendors) / len(vendors) if vendors else 0
     
     context = {
         'vendors': vendors,
@@ -981,47 +1060,58 @@ def visitor_database_management(request):
     # Get exhibitions for dropdown
     exhibitions = Exhibition.objects.all().order_by('-event_date')
     
-    # Get visitors (placeholder data)
-    visitors = [
-        {
-            'name': 'Rajesh Kumar',
-            'company': 'Tech Solutions Ltd',
-            'designation': 'Purchase Manager',
-            'email': 'rajesh@techsolutions.com',
-            'phone': '+91-9876543210',
-            'exhibition': 'Auto Expo 2024',
-            'interest_level': 'High',
-            'visit_date': '2024-01-15',
-            'follow_up_status': 'Pending'
-        },
-        {
-            'name': 'Priya Sharma',
-            'company': 'Industrial Equipment Co',
-            'designation': 'Technical Director',
-            'email': 'priya@industrial.com',
-            'phone': '+91-9876543211',
-            'exhibition': 'Manufacturing Expo 2024',
-            'interest_level': 'Medium',
-            'visit_date': '2024-02-20',
-            'follow_up_status': 'Completed'
-        },
-        {
-            'name': 'Amit Patel',
-            'company': 'Engineering Corp',
-            'designation': 'CEO',
-            'email': 'amit@engineering.com',
-            'phone': '+91-9876543212',
-            'exhibition': 'Auto Expo 2024',
-            'interest_level': 'High',
-            'visit_date': '2024-01-16',
-            'follow_up_status': 'In Progress'
-        }
-    ]
+    # Get visitors from Lead model (leads generated from exhibitions/events)
+    exhibition_filter = request.GET.get('exhibition', '')
+    visitors_qs = Lead.objects.filter(source='event').order_by('-created_at')
+    
+    if exhibition_filter:
+        # Filter by exhibition date range if exhibition is selected
+        try:
+            exhibition = Exhibition.objects.get(id=exhibition_filter)
+            visitors_qs = visitors_qs.filter(
+                created_at__date__gte=exhibition.start_date,
+                created_at__date__lte=exhibition.end_date
+            )
+        except Exhibition.DoesNotExist:
+            pass
+    
+    visitors = []
+    for lead in visitors_qs[:100]:  # Limit to 100 for performance
+        # Determine interest level based on lead score
+        if lead.score >= 70:
+            interest_level = 'High'
+        elif lead.score >= 40:
+            interest_level = 'Medium'
+        else:
+            interest_level = 'Low'
+        
+        # Get associated exhibition if any
+        exhibition_name = 'N/A'
+        if lead.campaign:
+            # Try to find exhibition by campaign or date
+            exhibition = Exhibition.objects.filter(
+                start_date__lte=lead.created_at.date(),
+                end_date__gte=lead.created_at.date()
+            ).first()
+            if exhibition:
+                exhibition_name = exhibition.name
+        
+        visitors.append({
+            'name': lead.full_name,
+            'company': lead.company or 'N/A',
+            'designation': lead.position or 'N/A',
+            'email': lead.email,
+            'phone': lead.phone or 'N/A',
+            'exhibition': exhibition_name,
+            'interest_level': interest_level,
+            'visit_date': lead.created_at.strftime('%Y-%m-%d'),
+            'follow_up_status': lead.status.title()
+        })
     
     # Calculate statistics
     total_visitors = len(visitors)
     high_interest = len([v for v in visitors if v['interest_level'] == 'High'])
-    pending_followup = len([v for v in visitors if v['follow_up_status'] == 'Pending'])
+    pending_followup = len([v for v in visitors if v['follow_up_status'] in ['New', 'Contacted', 'Qualified']])
     
     context = {
         'visitors': visitors,
@@ -1044,8 +1134,12 @@ def exhibition_expense_tracking(request):
         expense_date = request.POST.get('expense_date')
         
         # Create expense record
+        user_info = get_user_info_dict(request)
         expense = Expense.objects.create(
-            user=request.user,
+            expense_user_id=user_info['user_id'],
+            expense_username=user_info['username'],
+            expense_email=user_info['email'],
+            expense_full_name=user_info['full_name'],
             expense_type=expense_type,
             amount=amount,
             description=f"Exhibition: {description}",
@@ -1091,34 +1185,45 @@ def post_event_analysis(request):
     """Post Event Analysis"""
     # Get completed exhibitions
     completed_exhibitions = Exhibition.objects.filter(
-        event_date__lt=timezone.now().date()
-    ).order_by('-event_date')
+        end_date__lt=timezone.now().date()
+    ).order_by('-end_date')
     
-    # Get exhibition performance data (placeholder)
-    exhibition_performance = [
-        {
-            'exhibition': 'Auto Expo 2024',
-            'event_date': '2024-01-15',
-            'total_visitors': 150,
-            'qualified_leads': 45,
-            'conversion_rate': 30.0,
-            'total_expenses': 250000,
-            'roi': 180.0,
-            'visitor_satisfaction': 4.2,
-            'objectives_achieved': '80%'
-        },
-        {
-            'exhibition': 'Manufacturing Expo 2024',
-            'event_date': '2024-02-20',
-            'total_visitors': 200,
-            'qualified_leads': 60,
-            'conversion_rate': 30.0,
-            'total_expenses': 300000,
-            'roi': 200.0,
-            'visitor_satisfaction': 4.5,
-            'objectives_achieved': '90%'
-        }
-    ]
+    # Get exhibition performance data from database
+    exhibition_performance = []
+    for exhibition in completed_exhibitions:
+        # Get leads generated from this exhibition (leads created during exhibition period)
+        exhibition_leads = Lead.objects.filter(
+            source='event',
+            created_at__date__gte=exhibition.start_date,
+            created_at__date__lte=exhibition.end_date
+        )
+        qualified_leads = exhibition_leads.filter(status__in=['qualified', 'proposal', 'negotiation', 'converted']).count()
+        total_leads = exhibition_leads.count()
+        
+        # Calculate conversion rate
+        conversion_rate = (qualified_leads / total_leads * 100) if total_leads > 0 else 0
+        
+        # Get expenses for this exhibition
+        exhibition_expenses = Expense.objects.filter(
+            expense_type__in=['travel', 'accommodation', 'entertainment', 'office'],
+            date__gte=exhibition.start_date,
+            date__lte=exhibition.end_date
+        ).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        
+        # Calculate ROI (simplified - using exhibition budget vs expenses)
+        roi = ((exhibition.budget - exhibition_expenses) / exhibition_expenses * 100) if exhibition_expenses > 0 else 0
+        
+        exhibition_performance.append({
+            'exhibition': exhibition.name,
+            'event_date': exhibition.start_date.strftime('%Y-%m-%d'),
+            'total_visitors': exhibition.visitor_count,
+            'qualified_leads': qualified_leads,
+            'conversion_rate': round(conversion_rate, 1),
+            'total_expenses': float(exhibition_expenses),
+            'roi': round(float(roi), 1),
+            'visitor_satisfaction': 0,  # Would need a separate model for this
+            'objectives_achieved': 'N/A'  # Would need a separate model for this
+        })
     
     # Calculate overall statistics
     total_exhibitions = len(exhibition_performance)
@@ -1149,14 +1254,10 @@ def customer_form(request):
         messages.success(request, 'Customer updated successfully!')
         return redirect('marketing:customer_list')
     
+    regions = Region.objects.all()
     context = {
-        'customer': {
-            'name': 'Sample Customer',
-            'contact_person': 'John Doe',
-            'email': 'john@sample.com',
-            'phone': '+91-9876543210',
-            'region': 'North'
-        }
+        'regions': regions,
+        'customer_types': Customer.CUSTOMER_TYPES,
     }
     return render(request, 'marketing/customer_form.html', context)
 
@@ -1354,16 +1455,7 @@ def lead_form(request):
         messages.success(request, 'Lead updated successfully!')
         return redirect('marketing:lead_list')
     
-    context = {
-        'lead': {
-            'company_name': 'Sample Company',
-            'contact_person': 'Jane Smith',
-            'email': 'jane@sample.com',
-            'phone': '+91-9876543210',
-            'source': 'Website',
-            'region': 'North'
-        }
-    }
+    context = {}
     return render(request, 'marketing/lead_form.html', context)
 
 
@@ -1478,9 +1570,13 @@ def customer_visit(request):
         participant_notes = request.POST.getlist('participant_notes')
         
         # Add the primary assigned user as a participant
+        user_info = get_user_info_dict(request)
         VisitParticipant.objects.create(
             visit=visit,
-            user=request.user,
+            participant_user_id=user_info['user_id'],
+            participant_username=user_info['username'],
+            participant_email=user_info['email'],
+            participant_full_name=user_info['full_name'],
             role='primary',
             is_primary=True
         )
@@ -1604,17 +1700,22 @@ def daily_status_report(request):
     today_leads = Lead.objects.filter(created_at__date=today).select_related('customer', 'created_by')
     today_quotations = Quotation.objects.filter(created_at__date=today).select_related('customer', 'created_by')
     
-    # Get user-wise summary
+    # Get user-wise summary (using RBAC usernames)
     user_summary = []
-    users = get_user_model().objects.filter(is_active=True)
-    for user in users:
-        user_visits = today_visits.filter(assigned_to=user).count()
-        user_leads = today_leads.filter(created_by=user).count()
-        user_quotations = today_quotations.filter(created_by=user).count()
+    # Get unique usernames from today's activities
+    visit_usernames = set(today_visits.values_list('assigned_to_username', flat=True).exclude(assigned_to_username=''))
+    lead_usernames = set(today_leads.values_list('created_by_username', flat=True).exclude(created_by_username=''))
+    quotation_usernames = set(today_quotations.values_list('created_by_username', flat=True).exclude(created_by_username=''))
+    all_usernames = visit_usernames | lead_usernames | quotation_usernames
+    
+    for username in all_usernames:
+        user_visits = today_visits.filter(assigned_to_username=username).count()
+        user_leads = today_leads.filter(created_by_username=username).count()
+        user_quotations = today_quotations.filter(created_by_username=username).count()
         
         if user_visits > 0 or user_leads > 0 or user_quotations > 0:
             user_summary.append({
-                'user': user,
+                'username': username,
                 'visits': user_visits,
                 'leads': user_leads,
                 'quotations': user_quotations,
@@ -1958,6 +2059,7 @@ def technical_discussion(request):
         action_items = request.POST.get('action_items')
         next_follow_up = request.POST.get('next_follow_up')
         
+        user_info = get_user_info_dict(request)
         discussion = TechnicalDiscussion.objects.create(
             quotation_id=quotation_id,
             discussion_date=discussion_date,
@@ -1967,7 +2069,10 @@ def technical_discussion(request):
             decisions_made=decisions_made,
             action_items=action_items,
             next_follow_up=next_follow_up,
-            recorded_by=request.user
+            created_by_user_id=user_info['user_id'],
+            created_by_username=user_info['username'],
+            created_by_email=user_info['email'],
+            created_by_full_name=user_info['full_name']
         )
         
         messages.success(request, 'Technical discussion recorded successfully!')
@@ -2738,15 +2843,36 @@ def visitor_export(request):
         cell.fill = header_fill
         cell.alignment = header_alignment
     
-    # Sample data (replace with actual visitor data when model is available)
-    sample_visitors = [
-        ['Rajesh Kumar', 'Tata Motors', 'Product Manager', 'rajesh.kumar@tatamotors.com', '+91 98765 43210', 'Automotive', 'Auto Expo 2024', 'Qualified', '2024-01-15', 'Interested in new models', '2024-01-15 10:30'],
-        ['Priya Sharma', 'Tech Solutions Ltd', 'Procurement Head', 'priya.sharma@techsolutions.com', '+91 87654 32109', 'Technology', 'Tech Innovation Expo', 'Contacted', '2024-01-20', 'Follow up required', '2024-01-20 14:15'],
-        ['Amit Patel', 'Manufacturing Corp', 'Operations Director', 'amit.patel@manufacturingcorp.com', '+91 76543 21098', 'Manufacturing', 'Manufacturing Summit', 'New', '2024-01-25', 'Potential lead', '2024-01-25 09:45'],
-    ]
+    # Get actual visitor data from Lead model (leads from events/exhibitions)
+    visitors = Lead.objects.filter(source='event').order_by('-created_at')
     
-    # Write sample data
-    for row, visitor_data in enumerate(sample_visitors, 2):
+    # Write actual data
+    for row, lead in enumerate(visitors, 2):
+        # Get associated exhibition if any
+        exhibition_name = 'N/A'
+        if lead.campaign:
+            # Try to find exhibition by date
+            exhibition = Exhibition.objects.filter(
+                start_date__lte=lead.created_at.date(),
+                end_date__gte=lead.created_at.date()
+            ).first()
+            if exhibition:
+                exhibition_name = exhibition.name
+        
+        visitor_data = [
+            lead.full_name,
+            lead.company or 'N/A',
+            lead.position or 'N/A',
+            lead.email,
+            lead.phone or 'N/A',
+            'N/A',  # Industry - not in Lead model
+            exhibition_name,
+            lead.get_status_display(),
+            lead.created_at.strftime('%Y-%m-%d'),
+            lead.notes or '',
+            lead.created_at.strftime('%Y-%m-%d %H:%M')
+        ]
+        
         for col, value in enumerate(visitor_data, 1):
             ws.cell(row=row, column=col, value=value)
     
@@ -3064,16 +3190,22 @@ def performance_analytics(request):
     if lead_performance['total_leads'] > 0:
         lead_performance['lead_conversion_rate'] = (lead_performance['converted_leads'] / lead_performance['total_leads']) * 100
     
-    # User performance
+    # User performance (using RBAC usernames)
     user_performance = []
-    users = get_user_model().objects.all()
-    for user in users:
+    # Get unique usernames from all activities in the date range
+    customer_usernames = set(Customer.objects.filter(created_at__date__gte=start_date).values_list('created_by_username', flat=True).exclude(created_by_username=''))
+    lead_usernames = set(Lead.objects.filter(created_at__date__gte=start_date).values_list('assigned_to_username', flat=True).exclude(assigned_to_username=''))
+    quotation_usernames = set(Quotation.objects.filter(created_at__date__gte=start_date).values_list('created_by_username', flat=True).exclude(created_by_username=''))
+    visit_usernames = set(Visit.objects.filter(scheduled_date__date__gte=start_date).values_list('assigned_to_username', flat=True).exclude(assigned_to_username=''))
+    all_usernames = customer_usernames | lead_usernames | quotation_usernames | visit_usernames
+    
+    for username in all_usernames:
         user_stats = {
-            'user': user,
-            'customers_created': Customer.objects.filter(created_by=user, created_at__date__gte=start_date).count(),
-            'leads_created': Lead.objects.filter(assigned_to=user, created_at__date__gte=start_date).count(),
-            'quotations_created': Quotation.objects.filter(created_by=user, created_at__date__gte=start_date).count(),
-            'visits_conducted': Visit.objects.filter(assigned_to=user, scheduled_date__date__gte=start_date).count(),
+            'username': username,
+            'customers_created': Customer.objects.filter(created_by_username=username, created_at__date__gte=start_date).count(),
+            'leads_created': Lead.objects.filter(assigned_to_username=username, created_at__date__gte=start_date).count(),
+            'quotations_created': Quotation.objects.filter(created_by_username=username, created_at__date__gte=start_date).count(),
+            'visits_conducted': Visit.objects.filter(assigned_to_username=username, scheduled_date__date__gte=start_date).count(),
         }
         user_performance.append(user_stats)
     
@@ -3801,34 +3933,45 @@ def post_event_analysis(request):
     """Post Event Analysis"""
     # Get completed exhibitions
     completed_exhibitions = Exhibition.objects.filter(
-        event_date__lt=timezone.now().date()
-    ).order_by('-event_date')
+        end_date__lt=timezone.now().date()
+    ).order_by('-end_date')
     
-    # Get exhibition performance data (placeholder)
-    exhibition_performance = [
-        {
-            'exhibition': 'Auto Expo 2024',
-            'event_date': '2024-01-15',
-            'total_visitors': 150,
-            'qualified_leads': 45,
-            'conversion_rate': 30.0,
-            'total_expenses': 250000,
-            'roi': 180.0,
-            'visitor_satisfaction': 4.2,
-            'objectives_achieved': '80%'
-        },
-        {
-            'exhibition': 'Manufacturing Expo 2024',
-            'event_date': '2024-02-20',
-            'total_visitors': 200,
-            'qualified_leads': 60,
-            'conversion_rate': 30.0,
-            'total_expenses': 300000,
-            'roi': 200.0,
-            'visitor_satisfaction': 4.5,
-            'objectives_achieved': '90%'
-        }
-    ]
+    # Get exhibition performance data from database
+    exhibition_performance = []
+    for exhibition in completed_exhibitions:
+        # Get leads generated from this exhibition (leads created during exhibition period)
+        exhibition_leads = Lead.objects.filter(
+            source='event',
+            created_at__date__gte=exhibition.start_date,
+            created_at__date__lte=exhibition.end_date
+        )
+        qualified_leads = exhibition_leads.filter(status__in=['qualified', 'proposal', 'negotiation', 'converted']).count()
+        total_leads = exhibition_leads.count()
+        
+        # Calculate conversion rate
+        conversion_rate = (qualified_leads / total_leads * 100) if total_leads > 0 else 0
+        
+        # Get expenses for this exhibition
+        exhibition_expenses = Expense.objects.filter(
+            expense_type__in=['travel', 'accommodation', 'entertainment', 'office'],
+            date__gte=exhibition.start_date,
+            date__lte=exhibition.end_date
+        ).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        
+        # Calculate ROI (simplified - using exhibition budget vs expenses)
+        roi = ((exhibition.budget - exhibition_expenses) / exhibition_expenses * 100) if exhibition_expenses > 0 else 0
+        
+        exhibition_performance.append({
+            'exhibition': exhibition.name,
+            'event_date': exhibition.start_date.strftime('%Y-%m-%d'),
+            'total_visitors': exhibition.visitor_count,
+            'qualified_leads': qualified_leads,
+            'conversion_rate': round(conversion_rate, 1),
+            'total_expenses': float(exhibition_expenses),
+            'roi': round(float(roi), 1),
+            'visitor_satisfaction': 0,  # Would need a separate model for this
+            'objectives_achieved': 'N/A'  # Would need a separate model for this
+        })
     
     # Calculate overall statistics
     total_exhibitions = len(exhibition_performance)
@@ -3877,39 +4020,22 @@ def email_automation(request):
         messages.success(request, f'Email template "{template_name}" created successfully!')
         return redirect('marketing:email_automation')
     
-    # Get email templates (placeholder data)
-    email_templates = [
-        {
-            'name': 'Welcome Email',
-            'subject': 'Welcome to Our Company',
-            'trigger': 'New Customer Registration',
-            'status': 'Active',
-            'sent_count': 45,
-            'open_rate': 78.5,
-            'click_rate': 12.3,
-            'last_sent': '2024-01-15'
-        },
-        {
-            'name': 'Follow-up Reminder',
-            'subject': 'Follow-up Reminder for Your Visit',
-            'trigger': 'Visit Completion',
-            'status': 'Active',
-            'sent_count': 120,
-            'open_rate': 65.2,
-            'click_rate': 8.7,
-            'last_sent': '2024-01-20'
-        },
-        {
-            'name': 'Exhibition Invitation',
-            'subject': 'Invitation to Our Exhibition Booth',
-            'trigger': 'Exhibition Planning',
-            'status': 'Draft',
-            'sent_count': 0,
-            'open_rate': 0,
-            'click_rate': 0,
-            'last_sent': 'Not sent yet'
-        }
-    ]
+    # Get email templates from database
+    email_templates_qs = EmailTemplate.objects.all().order_by('-created_at')
+    
+    # Convert to list format for template compatibility
+    email_templates = []
+    for template in email_templates_qs:
+        email_templates.append({
+            'name': template.name,
+            'subject': template.subject,
+            'trigger': 'Manual',  # EmailTemplate doesn't have trigger field
+            'status': 'Active' if template.is_active else 'Inactive',
+            'sent_count': 0,  # Would need EmailLog model to track this
+            'open_rate': 0,  # Would need EmailLog model to track this
+            'click_rate': 0,  # Would need EmailLog model to track this
+            'last_sent': 'N/A'  # Would need EmailLog model to track this
+        })
     
     # Calculate statistics
     total_templates = len(email_templates)
@@ -3950,45 +4076,18 @@ def sms_notifications(request):
         messages.success(request, f'SMS notification "{notification_name}" created successfully!')
         return redirect('marketing:sms_notifications')
     
-    # Get SMS notifications (placeholder data)
-    sms_notifications = [
-        {
-            'name': 'Visit Reminder',
-            'message': 'Reminder: You have a customer visit scheduled today at {time}',
-            'trigger': 'Visit Scheduled',
-            'recipients': 'Field Executives',
-            'status': 'Active',
-            'sent_count': 85,
-            'delivery_rate': 98.5,
-            'last_sent': '2024-01-20'
-        },
-        {
-            'name': 'Follow-up Alert',
-            'message': 'Follow-up required for customer {customer_name} - {days} days overdue',
-            'trigger': 'Follow-up Overdue',
-            'recipients': 'Sales Team',
-            'status': 'Active',
-            'sent_count': 23,
-            'delivery_rate': 97.8,
-            'last_sent': '2024-01-19'
-        },
-        {
-            'name': 'Exhibition Update',
-            'message': 'Exhibition {exhibition_name} starts tomorrow. Please confirm your attendance.',
-            'trigger': 'Exhibition Tomorrow',
-            'recipients': 'All Staff',
-            'status': 'Draft',
-            'sent_count': 0,
-            'delivery_rate': 0,
-            'last_sent': 'Not sent yet'
-        }
-    ]
+    # Get SMS notifications - using EmailTemplate as reference (no SMS model exists yet)
+    # In a real implementation, you'd have an SMSNotification model
+    sms_notifications = []
+    # For now, return empty list or use EmailTemplate as reference
+    # email_templates = EmailTemplate.objects.all()
+    # You could map email templates to SMS notifications if needed
     
     # Calculate statistics
     total_notifications = len(sms_notifications)
-    active_notifications = len([n for n in sms_notifications if n['status'] == 'Active'])
-    total_sent = sum(n['sent_count'] for n in sms_notifications)
-    avg_delivery_rate = sum(n['delivery_rate'] for n in sms_notifications) / total_notifications if total_notifications > 0 else 0
+    active_notifications = len([n for n in sms_notifications if n.get('status') == 'Active'])
+    total_sent = sum(n.get('sent_count', 0) for n in sms_notifications)
+    avg_delivery_rate = sum(n.get('delivery_rate', 0) for n in sms_notifications) / total_notifications if total_notifications > 0 else 0
     
     context = {
         'sms_notifications': sms_notifications,
@@ -4030,39 +4129,59 @@ def file_upload_management(request):
         
         return redirect('marketing:file_upload_management')
     
-    # Get uploaded files (placeholder data)
-    uploaded_files = [
-        {
-            'title': 'Product Catalog 2024',
-            'category': 'Marketing Materials',
-            'filename': 'product_catalog_2024.pdf',
-            'size': '2.5 MB',
-            'uploaded_by': 'admin',
-            'uploaded_at': '2024-01-15',
-            'downloads': 45,
-            'tags': 'catalog, products, 2024'
-        },
-        {
-            'title': 'Exhibition Booth Design',
-            'category': 'Design Files',
-            'filename': 'booth_design_v2.ai',
-            'size': '15.2 MB',
-            'uploaded_by': 'designer',
-            'uploaded_at': '2024-01-18',
-            'downloads': 12,
-            'tags': 'design, booth, exhibition'
-        },
-        {
-            'title': 'Customer Database Export',
-            'category': 'Reports',
-            'filename': 'customer_db_jan2024.xlsx',
-            'size': '1.8 MB',
-            'uploaded_by': 'manager',
-            'uploaded_at': '2024-01-20',
-            'downloads': 8,
-            'tags': 'database, customers, export'
-        }
-    ]
+    # Get uploaded files from models that have FileField
+    uploaded_files = []
+    
+    # Get files from Quotation (GA drawings)
+    quotations_with_files = Quotation.objects.exclude(ga_drawing='').select_related('customer', 'created_by')
+    for quotation in quotations_with_files:
+        if quotation.ga_drawing:
+            file_size = quotation.ga_drawing.size / (1024 * 1024)  # Convert to MB
+            uploaded_files.append({
+                'title': f'GA Drawing - {quotation.quotation_number}',
+                'category': 'Drawings',
+                'filename': quotation.ga_drawing.name.split('/')[-1],
+                'size': f'{file_size:.2f} MB',
+                'uploaded_by': quotation.created_by_username or 'Unknown',
+                'uploaded_at': quotation.created_at.strftime('%Y-%m-%d'),
+                'downloads': 0,  # Would need tracking model
+                'tags': f'quotation, {quotation.customer.name}',
+                'file_url': quotation.ga_drawing.url
+            })
+    
+    # Get files from GADrawing model
+    ga_drawings = GADrawing.objects.exclude(drawing_file='').select_related('urs', 'created_by')
+    for drawing in ga_drawings:
+        if drawing.drawing_file:
+            file_size = drawing.drawing_file.size / (1024 * 1024)  # Convert to MB
+            uploaded_files.append({
+                'title': drawing.title,
+                'category': 'GA Drawings',
+                'filename': drawing.drawing_file.name.split('/')[-1],
+                'size': f'{file_size:.2f} MB',
+                'uploaded_by': drawing.created_by_username or 'Unknown',
+                'uploaded_at': drawing.created_at.strftime('%Y-%m-%d'),
+                'downloads': 0,
+                'tags': f'ga-drawing, {drawing.urs.project_name}',
+                'file_url': drawing.drawing_file.url
+            })
+    
+    # Get files from Expense (receipts)
+    expenses_with_receipts = Expense.objects.exclude(receipt='').select_related('user')
+    for expense in expenses_with_receipts:
+        if expense.receipt:
+            file_size = expense.receipt.size / (1024 * 1024)  # Convert to MB
+            uploaded_files.append({
+                'title': f'Receipt - {expense.description[:30]}',
+                'category': 'Expense Receipts',
+                'filename': expense.receipt.name.split('/')[-1],
+                'size': f'{file_size:.2f} MB',
+                'uploaded_by': expense.expense_username or 'Unknown',
+                'uploaded_at': expense.created_at.strftime('%Y-%m-%d'),
+                'downloads': 0,
+                'tags': f'expense, {expense.expense_type}',
+                'file_url': expense.receipt.url
+            })
     
     # Calculate statistics
     total_files = len(uploaded_files)
@@ -4118,47 +4237,73 @@ def calendar_integration(request):
         messages.success(request, f'Event "{event_title}" created successfully!')
         return redirect('marketing:calendar_integration')
     
-    # Get calendar events (placeholder data)
-    calendar_events = [
-        {
-            'title': 'Customer Meeting - ABC Corp',
+    # Get calendar events from Visit and Exhibition models
+    calendar_events = []
+    today = timezone.now().date()
+    
+    # Get upcoming visits
+    upcoming_visits = Visit.objects.filter(
+        scheduled_date__date__gte=today
+    ).select_related('customer', 'location', 'assigned_to').order_by('scheduled_date')[:50]
+    
+    for visit in upcoming_visits:
+        location_str = f"{visit.location.city}, {visit.location.state}" if visit.location else "Location TBD"
+        calendar_events.append({
+            'title': f'Visit - {visit.customer.name}',
             'type': 'Customer Visit',
-            'start_date': '2024-01-25',
-            'end_date': '2024-01-25',
-            'start_time': '10:00',
-            'end_time': '11:30',
-            'location': 'ABC Corp Office, Mumbai',
-            'attendees': 'John Doe, Sales Manager',
-            'status': 'Confirmed'
-        },
-        {
-            'title': 'Exhibition Setup - Auto Expo',
+            'start_date': visit.scheduled_date.date().strftime('%Y-%m-%d'),
+            'end_date': visit.scheduled_date.date().strftime('%Y-%m-%d'),
+            'start_time': visit.scheduled_date.time().strftime('%H:%M'),
+            'end_time': (visit.scheduled_date + timedelta(hours=2)).time().strftime('%H:%M') if visit.scheduled_date else '17:00',
+            'location': location_str,
+            'attendees': visit.assigned_to_full_name or 'TBD',
+            'status': visit.status.title()
+        })
+    
+    # Get upcoming exhibitions
+    upcoming_exhibitions = Exhibition.objects.filter(
+        start_date__gte=today
+    ).order_by('start_date')[:20]
+    
+    for exhibition in upcoming_exhibitions:
+        calendar_events.append({
+            'title': f'Exhibition - {exhibition.name}',
             'type': 'Exhibition',
-            'start_date': '2024-02-01',
-            'end_date': '2024-02-01',
+            'start_date': exhibition.start_date.strftime('%Y-%m-%d'),
+            'end_date': exhibition.end_date.strftime('%Y-%m-%d'),
             'start_time': '09:00',
             'end_time': '17:00',
-            'location': 'Pragati Maidan, Delhi',
-            'attendees': 'Team A, Setup Crew',
-            'status': 'Scheduled'
-        },
-        {
-            'title': 'Follow-up Call - XYZ Ltd',
+            'location': exhibition.venue,
+            'attendees': 'Team',
+            'status': exhibition.status.title()
+        })
+    
+    # Get visits with follow-up dates
+    follow_up_visits = Visit.objects.filter(
+        next_follow_up_date__isnull=False,
+        next_follow_up_date__date__gte=today
+    ).select_related('customer').order_by('next_follow_up_date')[:20]
+    
+    for visit in follow_up_visits:
+        calendar_events.append({
+            'title': f'Follow-up - {visit.customer.name}',
             'type': 'Follow-up',
-            'start_date': '2024-01-26',
-            'end_date': '2024-01-26',
-            'start_time': '14:00',
-            'end_time': '14:30',
-            'location': 'Phone Call',
-            'attendees': 'Jane Smith',
+            'start_date': visit.next_follow_up_date.date().strftime('%Y-%m-%d'),
+            'end_date': visit.next_follow_up_date.date().strftime('%Y-%m-%d'),
+            'start_time': '10:00',
+            'end_time': '10:30',
+            'location': 'Phone Call / Visit',
+            'attendees': visit.assigned_to_full_name or 'TBD',
             'status': 'Pending'
-        }
-    ]
+        })
+    
+    # Sort by start_date
+    calendar_events.sort(key=lambda x: x['start_date'])
     
     # Calculate statistics
     total_events = len(calendar_events)
-    upcoming_events = len([e for e in calendar_events if e['start_date'] >= timezone.now().date().strftime('%Y-%m-%d')])
-    confirmed_events = len([e for e in calendar_events if e['status'] == 'Confirmed'])
+    upcoming_events = len([e for e in calendar_events if e['start_date'] >= today.strftime('%Y-%m-%d')])
+    confirmed_events = len([e for e in calendar_events if e['status'] in ['Confirmed', 'Scheduled', 'Completed']])
     
     # Group by event type
     event_types = {}
@@ -4180,41 +4325,79 @@ def calendar_integration(request):
 @login_required
 def real_time_notifications(request):
     """Real-time Notifications Dashboard"""
-    # Get recent notifications (placeholder data)
-    notifications = [
-        {
+    notifications = []
+    today = timezone.now().date()
+    tomorrow = today + timedelta(days=1)
+    
+    # Get upcoming visits (tomorrow)
+    upcoming_visits = Visit.objects.filter(
+        scheduled_date__date=tomorrow,
+        status='scheduled'
+    ).select_related('customer')[:10]
+    
+    for visit in upcoming_visits:
+        visit_time = visit.scheduled_date.time().strftime('%I:%M %p')
+        notifications.append({
             'type': 'visit',
             'title': 'New Customer Visit Scheduled',
-            'message': 'Visit scheduled for ABC Corp tomorrow at 10:00 AM',
-            'timestamp': '2024-01-20 15:30',
+            'message': f'Visit scheduled for {visit.customer.name} tomorrow at {visit_time}',
+            'timestamp': visit.created_at.strftime('%Y-%m-%d %H:%M'),
             'priority': 'high',
             'read': False
-        },
-        {
+        })
+    
+    # Get overdue follow-ups
+    overdue_followups = Visit.objects.filter(
+        next_follow_up_date__date__lt=today,
+        status__in=['completed', 'in_progress']
+    ).select_related('customer')[:10]
+    
+    for visit in overdue_followups:
+        days_overdue = (today - visit.next_follow_up_date.date()).days
+        notifications.append({
             'type': 'follow_up',
             'title': 'Follow-up Overdue',
-            'message': 'Follow-up for XYZ Ltd is 3 days overdue',
-            'timestamp': '2024-01-20 14:15',
+            'message': f'Follow-up for {visit.customer.name} is {days_overdue} day(s) overdue',
+            'timestamp': visit.updated_at.strftime('%Y-%m-%d %H:%M') if hasattr(visit, 'updated_at') else visit.created_at.strftime('%Y-%m-%d %H:%M'),
             'priority': 'medium',
             'read': False
-        },
-        {
+        })
+    
+    # Get upcoming exhibitions (within 7 days)
+    upcoming_exhibitions = Exhibition.objects.filter(
+        start_date__lte=today + timedelta(days=7),
+        start_date__gte=today,
+        status__in=['confirmed', 'planning']
+    )[:10]
+    
+    for exhibition in upcoming_exhibitions:
+        days_until = (exhibition.start_date - today).days
+        notifications.append({
             'type': 'exhibition',
             'title': 'Exhibition Reminder',
-            'message': 'Auto Expo 2024 starts in 2 days',
-            'timestamp': '2024-01-20 12:00',
+            'message': f'{exhibition.name} starts in {days_until} day(s)',
+            'timestamp': exhibition.created_at.strftime('%Y-%m-%d %H:%M') if hasattr(exhibition, 'created_at') else timezone.now().strftime('%Y-%m-%d %H:%M'),
             'priority': 'low',
-            'read': True
-        },
-        {
+            'read': False
+        })
+    
+    # Get expenses pending approval
+    pending_expenses = Expense.objects.filter(
+        status='prepared'
+    ).select_related('user')[:10]
+    
+    for expense in pending_expenses:
+        notifications.append({
             'type': 'expense',
             'title': 'Expense Approval Required',
-            'message': 'Expense claim of ₹5,000 requires your approval',
-            'timestamp': '2024-01-20 11:45',
+            'message': f'Expense claim of ₹{expense.amount} from {expense.expense_full_name or "User"} requires approval',
+            'timestamp': expense.created_at.strftime('%Y-%m-%d %H:%M'),
             'priority': 'medium',
             'read': False
-        }
-    ]
+        })
+    
+    # Sort by timestamp (most recent first)
+    notifications.sort(key=lambda x: x['timestamp'], reverse=True)
     
     # Calculate statistics
     total_notifications = len(notifications)
@@ -4509,21 +4692,22 @@ def export_reports(request):
 @login_required
 def user_profile(request):
     """User Profile View"""
-    user = request.user
+    user_info = get_user_info_dict(request)
+    username = user_info['username']
     
-    # Get user statistics
+    # Get user statistics (using RBAC username)
     user_stats = {
-        'total_customers': Customer.objects.filter(created_by=user).count(),
-        'total_leads': Lead.objects.filter(assigned_to=user).count(),
-        'total_visits': Visit.objects.filter(assigned_to=user).count(),
-        'total_expenses': Expense.objects.filter(user=user).count(),
+        'total_customers': Customer.objects.filter(created_by_username=username).count(),
+        'total_leads': Lead.objects.filter(assigned_to_username=username).count(),
+        'total_visits': Visit.objects.filter(assigned_to_username=username).count(),
+        'total_expenses': Expense.objects.filter(expense_username=username).count(),
     }
     
     # Get recent activities
     recent_activities = []
     
     # Recent visits
-    recent_visits = Visit.objects.filter(assigned_to=user).select_related('customer').order_by('-created_at')[:5]
+    recent_visits = Visit.objects.filter(assigned_to_username=username).select_related('customer').order_by('-created_at')[:5]
     for visit in recent_visits:
         recent_activities.append({
             'type': 'visit',
@@ -4536,7 +4720,7 @@ def user_profile(request):
         })
     
     # Recent expenses
-    recent_expenses = Expense.objects.filter(user=user).order_by('-created_at')[:5]
+    recent_expenses = Expense.objects.filter(expense_username=username).order_by('-created_at')[:5]
     for expense in recent_expenses:
         recent_activities.append({
             'type': 'expense',
@@ -4838,23 +5022,54 @@ def region_targets(request):
             count=models.Count('id')
         )
         
-        region_data['total_sales'] = region_quotations['total_amount'] or 0
+        region_data['total_sales'] = region_quotations['total_amount'] or Decimal('0')
         region_data['quotation_count'] = region_quotations['count'] or 0
         
-        # Add machine-wise breakdown (placeholder - customize based on your needs)
-        region_data['machines'] = [
-            {'name': 'Machine Type A', 'sales': 150000, 'count': 5},
-            {'name': 'Machine Type B', 'sales': 200000, 'count': 3},
-            {'name': 'Machine Type C', 'sales': 100000, 'count': 7},
-        ]
+        # Calculate region performance percentage
+        region_target = region.monthly_target or Decimal('0')
+        region_performance = (region_data['total_sales'] / region_target * 100) if region_target > 0 else 0
+        region_data['performance_percentage'] = round(region_performance, 1)
         
+        # Get machine/product breakdown from URS if available
+        # Group by URS project_name or use quotation description
+        region_urs = URS.objects.filter(customer__region=region).values('project_name').annotate(
+            sales=models.Sum('quotation__total_amount'),
+            count=models.Count('quotation')
+        ).order_by('-sales')[:10]
+        
+        machines = []
+        for urs_item in region_urs:
+            sales_amount = float(urs_item['sales'] or 0)
+            count = urs_item['count']
+            avg_price = sales_amount / count if count > 0 else 0
+            
+            machines.append({
+                'name': urs_item['project_name'] or 'Other',
+                'sales': sales_amount,
+                'count': count,
+                'avg_price': avg_price,
+                'target': 0,  # Would need machine-specific targets
+                'performance': 0  # Would need machine-specific targets
+            })
+        
+        # If no URS data, use quotation count as fallback
+        if not machines and region_data['quotation_count'] > 0:
+            machines.append({
+                'name': 'Quotations',
+                'sales': float(region_data['total_sales']),
+                'count': region_data['quotation_count'],
+                'target': 0,
+                'performance': 0
+            })
+        
+        region_data['machines'] = machines
         machine_sales.append(region_data)
     
-    # Get overall targets vs achievements
-    total_target = 10000000  # Placeholder - you'll need to set actual targets
+    # Get overall targets vs achievements from region monthly targets
+    total_target = sum(region.monthly_target or Decimal('0') for region in regions)
     total_achieved = Quotation.objects.aggregate(
         total=models.Sum('total_amount')
-    )['total'] or 0
+    )['total'] or Decimal('0')
     
     achievement_percentage = (total_achieved / total_target * 100) if total_target > 0 else 0
     
@@ -5663,6 +5878,34 @@ def mis_dashboard(request):
     recent_projects = ProjectToday.objects.order_by('-created_at')[:5]
     recent_orders = OrderExpectedNextMonth.objects.order_by('-created_at')[:5]
     
+    # Build saved sheets list from various MIS models
+    saved_sheets = []
+    
+    # Add recent inquiry logs
+    recent_inquiries = InquiryLog.objects.order_by('-created_at')[:5]
+    for inquiry in recent_inquiries:
+        saved_sheets.append({
+            'type': 'Inquiry Log',
+            'title': f'{inquiry.company_name} - {inquiry.created_at.strftime("%Y")}',
+            'status': 'saved',
+            'modified_at': inquiry.created_at,
+            'edit_url': f'/marketing/inquiry-log/{inquiry.id}/edit/' if hasattr(inquiry, 'id') else '#',
+        })
+    
+    # Add recent follow-up statuses
+    for follow_up in recent_follow_ups:
+        saved_sheets.append({
+            'type': 'Follow-Up Status',
+            'title': f'{follow_up.company_group} Follow-up',
+            'status': 'saved',
+            'modified_at': follow_up.created_at,
+            'edit_url': f'/marketing/follow-up-status/{follow_up.sr_no}/edit/' if hasattr(follow_up, 'sr_no') else '#',
+        })
+    
+    # Sort by modified_at (most recent first)
+    saved_sheets.sort(key=lambda x: x['modified_at'], reverse=True)
+    saved_sheets = saved_sheets[:10]  # Limit to 10 most recent
+    
     context = {
         'follow_up_count': follow_up_count,
         'project_today_count': project_today_count,
@@ -5675,11 +5918,9 @@ def mis_dashboard(request):
         'recent_follow_ups': recent_follow_ups,
         'recent_projects': recent_projects,
         'recent_orders': recent_orders,
+        'saved_sheets': saved_sheets,
     }
     
-    # Get user info from HRMS session
-# Removed - user_info not needed here
-
     return render(request, 'marketing/mis_dashboard.html', context)
 
 
@@ -5872,17 +6113,20 @@ def mis_sheets(request):
 def od_plan_dashboard(request):
     """OD Plan Dashboard - Main overview of all OD Plan activities"""
     # Get statistics for each sheet
-    visit_reports_count = ODPlanVisitReport.objects.filter(created_by=request.user).count()
-    remarks_count = ODPlanRemarks.objects.filter(created_by=request.user).count()
+    user_info = get_user_info_dict(request)
+    username = user_info['username']
+    
+    visit_reports_count = ODPlanVisitReport.objects.filter(created_by_username=username).count()
+    remarks_count = ODPlanRemarks.objects.filter(created_by_username=username).count()
     
     # Recent activities
-    recent_reports = ODPlanVisitReport.objects.filter(created_by=request.user).order_by('-created_at')[:5]
-    recent_remarks = ODPlanRemarks.objects.filter(created_by=request.user).order_by('-created_at')[:3]
+    recent_reports = ODPlanVisitReport.objects.filter(created_by_username=username).order_by('-created_at')[:5]
+    recent_remarks = ODPlanRemarks.objects.filter(created_by_username=username).order_by('-created_at')[:3]
     
     # Status breakdown
-    planned_visits = ODPlanVisitReport.objects.filter(created_by=request.user, visit_status='planned').count()
-    completed_visits = ODPlanVisitReport.objects.filter(created_by=request.user, visit_status='completed').count()
-    cancelled_visits = ODPlanVisitReport.objects.filter(created_by=request.user, visit_status='cancelled').count()
+    planned_visits = ODPlanVisitReport.objects.filter(created_by_username=username, visit_status='planned').count()
+    completed_visits = ODPlanVisitReport.objects.filter(created_by_username=username, visit_status='completed').count()
+    cancelled_visits = ODPlanVisitReport.objects.filter(created_by_username=username, visit_status='cancelled').count()
     
     context = {
         'visit_reports_count': visit_reports_count,
@@ -5923,7 +6167,9 @@ def od_plan_visit_report_list(request):
     region_filter = request.GET.get('region', '')
     status_filter = request.GET.get('status', '')
     
-    reports = ODPlanVisitReport.objects.filter(created_by=request.user)
+    user_info = get_user_info_dict(request)
+    username = user_info['username']
+    reports = ODPlanVisitReport.objects.filter(created_by_username=username)
     
     if search_query:
         reports = reports.filter(
@@ -6083,7 +6329,9 @@ def od_plan_visit_report_delete(request, pk):
 @login_required
 def od_plan_remarks_list(request):
     """List all OD Plan Remarks"""
-    remarks = ODPlanRemarks.objects.filter(created_by=request.user)
+    user_info = get_user_info_dict(request)
+    username = user_info['username']
+    remarks = ODPlanRemarks.objects.filter(created_by_username=username)
     
     # Pagination
     paginator = Paginator(remarks, 20)
@@ -6172,11 +6420,14 @@ def od_plan_remarks_delete(request, pk):
 @login_required
 def po_details_dashboard(request):
     """PO Details Dashboard - Main overview of all PO Details"""
+    user_info = get_user_info_dict(request)
+    username = user_info['username']
+    
     # Get statistics
-    po_details_count = PODetails.objects.filter(created_by=request.user).count()
+    po_details_count = PODetails.objects.filter(created_by_username=username).count()
     
     # Recent activities
-    recent_po_details = PODetails.objects.filter(created_by=request.user).order_by('-created_at')[:5]
+    recent_po_details = PODetails.objects.filter(created_by_username=username).order_by('-created_at')[:5]
     
     context = {
         'po_details_count': po_details_count,
@@ -6203,7 +6454,9 @@ def po_details_list(request):
     search_query = request.GET.get('search', '')
     customer_filter = request.GET.get('customer', '')
     
-    po_details = PODetails.objects.filter(created_by=request.user)
+    user_info = get_user_info_dict(request)
+    username = user_info['username']
+    po_details = PODetails.objects.filter(created_by_username=username)
     
     if search_query:
         po_details = po_details.filter(
@@ -6364,7 +6617,9 @@ def po_status_list(request):
     search_query = request.GET.get('search', '')
     company_filter = request.GET.get('company', '')
     
-    po_statuses = POStatus.objects.filter(created_by=request.user)
+    user_info = get_user_info_dict(request)
+    username = user_info['username']
+    po_statuses = POStatus.objects.filter(created_by_username=username)
     
     if search_query:
         po_statuses = po_statuses.filter(
@@ -6565,11 +6820,14 @@ def po_status_delete(request, pk):
 def po_status_dashboard(request):
     """PO Status Dashboard - Main overview of all PO Status"""
 
+    user_info = get_user_info_dict(request)
+    username = user_info['username']
+    
     # Get statistics
-    po_status_count = POStatus.objects.filter(created_by=request.user).count()
+    po_status_count = POStatus.objects.filter(created_by_username=username).count()
     
     # Recent activities
-    recent_po_status = POStatus.objects.filter(created_by=request.user).order_by('-created_at')[:5]
+    recent_po_status = POStatus.objects.filter(created_by_username=username).order_by('-created_at')[:5]
     
     context = {
         'po_status_count': po_status_count,
@@ -6593,11 +6851,14 @@ def po_status_sheets(request):
 @login_required
 def work_order_format_dashboard(request):
     """Work Order Format Dashboard - Main overview of all Work Orders"""
+    user_info = get_user_info_dict(request)
+    username = user_info['username']
+    
     # Get statistics
-    work_order_count = WorkOrderFormat.objects.filter(created_by=request.user).count()
+    work_order_count = WorkOrderFormat.objects.filter(created_by_username=username).count()
     
     # Recent activities
-    recent_work_orders = WorkOrderFormat.objects.filter(created_by=request.user).order_by('-created_at')[:5]
+    recent_work_orders = WorkOrderFormat.objects.filter(created_by_username=username).order_by('-created_at')[:5]
     
     context = {
         'work_order_count': work_order_count,
@@ -6628,7 +6889,9 @@ def work_order_format_list(request):
     search_query = request.GET.get('search', '')
     equipment_filter = request.GET.get('equipment', '')
     
-    work_orders = WorkOrderFormat.objects.filter(created_by=request.user)
+    user_info = get_user_info_dict(request)
+    username = user_info['username']
+    work_orders = WorkOrderFormat.objects.filter(created_by_username=username)
     
     if search_query:
         work_orders = work_orders.filter(
@@ -6838,14 +7101,17 @@ def work_order_format_delete(request, pk):
 @login_required
 def wsr_dashboard(request):
     """WSR Dashboard - Main overview of all Weekly Status Reports"""
+    user_info = get_user_info_dict(request)
+    username = user_info['username']
+    
     # Get statistics
-    weekly_summary_count = WeeklySummary.objects.filter(created_by=request.user).count()
-    hot_orders_count = HotOrders.objects.filter(created_by=request.user).count()
-    calling_details_count = CallingDetails.objects.filter(created_by=request.user).count()
-    dsr_count = DSR.objects.filter(created_by=request.user).count()
+    weekly_summary_count = WeeklySummary.objects.filter(created_by_username=username).count()
+    hot_orders_count = HotOrders.objects.filter(created_by_username=username).count()
+    calling_details_count = CallingDetails.objects.filter(created_by_username=username).count()
+    dsr_count = DSR.objects.filter(created_by_username=username).count()
     
     # Recent activities
-    recent_weekly_summaries = WeeklySummary.objects.filter(created_by=request.user).order_by('-created_at')[:5]
+    recent_weekly_summaries = WeeklySummary.objects.filter(created_by_username=username).order_by('-created_at')[:5]
     
     context = {
         'weekly_summary_count': weekly_summary_count,
@@ -6881,7 +7147,91 @@ def sales_pipeline_details(request):
 @login_required
 def regional_performance_details(request):
     """Regional Performance Details View"""
-    return render(request, 'marketing/regional_performance_details.html')
+    from datetime import timedelta
+    
+    today = timezone.now().date()
+    first_day_of_month = today.replace(day=1)
+    
+    # Get all regions
+    regions = Region.objects.all().order_by('name')
+    
+    # Calculate overall metrics
+    total_revenue = PurchaseOrder.objects.filter(
+        created_at__date__gte=first_day_of_month
+    ).aggregate(total=Sum('total_amount'))['total'] or Decimal('0')
+    
+    total_customers = Customer.objects.count()
+    new_customers_this_month = Customer.objects.filter(
+        created_at__date__gte=first_day_of_month
+    ).count()
+    
+    # Calculate regional performance
+    regional_data = []
+    total_target = Decimal('0')
+    total_achieved = Decimal('0')
+    
+    for region in regions:
+        region_target = region.monthly_target or Decimal('0')
+        total_target += region_target
+        
+        # Get sales for this region this month
+        region_sales = PurchaseOrder.objects.filter(
+            customer__region=region,
+            created_at__date__gte=first_day_of_month
+        ).aggregate(total=Sum('total_amount'))['total'] or Decimal('0')
+        total_achieved += region_sales
+        
+        # Calculate achievement percentage
+        achievement_pct = (region_sales / region_target * 100) if region_target > 0 else 0
+        
+        # Get customer count for this region
+        region_customers = Customer.objects.filter(region=region).count()
+        
+        # Determine status
+        if achievement_pct >= 90:
+            status = 'Outstanding'
+            status_class = 'bg-green-100 text-green-800'
+        elif achievement_pct >= 80:
+            status = 'On Track'
+            status_class = 'bg-green-100 text-green-800'
+        elif achievement_pct >= 60:
+            status = 'Good'
+            status_class = 'bg-yellow-100 text-yellow-800'
+        else:
+            status = 'Needs Attention'
+            status_class = 'bg-red-100 text-red-800'
+        
+        regional_data.append({
+            'region': region,
+            'target': region_target,
+            'achieved': region_sales,
+            'achievement_pct': round(achievement_pct, 1),
+            'customers': region_customers,
+            'team_size': 0,  # Would need Employee/Team model
+            'status': status,
+            'status_class': status_class,
+        })
+    
+    # Find best performing region
+    best_region = max(regional_data, key=lambda x: x['achievement_pct']) if regional_data else None
+    
+    # Calculate average achievement
+    avg_achievement = sum(r['achievement_pct'] for r in regional_data) / len(regional_data) if regional_data else 0
+    
+    # Calculate overall achievement percentage
+    overall_achievement = (total_achieved / total_target * 100) if total_target > 0 else 0
+    
+    context = {
+        'total_revenue': total_revenue,
+        'best_region': best_region,
+        'avg_achievement': round(avg_achievement, 1),
+        'total_customers': total_customers,
+        'new_customers_this_month': new_customers_this_month,
+        'regional_data': regional_data,
+        'overall_achievement': round(overall_achievement, 1),
+    }
+    
+    return render(request, 'marketing/regional_performance_details.html', context)
 
 @login_required
 def recent_activities_details(request):

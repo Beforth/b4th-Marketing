@@ -68,7 +68,7 @@
                     </div>
                     <div class="text-center sm:text-right">
                         <p class="text-xs sm:text-sm text-gray-600">Region Performance</p>
-                        <p class="text-lg sm:text-xl font-bold text-gray-900">85%</p>
+                        <p class="text-lg sm:text-xl font-bold text-gray-900">{{ region_data.performance_percentage|default:0|floatformat:1 }}%</p>
                     </div>
                 </div>
             </div>
@@ -85,7 +85,7 @@
                         <p class="text-base sm:text-lg font-bold text-green-600">₹{{ machine.sales|floatformat:0 }}</p>
                         <div class="mt-2">
                             <div class="w-full bg-gray-200 rounded-full h-1">
-                                <div class="bg-blue-600 h-1 rounded-full" style="width: 75%"></div>
+                                <div class="bg-blue-600 h-1 rounded-full" style="width: {% if machine.target > 0 %}{{ machine.performance }}{% else %}0{% endif %}%"></div>
                             </div>
                         </div>
                     </div>
@@ -108,12 +108,15 @@
                             {% for machine in region_data.machines %}
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-900">{{ machine.name }}</td>
-                                <td class="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900">₹{{ machine.sales|add:50000|floatformat:0 }}</td>
+                                <td class="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900">₹{{ machine.target|default:0|floatformat:0 }}</td>
                                 <td class="px-3 sm:px-4 py-2 text-xs sm:text-sm text-green-600">₹{{ machine.sales|floatformat:0 }}</td>
                                 <td class="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-900">{{ machine.count }}</td>
                                 <td class="px-3 sm:px-4 py-2 text-xs sm:text-sm">
-                                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                                        75%
+                                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full 
+                                        {% if machine.performance >= 80 %}bg-green-100 text-green-800
+                                        {% elif machine.performance >= 50 %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {% if machine.target > 0 %}{{ machine.performance|floatformat:0 }}%{% else %}N/A{% endif %}
                                     </span>
                                 </td>
                             </tr>
@@ -157,63 +160,38 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3">
-                                        <i data-lucide="cpu" class="w-3 h-3 sm:w-4 sm:h-4 text-blue-600"></i>
+                        {% for region_data in machine_sales %}
+                            {% for machine in region_data.machines|slice:":1" %}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3">
+                                            <i data-lucide="cpu" class="w-3 h-3 sm:w-4 sm:h-4 text-blue-600"></i>
+                                        </div>
+                                        <div class="text-xs sm:text-sm font-medium text-gray-900">{{ machine.name }}</div>
                                     </div>
-                                    <div class="text-xs sm:text-sm font-medium text-gray-900">Machine Type A</div>
-                                </div>
-                            </td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">₹450,000</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">15</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">₹30,000</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">North Region</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                                    90%
-                                </span>
+                                </td>
+                                <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">₹{{ machine.sales|floatformat:0 }}</td>
+                                <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">{{ machine.count }}</td>
+                                <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">₹{{ machine.avg_price|default:0|floatformat:0 }}</td>
+                                <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">{{ region_data.region.name }}</td>
+                                <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full 
+                                        {% if machine.performance >= 80 %}bg-green-100 text-green-800
+                                        {% elif machine.performance >= 50 %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {% if machine.target > 0 %}{{ machine.performance|floatformat:0 }}%{% else %}N/A{% endif %}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm text-gray-500">
+                                No machine/product data available
                             </td>
                         </tr>
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-green-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3">
-                                        <i data-lucide="settings" class="w-3 h-3 sm:w-4 sm:h-4 text-green-600"></i>
-                                    </div>
-                                    <div class="text-xs sm:text-sm font-medium text-gray-900">Machine Type B</div>
-                                </div>
-                            </td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">₹600,000</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">9</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">₹66,667</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">South Region</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
-                                    75%
-                                </span>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-2 sm:mr-3">
-                                        <i data-lucide="zap" class="w-3 h-3 sm:w-4 sm:h-4 text-purple-600"></i>
-                                    </div>
-                                    <div class="text-xs sm:text-sm font-medium text-gray-900">Machine Type C</div>
-                                </div>
-                            </td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">₹700,000</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">21</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">₹33,333</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">East Region</td>
-                            <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                                <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                                    85%
-                                </span>
-                            </td>
-                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -227,25 +205,29 @@
         </div>
         <div class="p-3 sm:p-6">
             <div class="space-y-3 sm:space-y-4">
+                {% if achievement_percentage < 80 %}
                 <div class="flex items-start p-3 sm:p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                     <i data-lucide="alert-triangle" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 mr-2 sm:mr-3 mt-0.5"></i>
                     <div>
-                        <h4 class="text-xs sm:text-sm font-medium text-yellow-800">Machine Type B Performance</h4>
-                        <p class="text-xs sm:text-sm text-yellow-700">Consider increasing marketing efforts in South Region to improve Machine Type B sales performance.</p>
+                        <h4 class="text-xs sm:text-sm font-medium text-yellow-800">Performance Below Target</h4>
+                        <p class="text-xs sm:text-sm text-yellow-700">Overall performance is at {{ achievement_percentage|floatformat:1 }}%. Consider reviewing and adjusting strategies.</p>
                     </div>
                 </div>
+                {% endif %}
+                {% if achievement_percentage >= 80 %}
                 <div class="flex items-start p-3 sm:p-4 bg-green-50 border border-green-200 rounded-lg">
                     <i data-lucide="check-circle" class="w-4 h-4 sm:w-5 sm:h-5 text-green-600 mr-2 sm:mr-3 mt-0.5"></i>
                     <div>
-                        <h4 class="text-xs sm:text-sm font-medium text-green-800">Machine Type A Success</h4>
-                        <p class="text-xs sm:text-sm text-green-700">Machine Type A is performing exceptionally well in North Region. Consider expanding to other regions.</p>
+                        <h4 class="text-xs sm:text-sm font-medium text-green-800">Target Achievement</h4>
+                        <p class="text-xs sm:text-sm text-green-700">Overall performance is at {{ achievement_percentage|floatformat:1 }}%. Great work!</p>
                     </div>
                 </div>
+                {% endif %}
                 <div class="flex items-start p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <i data-lucide="info" class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 mr-2 sm:mr-3 mt-0.5"></i>
                     <div>
-                        <h4 class="text-xs sm:text-sm font-medium text-blue-800">Target Adjustment</h4>
-                        <p class="text-xs sm:text-sm text-blue-700">Overall performance is at {{ achievement_percentage|floatformat:1 }}%. Review and adjust targets for next quarter.</p>
+                        <h4 class="text-xs sm:text-sm font-medium text-blue-800">Target Review</h4>
+                        <p class="text-xs sm:text-sm text-blue-700">Review and adjust targets for next quarter based on current performance of {{ achievement_percentage|floatformat:1 }}%.</p>
                     </div>
                 </div>
             </div>

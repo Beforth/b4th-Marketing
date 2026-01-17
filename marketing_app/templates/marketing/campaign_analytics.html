@@ -26,7 +26,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs font-medium text-gray-600">Total Campaigns</p>
-                    <p class="text-lg sm:text-xl font-bold text-gray-900">24</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">{{ total_campaigns|default:0 }}</p>
                     <p class="text-xs text-gray-500 mt-1">All time</p>
                 </div>
                 <div class="h-8 w-8 sm:h-10 sm:w-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -40,7 +40,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs font-medium text-gray-600">Active Campaigns</p>
-                    <p class="text-lg sm:text-xl font-bold text-gray-900">8</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">{{ active_campaigns|default:0 }}</p>
                     <p class="text-xs text-gray-500 mt-1">Running now</p>
                 </div>
                 <div class="h-8 w-8 sm:h-10 sm:w-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -54,7 +54,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs font-medium text-gray-600">Total Leads</p>
-                    <p class="text-lg sm:text-xl font-bold text-gray-900">1,247</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">{{ total_leads|default:0 }}</p>
                     <p class="text-xs text-gray-500 mt-1">Generated</p>
                 </div>
                 <div class="h-8 w-8 sm:h-10 sm:w-10 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -68,7 +68,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs font-medium text-gray-600">Conversion Rate</p>
-                    <p class="text-lg sm:text-xl font-bold text-gray-900">23.4%</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">{{ conversion_rate|floatformat:1|default:"0.0" }}%</p>
                     <p class="text-xs text-gray-500 mt-1">Success rate</p>
                 </div>
                 <div class="h-8 w-8 sm:h-10 sm:w-10 bg-orange-100 rounded-lg flex items-center justify-center">
@@ -118,75 +118,54 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
+                    {% for campaign in campaigns|slice:":10" %}
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                             <div>
-                                <div class="text-xs sm:text-sm font-medium text-gray-900">Summer Product Launch</div>
-                                <div class="text-xs sm:text-sm text-gray-500">Started 2 weeks ago</div>
+                                <div class="text-xs sm:text-sm font-medium text-gray-900">{{ campaign.name }}</div>
+                                <div class="text-xs sm:text-sm text-gray-500">
+                                    {% if campaign.start_date %}
+                                        Started {{ campaign.start_date|timesince }} ago
+                                    {% else %}
+                                        No start date
+                                    {% endif %}
+                                </div>
                             </div>
                         </td>
                         <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                Email
+                                {{ campaign.get_campaign_type_display|default:"N/A" }}
                             </span>
                         </td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">342</td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">28.5%</td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Active
-                            </span>
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
+                            {{ campaign.leads.count|default:0 }}
                         </td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
-                            <button class="text-blue-600 hover:text-blue-900">View Details</button>
-                        </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <div>
-                                <div class="text-xs sm:text-sm font-medium text-gray-900">Social Media Campaign</div>
-                                <div class="text-xs sm:text-sm text-gray-500">Started 1 month ago</div>
-                            </div>
+                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">
+                            {% if campaign.leads.count > 0 %}
+                                {% widthratio campaign.leads.filter.status='converted'|length campaign.leads.count 100 %}%
+                            {% else %}
+                                0%
+                            {% endif %}
                         </td>
                         <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                Social
-                            </span>
-                        </td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">189</td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">22.1%</td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Active
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium 
+                                {% if campaign.status == 'active' %}bg-green-100 text-green-800
+                                {% elif campaign.status == 'completed' %}bg-gray-100 text-gray-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ campaign.get_status_display }}
                             </span>
                         </td>
                         <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
-                            <button class="text-blue-600 hover:text-blue-900">View Details</button>
+                            <a href="{% url 'marketing:campaign_detail' campaign.id %}" class="text-blue-600 hover:text-blue-900">View Details</a>
                         </td>
                     </tr>
-                    <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <div>
-                                <div class="text-xs sm:text-sm font-medium text-gray-900">Trade Show Promotion</div>
-                                <div class="text-xs sm:text-sm text-gray-500">Completed 2 weeks ago</div>
-                            </div>
-                        </td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                                Event
-                            </span>
-                        </td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">156</td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900">31.2%</td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                Completed
-                            </span>
-                        </td>
-                        <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right text-xs sm:text-sm font-medium">
-                            <button class="text-blue-600 hover:text-blue-900">View Details</button>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm text-gray-500">
+                            No campaigns found
                         </td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

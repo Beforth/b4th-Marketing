@@ -665,6 +665,17 @@ class PurchaseOrder(models.Model):
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, blank=True)
     payment_terms_declared = models.TextField(blank=True, help_text="Detailed payment terms as declared by customer")
     special_requirements = models.TextField(blank=True)
+    # HRMS User Information for verified_by
+    verified_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    verified_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    verified_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    verified_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # HRMS User Information for approved_by
+    approved_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    approved_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    approved_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    approved_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy fields kept for backward compatibility
     verified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_pos')
     approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_pos')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -1063,7 +1074,13 @@ class QuotationRevision(models.Model):
     previous_amount = models.DecimalField(max_digits=12, decimal_places=2)
     new_amount = models.DecimalField(max_digits=12, decimal_places=2)
     changes_summary = models.TextField()
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    # HRMS User Information (replaces ForeignKey to User)
+    created_by_user_id = models.IntegerField(null=True, blank=True, help_text="HRMS User ID")
+    created_by_username = models.CharField(max_length=150, blank=True, help_text="HRMS Username")
+    created_by_email = models.EmailField(blank=True, help_text="HRMS User Email")
+    created_by_full_name = models.CharField(max_length=255, blank=True, help_text="HRMS User Full Name")
+    # Legacy field kept for backward compatibility
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     negotiation = models.ForeignKey('Negotiation', on_delete=models.SET_NULL, null=True, blank=True, related_name='quotation_revisions')
     
     class Meta:
