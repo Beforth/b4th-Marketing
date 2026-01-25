@@ -105,10 +105,26 @@
                             <div class="text-xs sm:text-sm text-red-600">{{ region.lapsed_customers }}</div>
                         </td>
                         <td class="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium">
-                            <a href="{% url 'marketing:customer_list' %}?region={{ region.id }}" 
-                               class="text-blue-600 hover:text-blue-700 mr-2 sm:mr-3">View</a>
-                            <a href="{% url 'marketing:region_management' %}" 
-                               class="text-green-600 hover:text-green-700">Manage</a>
+                            <div class="flex items-center justify-start gap-1 sm:gap-2">
+                                <div class="relative group">
+                                    <a href="{% url 'marketing:customer_list' %}?region={{ region.id }}" 
+                                       class="text-blue-600 hover:text-blue-900">
+                                        <i data-lucide="eye" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                                    </a>
+                                    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-gray-900 bg-white border border-gray-200 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                                        View
+                                    </div>
+                                </div>
+                                <div class="relative group">
+                                    <a href="{% url 'marketing:region_management' %}" 
+                                       class="text-gray-600 hover:text-gray-900">
+                                        <i data-lucide="settings" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                                    </a>
+                                    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs font-medium text-gray-900 bg-white border border-gray-200 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+                                        Manage
+                                    </div>
+                                </div>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
