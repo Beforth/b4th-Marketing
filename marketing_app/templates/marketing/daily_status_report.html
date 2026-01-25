@@ -98,11 +98,11 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center mr-3">
-                                    <span class="text-sm font-medium text-brand-600">{{ summary.user.first_name|first|upper }}{{ summary.user.last_name|first|upper }}</span>
+                                    <span class="text-sm font-medium text-brand-600">{{ summary.username|first|upper }}</span>
                                 </div>
                                 <div>
-                                    <div class="text-sm font-medium text-gray-900">{{ summary.user.get_full_name|default:summary.user.username }}</div>
-                                    <div class="text-sm text-gray-500">{{ summary.user.email }}</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ summary.username }}</div>
+                                    <div class="text-sm text-gray-500">User</div>
                                 </div>
                             </div>
                         </td>
@@ -245,11 +245,11 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <div class="text-sm font-medium text-gray-900">{{ visit.customer.name }}</div>
-                            <div class="text-sm text-gray-500">{{ visit.purpose|title }} - {{ visit.visited_by.get_full_name|default:visit.visited_by.username }}</div>
+                            <div class="text-sm text-gray-500">{{ visit.visit_type|title }} - {{ visit.assigned_to_username|default:"Unassigned" }}</div>
                         </div>
                         <div class="text-right">
-                            <div class="text-sm text-gray-900">{{ visit.visit_time|time:"H:i" }}</div>
-                            <div class="text-xs text-gray-500">{{ visit.visit_date|date:"M d" }}</div>
+                            <div class="text-sm text-gray-900">{{ visit.scheduled_date|time:"H:i" }}</div>
+                            <div class="text-xs text-gray-500">{{ visit.scheduled_date|date:"M d" }}</div>
                         </div>
                     </div>
                 </div>
@@ -282,11 +282,11 @@
                 <div class="px-6 py-4 border-b border-gray-100 hover:bg-gray-50">
                     <div class="flex items-center justify-between">
                         <div>
-                            <div class="text-sm font-medium text-gray-900">{{ lead.customer.name }}</div>
-                            <div class="text-sm text-gray-500">{{ lead.source|title }} - {{ lead.created_by.get_full_name|default:lead.created_by.username }}</div>
+                            <div class="text-sm font-medium text-gray-900">{{ lead.full_name }}</div>
+                            <div class="text-sm text-gray-500">{{ lead.source|title }} - {{ lead.company|default:"No company" }}</div>
                         </div>
                         <div class="text-right">
-                            <div class="text-sm text-gray-900">₹{{ lead.potential_value|default:"0" }}</div>
+                            <div class="text-sm text-gray-900">{{ lead.email }}</div>
                             <div class="text-xs text-gray-500">{{ lead.created_at|time:"H:i" }}</div>
                         </div>
                     </div>
@@ -329,7 +329,7 @@
                 <div class="text-sm text-gray-600">New Leads</div>
                 <div class="text-xs text-gray-500 mt-1">
                     {% if today_leads.count > 0 %}
-                        Conversion rate: {{ today_leads.count|div:today_visits.count|mul:100|floatformat:1 }}%
+                        Generated today
                     {% else %}
                         No leads today
                     {% endif %}
