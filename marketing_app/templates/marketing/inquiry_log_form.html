@@ -139,7 +139,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <div>
                                 <label for="quote_number" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
-                                    Quote No.
+                                    Quote No. <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" id="quote_number" name="quote_number"
                                        value="{% if object %}{{ object.quote_number }}{% endif %}"

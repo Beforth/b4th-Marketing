@@ -1391,8 +1391,8 @@ def customer_detail(request, customer_id):
     """Customer Detail View with Locations and History"""
     customer = get_object_or_404(Customer, id=customer_id)
     
-    # Get customer's leads
-    leads = Lead.objects.filter(customer=customer).order_by('-created_at')
+    # Get customer's leads (filter by email since Lead doesn't have customer FK)
+    leads = Lead.objects.filter(email=customer.email).order_by('-created_at')
     
     # Get customer's visits
     visits = Visit.objects.filter(customer=customer).order_by('-scheduled_date')
