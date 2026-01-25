@@ -362,18 +362,36 @@ function confirmDelete() {
     deleteBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 inline mr-2 animate-spin"></i>Deleting...';
     deleteBtn.disabled = true;
     
-    // Simulate deletion (since no backend changes requested)
-    setTimeout(() => {
-        showToast(`Region "${currentRegionName}" has been deleted successfully!`, 'success');
-        closeDeleteModal();
-        
-        // Reset button
-        deleteBtn.innerHTML = originalText;
-        deleteBtn.disabled = false;
-        
-        // Optionally refresh the page to show updated data
-        // window.location.reload();
-    }, 1500);
+    // Create and submit delete form
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.style.display = 'none';
+    
+    // Add CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    // Add action
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'action';
+    actionInput.value = 'delete';
+    form.appendChild(actionInput);
+    
+    // Add region ID
+    const regionIdInput = document.createElement('input');
+    regionIdInput.type = 'hidden';
+    regionIdInput.name = 'region_id';
+    regionIdInput.value = currentRegionId;
+    form.appendChild(regionIdInput);
+    
+    // Submit form
+    document.body.appendChild(form);
+    form.submit();
 }
 
 // Close modal when clicking outside

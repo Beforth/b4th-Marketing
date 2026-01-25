@@ -290,7 +290,7 @@ def campaign_create(request):
                 created_by_full_name=user_info['full_name'],
             )
             messages.success(request, f'Campaign "{campaign.name}" created successfully!')
-            return redirect('campaign_detail', campaign_id=campaign.id)
+            return redirect('marketing:campaign_detail', campaign_id=campaign.id)
         except Exception as e:
             messages.error(request, f'Error creating campaign: {str(e)}')
     
@@ -1712,20 +1712,20 @@ def daily_status_report(request):
     
     # Get today's activities
     today_visits = Visit.objects.filter(scheduled_date__date=today).select_related('customer', 'assigned_to')
-    today_leads = Lead.objects.filter(created_at__date=today).select_related('customer', 'created_by')
+    today_leads = Lead.objects.filter(created_at__date=today).select_related('assigned_to', 'campaign')
     today_quotations = Quotation.objects.filter(created_at__date=today).select_related('customer', 'created_by')
     
     # Get user-wise summary (using RBAC usernames)
     user_summary = []
     # Get unique usernames from today's activities
     visit_usernames = set(today_visits.values_list('assigned_to_username', flat=True).exclude(assigned_to_username=''))
-    lead_usernames = set(today_leads.values_list('created_by_username', flat=True).exclude(created_by_username=''))
+    lead_usernames = set(today_leads.values_list('assigned_to_username', flat=True).exclude(assigned_to_username=''))
     quotation_usernames = set(today_quotations.values_list('created_by_username', flat=True).exclude(created_by_username=''))
     all_usernames = visit_usernames | lead_usernames | quotation_usernames
     
     for username in all_usernames:
         user_visits = today_visits.filter(assigned_to_username=username).count()
-        user_leads = today_leads.filter(created_by_username=username).count()
+        user_leads = today_leads.filter(assigned_to_username=username).count()
         user_quotations = today_quotations.filter(created_by_username=username).count()
         
         if user_visits > 0 or user_leads > 0 or user_quotations > 0:
@@ -1741,7 +1741,9 @@ def daily_status_report(request):
     regions = Region.objects.all()
     for region in regions:
         region_visits = today_visits.filter(customer__region=region).count()
-        region_leads = today_leads.filter(customer__region=region).count()
+        # For leads, we need to check if they have a company and if that company has a region
+        # Since leads don't directly link to customers, we'll count leads by company name matching customer names
+        region_leads = 0  # We'll need to implement this differently since leads don't have direct region relationship
         region_quotations = today_quotations.filter(customer__region=region).count()
         
         if region_visits > 0 or region_leads > 0 or region_quotations > 0:
@@ -3443,6 +3445,71 @@ def user_edit(request, user_id):
     return render(request, 'marketing/user_form.html', context)
 
 @login_required
+def user_delete(request, user_id):
+    """Delete User"""
+    if request.method == 'POST':
+        try:
+            user = get_user_model().objects.get(id=user_id)
+            username = user.username
+            
+            # Prevent deleting superusers or the current user
+            if user.is_superuser:
+                messages.error(request, 'Cannot delete superuser accounts.')
+                return redirect('marketing:user_management')
+            
+            if user == request.user:
+                messages.error(request, 'You cannot delete your own account.')
+                return redirect('marketing:user_management')
+            
+            # Delete the user
+            user.delete()
+            messages.success(request, f'User "{username}" has been deleted successfully!')
+            
+        except get_user_model().DoesNotExist:
+            messages.error(request, 'User not found.')
+        except Exception as e:
+            messages.error(request, f'Error deleting user: {str(e)}')
+    
+    return redirect('marketing:user_management')
+
+@login_required
+def user_toggle_status(request, user_id):
+    """Toggle User Active Status"""
+    if request.method == 'POST':
+        try:
+            user = get_user_model().objects.get(id=user_id)
+            
+            # Get the activate parameter
+            activate_param = request.POST.get('activate', '')
+            print(f"DEBUG: activate parameter received: '{activate_param}'")  # Debug line
+            
+            # Prevent deactivating superusers or the current user
+            if user.is_superuser and activate_param == 'false':
+                messages.error(request, 'Cannot deactivate superuser accounts.')
+                return redirect('marketing:user_management')
+            
+            if user == request.user and activate_param == 'false':
+                messages.error(request, 'You cannot deactivate your own account.')
+                return redirect('marketing:user_management')
+            
+            # Toggle status
+            activate = activate_param == 'true'
+            print(f"DEBUG: Current user.is_active: {user.is_active}, Setting to: {activate}")  # Debug line
+            user.is_active = activate
+            user.save()
+            
+            status = 'activated' if activate else 'deactivated'
+            messages.success(request, f'User "{user.username}" has been {status} successfully!')
+            
+        except get_user_model().DoesNotExist:
+            messages.error(request, 'User not found.')
+        except Exception as e:
+            messages.error(request, f'Error updating user status: {str(e)}')
+            print(f"DEBUG: Exception occurred: {str(e)}")  # Debug line
+    
+    return redirect('marketing:user_management')
+
+@login_required
 def user_profile(request):
     """User Profile Management"""
     user = request.user
@@ -4525,6 +4592,27 @@ def region_management(request):
     if request.method == 'POST':
         action = request.POST.get('action', 'create')
 
+        if action == 'delete':
+            region_id = request.POST.get('region_id')
+            try:
+                region = get_object_or_404(Region, id=region_id)
+                region_name = region.name
+                
+                # Check if region has customers
+                customer_count = region.customer_set.count()
+                if customer_count > 0:
+                    messages.error(request, f'Cannot delete region "{region_name}" because it has {customer_count} customer(s) assigned. Please reassign customers first.')
+                    return redirect('marketing:region_management')
+                
+                # Delete the region
+                region.delete()
+                messages.success(request, f'Region "{region_name}" has been deleted successfully!')
+                
+            except Exception as e:
+                messages.error(request, f'Error deleting region: {str(e)}')
+            
+            return redirect('marketing:region_management')
+
         if action == 'update':
             region_id = request.POST.get('region_id')
             region = get_object_or_404(Region, id=region_id)
@@ -5046,7 +5134,7 @@ def region_targets(request):
             'machines': []
         }
         
-        # Get sales data for this region
+        # Get sales data for this region from quotations
         region_quotations = Quotation.objects.filter(
             customer__region=region
         ).aggregate(
@@ -5062,34 +5150,45 @@ def region_targets(request):
         region_performance = (region_data['total_sales'] / region_target * 100) if region_target > 0 else 0
         region_data['performance_percentage'] = round(region_performance, 1)
         
-        # Get machine/product breakdown from URS if available
-        # Group by URS project_name or use quotation description
+        # Get project breakdown from URS for this region
         region_urs = URS.objects.filter(customer__region=region).values('project_name').annotate(
-            sales=models.Sum('quotation__total_amount'),
-            count=models.Count('quotation')
-        ).order_by('-sales')[:10]
+            count=models.Count('id')
+        ).order_by('-count')[:10]
         
         machines = []
         for urs_item in region_urs:
-            sales_amount = float(urs_item['sales'] or 0)
+            project_name = urs_item['project_name'] or 'Other'
             count = urs_item['count']
-            avg_price = sales_amount / count if count > 0 else 0
+            
+            # Get quotations for customers with this project type
+            project_quotations = Quotation.objects.filter(
+                customer__region=region,
+                customer__urs__project_name=project_name
+            ).aggregate(
+                total_sales=models.Sum('total_amount'),
+                quotation_count=models.Count('id')
+            )
+            
+            sales_amount = float(project_quotations['total_sales'] or 0)
+            quotation_count = project_quotations['quotation_count'] or 0
+            avg_price = sales_amount / quotation_count if quotation_count > 0 else 0
             
             machines.append({
-                'name': urs_item['project_name'] or 'Other',
+                'name': project_name,
                 'sales': sales_amount,
-                'count': count,
+                'count': quotation_count,
                 'avg_price': avg_price,
                 'target': 0,  # Would need machine-specific targets
                 'performance': 0  # Would need machine-specific targets
             })
         
-        # If no URS data, use quotation count as fallback
+        # If no URS data, use general quotation data as fallback
         if not machines and region_data['quotation_count'] > 0:
             machines.append({
-                'name': 'Quotations',
+                'name': 'General Quotations',
                 'sales': float(region_data['total_sales']),
                 'count': region_data['quotation_count'],
+                'avg_price': float(region_data['total_sales']) / region_data['quotation_count'],
                 'target': 0,
                 'performance': 0
             })
