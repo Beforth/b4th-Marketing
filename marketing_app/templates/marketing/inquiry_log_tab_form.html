@@ -1,7 +1,8 @@
 <!-- Inquiry Log Form for MIS Sheets Tab -->
 <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-    <form method="post" action="#" class="p-6 space-y-6">
+    <form method="post" action="{% url 'marketing:inquiry_log_create' %}" class="p-6 space-y-6" data-form-type="inquiry-log">
         {% csrf_token %}
+        <input type="hidden" name="form_type" value="inquiry-log">
         
         <!-- Header -->
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">

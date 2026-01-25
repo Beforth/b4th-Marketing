@@ -579,14 +579,18 @@ function saveForm(formElement) {
         return false;
     }
     
-    // All fields are filled, proceed with save
-    const formData = new FormData(formElement);
+    // Add form type to form data
     const formType = getCurrentTabType();
+    let formTypeInput = formElement.querySelector('input[name="form_type"]');
+    if (!formTypeInput) {
+        formTypeInput = document.createElement('input');
+        formTypeInput.type = 'hidden';
+        formTypeInput.name = 'form_type';
+        formElement.appendChild(formTypeInput);
+    }
+    formTypeInput.value = formType;
     
-    // Here you would normally send the data to the backend
-    console.log('Saving form:', formType, formData);
-    
-    showNotification('Form saved successfully!', 'success');
+    // Allow the form to submit normally
     return true;
 }
 
@@ -701,8 +705,11 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('submit', function(e) {
         const form = e.target.closest('form');
         if (form && form.closest('.tab-content')) {
-            e.preventDefault();
-            saveForm(form);
+            // Don't prevent default - let the form submit normally
+            const result = saveForm(form);
+            if (!result) {
+                e.preventDefault();
+            }
         }
     });
 });

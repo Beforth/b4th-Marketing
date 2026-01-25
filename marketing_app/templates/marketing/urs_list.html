@@ -155,7 +155,17 @@
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Rejected</span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ urs.created_by.get_full_name|default:urs.created_by.username }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {% if urs.created_by %}
+                                {{ urs.created_by.get_full_name|default:urs.created_by.username }}
+                            {% elif urs.created_by_full_name %}
+                                {{ urs.created_by_full_name }}
+                            {% elif urs.created_by_username %}
+                                {{ urs.created_by_username }}
+                            {% else %}
+                                <span class="text-gray-400 italic">Unknown User</span>
+                            {% endif %}
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ urs.created_at|date:"M d, Y" }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <a href="{% url 'marketing:urs_detail' urs.id %}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>

@@ -1,7 +1,8 @@
 <!-- New Data Form for MIS Sheets Tab -->
 <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-    <form method="post" action="#" class="p-6 space-y-6">
+    <form method="post" action="{% url 'marketing:mis_sheets' %}" class="p-6 space-y-6" data-form-type="new-data">
         {% csrf_token %}
+        <input type="hidden" name="form_type" value="new-data">
         
         <!-- Monthly Tracking Section -->
         <div>

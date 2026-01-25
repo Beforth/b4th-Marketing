@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from marketing_app.hrms_rbac import hrms_login_required
@@ -382,11 +383,25 @@ def lead_list(request):
 def lead_create(request):
     """Create New Lead"""
     if request.method == 'POST':
+        email = request.POST.get('email')
+        
+        # Check if email already exists
+        if email and Lead.objects.filter(email=email).exists():
+            messages.error(request, f'A lead with email "{email}" already exists. Please use a different email address.')
+            # Return to form with existing data
+            context = {
+                'source_choices': Lead.SOURCE_CHOICES,
+                'campaigns': Campaign.objects.filter(status='active'),
+                'users': User.objects.filter(is_active=True),
+                'form_data': request.POST,  # Pass form data back to template
+            }
+            return render(request, 'marketing/lead_form.html', context)
+        
         try:
             lead = Lead.objects.create(
                 first_name=request.POST.get('first_name'),
                 last_name=request.POST.get('last_name'),
-                email=request.POST.get('email'),
+                email=email,
                 phone=request.POST.get('phone'),
                 company=request.POST.get('company'),
                 position=request.POST.get('position'),
@@ -5885,9 +5900,6 @@ def mis_dashboard(request):
     new_data_count = NewData.objects.count()
     new_data_details_count = NewDataDetails.objects.count()
     od_plan_count = ODPlan.objects.count()
-    # Get user info from HRMS session
-# Removed - user_info not needed here
-
     inquiry_log_count = InquiryLog.objects.count()
     
     # Recent activities
@@ -5903,10 +5915,10 @@ def mis_dashboard(request):
     for inquiry in recent_inquiries:
         saved_sheets.append({
             'type': 'Inquiry Log',
-            'title': f'{inquiry.company_name} - {inquiry.created_at.strftime("%Y")}',
+            'title': f'{inquiry.company_name} - {inquiry.enquiry_number}',
             'status': 'saved',
-            'modified_at': inquiry.created_at,
-            'edit_url': f'/marketing/inquiry-log/{inquiry.id}/edit/' if hasattr(inquiry, 'id') else '#',
+            'modified_at': inquiry.updated_at,
+            'edit_url': reverse('marketing:inquiry_log_detail', kwargs={'pk': inquiry.pk}),
         })
     
     # Add recent follow-up statuses
@@ -5915,8 +5927,8 @@ def mis_dashboard(request):
             'type': 'Follow-Up Status',
             'title': f'{follow_up.company_group} Follow-up',
             'status': 'saved',
-            'modified_at': follow_up.created_at,
-            'edit_url': f'/marketing/follow-up-status/{follow_up.sr_no}/edit/' if hasattr(follow_up, 'sr_no') else '#',
+            'modified_at': follow_up.updated_at,
+            'edit_url': reverse('marketing:follow_up_status_detail', kwargs={'pk': follow_up.pk}),
         })
     
     # Sort by modified_at (most recent first)
@@ -5988,6 +6000,9 @@ def follow_up_status_list(request):
 def follow_up_status_create(request):
     """Create a new follow-up status entry"""
     if request.method == 'POST':
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+        
         follow_up = FollowUpStatus(
             month=request.POST.get('month'),
             date=request.POST.get('date'),
@@ -5999,27 +6014,15 @@ def follow_up_status_create(request):
             contact_no=request.POST.get('contact_no'),
             mail_id=request.POST.get('mail_id'),
             requirements=request.POST.get('requirements'),
-    # Get user info from HRMS session
-# Removed - user_info not needed here
-
             follow_up_date=request.POST.get('follow_up_date'),
             follow_up_status=request.POST.get('follow_up_status'),
-            # Get user info from HRMS session
-
-
-            
-
             # Store HRMS user info
-
-    # Get user info from HRMS session
-# Removed - user_info not needed here
-
             created_by_user_id=user_info['user_id'],
-
             created_by_username=user_info['username'],
-
             created_by_email=user_info['email'],
-
+            created_by_full_name=user_info['full_name'],
+            # Legacy field set to None
+            created_by=None,
         )
         
         try:
@@ -6044,7 +6047,6 @@ def follow_up_status_detail(request, pk):
     context = {
         'follow_up': follow_up,
     }
-    # Get user info from HRMS session
 # Removed - user_info not needed here
 
     
@@ -6112,6 +6114,142 @@ def follow_up_status_delete(request, pk):
 @login_required
 def mis_sheets(request):
     """MIS Sheets - Tabbed interface for all sheets"""
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type') or request.POST.get('data-form-type')
+        
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+        
+        try:
+            if form_type == 'project-today':
+                # Create ProjectToday instance
+                project = ProjectToday(
+                    location=request.POST.get('location'),
+                    district=request.POST.get('district'),
+                    state=request.POST.get('state'),
+                    product1=request.POST.get('product1'),
+                    promoter_name=request.POST.get('promoter_name'),
+                    promoter_office_add=request.POST.get('promoter_office_add'),
+                    promoter_contact_person_name=request.POST.get('promoter_contact_person_name'),
+                    promoter_contact_person_designation=request.POST.get('promoter_contact_person_designation'),
+                    promoter_contact_person_direct_contact=request.POST.get('promoter_contact_person_direct_contact'),
+                    promoter_contact_person_email=request.POST.get('promoter_contact_person_email'),
+                    architect_name=request.POST.get('architect_name') or '',
+                    consultant_name=request.POST.get('consultant_name') or '',
+                    contractor_name=request.POST.get('contractor_name') or '',
+                    followup_date=request.POST.get('followup_date'),
+                    followup_status=request.POST.get('followup_status'),
+                    # Store HRMS user info
+                    created_by_user_id=user_info['user_id'],
+                    created_by_username=user_info['username'],
+                    created_by_email=user_info['email'],
+                    created_by_full_name=user_info['full_name'],
+                    created_by=None,
+                )
+                project.save()
+                messages.success(request, 'Project Today entry created successfully!')
+                
+            elif form_type == 'order-expected':
+                # Create OrderExpectedNextMonth instance
+                order = OrderExpectedNextMonth(
+                    region=request.POST.get('region'),
+                    from_month=request.POST.get('from_month'),
+                    company_name=request.POST.get('company_name'),
+                    requirement=request.POST.get('requirement'),
+                    location=request.POST.get('location'),
+                    contact_person=request.POST.get('contact_person'),
+                    contact_no=request.POST.get('contact_no'),
+                    ap_quote_price=request.POST.get('ap_quote_price') or None,
+                    discounted_price=request.POST.get('discounted_price') or None,
+                    total_price=request.POST.get('total_price') or None,
+                    last_status_date=request.POST.get('last_status_date'),
+                    order_status=request.POST.get('order_status'),
+                    expected_in_month=request.POST.get('expected_in_month'),
+                    # Store HRMS user info
+                    created_by_user_id=user_info['user_id'],
+                    created_by_username=user_info['username'],
+                    created_by_email=user_info['email'],
+                    created_by_full_name=user_info['full_name'],
+                    created_by=None,
+                )
+                order.save()
+                messages.success(request, 'Order Expected entry created successfully!')
+                
+            elif form_type == 'purchase-order':
+                # Create MISPurchaseOrder instance
+                po = MISPurchaseOrder(
+                    person_name=request.POST.get('person_name'),
+                    purchase_order_no=request.POST.get('purchase_order_no'),
+                    po_date=request.POST.get('po_date'),
+                    company_name=request.POST.get('company_name'),
+                    location=request.POST.get('location'),
+                    contact_person_details=request.POST.get('contact_person_details'),
+                    contact_number=request.POST.get('contact_number'),
+                    enquiry_log_number=request.POST.get('enquiry_log_number') or '',
+                    quote_no=request.POST.get('quote_no') or '',
+                    work_order_number=request.POST.get('work_order_number') or '',
+                    product_name=request.POST.get('product_name'),
+                    capacity=request.POST.get('capacity') or '',
+                    model_number=request.POST.get('model_number') or '',
+                    machine_details=request.POST.get('machine_details') or '',
+                    equipment_sr_number=request.POST.get('equipment_sr_number') or '',
+                    po_amount=request.POST.get('po_amount'),
+                    ap_quote_price=request.POST.get('ap_quote_price') or None,
+                    percentage_order=request.POST.get('percentage_order') or None,
+                    # Store HRMS user info
+                    created_by_user_id=user_info['user_id'],
+                    created_by_username=user_info['username'],
+                    created_by_email=user_info['email'],
+                    created_by_full_name=user_info['full_name'],
+                    created_by=None,
+                )
+                po.save()
+                messages.success(request, 'Purchase Order entry created successfully!')
+                
+            elif form_type == 'new-data':
+                # Create NewData instance
+                new_data = NewData(
+                    category=request.POST.get('category'),
+                    april=request.POST.get('april') or 0,
+                    may=request.POST.get('may') or 0,
+                    total=request.POST.get('total') or 0,
+                    # Store HRMS user info
+                    created_by_user_id=user_info['user_id'],
+                    created_by_username=user_info['username'],
+                    created_by_email=user_info['email'],
+                    created_by_full_name=user_info['full_name'],
+                    created_by=None,
+                )
+                new_data.save()
+                messages.success(request, 'New Data entry created successfully!')
+                
+            elif form_type == 'od-plan':
+                # Create ODPlan instance
+                od_plan = ODPlan(
+                    region=request.POST.get('region'),
+                    month=request.POST.get('month'),
+                    name=request.POST.get('name'),
+                    from_date=request.POST.get('from_date'),
+                    to_date=request.POST.get('to_date'),
+                    location=request.POST.get('location'),
+                    total_days=request.POST.get('total_days') or 0,
+                    company_visits=request.POST.get('company_visits') or 0,
+                    # Store HRMS user info
+                    created_by_user_id=user_info['user_id'],
+                    created_by_username=user_info['username'],
+                    created_by_email=user_info['email'],
+                    created_by_full_name=user_info['full_name'],
+                    created_by=None,
+                )
+                od_plan.save()
+                messages.success(request, 'OD Plan entry created successfully!')
+                
+            else:
+                messages.error(request, 'Unknown form type. Please try again.')
+                
+        except Exception as e:
+            messages.error(request, f'Error creating entry: {str(e)}')
+    
     context = {
         'FOLLOW_UP_STATUS_CHOICES': FollowUpStatus.FOLLOW_UP_STATUS_CHOICES,
         'PHARMA_CATEGORIES': ProjectToday.PHARMA_CATEGORIES,
@@ -6186,7 +6324,15 @@ def od_plan_visit_report_list(request):
     
     user_info = get_user_info_dict(request)
     username = user_info['username']
-    reports = ODPlanVisitReport.objects.filter(created_by_username=username)
+    
+    # Temporarily show all reports to check if any exist without user info
+    # TODO: Remove this after fixing existing reports
+    reports = ODPlanVisitReport.objects.all()
+    
+    # Filter by user - but also include reports without created_by_username for now
+    reports = reports.filter(
+        Q(created_by_username=username) | Q(created_by_username__isnull=True) | Q(created_by_username='')
+    )
     
     if search_query:
         reports = reports.filter(
@@ -6221,6 +6367,9 @@ def od_plan_visit_report_list(request):
 def od_plan_visit_report_create(request):
     """Create new OD Plan Visit Report"""
     if request.method == 'POST':
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+        
         # Handle form submission
         report = ODPlanVisitReport(
             month=request.POST.get('month'),
@@ -6242,15 +6391,13 @@ def od_plan_visit_report_create(request):
             next_follow_up_visit=request.POST.get('next_follow_up_visit') or None,
             mail_status_about_visit=request.POST.get('mail_status_about_visit', 'not_sent'),
             comments=request.POST.get('comments'),
-            # Get user info from HRMS session
-
-
-            
-
-
-
-
-
+            # Store HRMS user info
+            created_by_user_id=user_info['user_id'],
+            created_by_username=user_info['username'],
+            created_by_email=user_info['email'],
+            created_by_full_name=user_info['full_name'],
+            # Legacy field set to None
+            created_by=None,
         )
         report.save()
         messages.success(request, 'OD Plan Visit Report created successfully!')
@@ -6369,29 +6516,22 @@ def od_plan_remarks_list(request):
 def od_plan_remarks_create(request):
     """Create new OD Plan Remarks"""
     if request.method == 'POST':
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+        
         remark = ODPlanRemarks(
             remarks=request.POST.get('remarks'),
-            # Get user info from HRMS session
-
-
-            
-
             # Store HRMS user info
-
             created_by_user_id=user_info['user_id'],
-
             created_by_username=user_info['username'],
-
             created_by_email=user_info['email'],
-
             created_by_full_name=user_info['full_name'],
+            # Legacy field set to None
+            created_by=None,
         )
         remark.save()
         messages.success(request, 'OD Plan Remarks added successfully!')
-        return redirect('marketing:od_plan_remarks_list')
-    # Get user info from HRMS session
-# Removed - user_info not needed here
-
+        return redirect('marketing:od_plan_dashboard')
     
     return render(request, 'marketing/od_plan_remarks_form.html')
 

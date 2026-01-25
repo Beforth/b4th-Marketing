@@ -1,7 +1,8 @@
 <!-- Follow-Up Status Form for MIS Sheets Tab -->
 <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-    <form method="post" action="{% url 'marketing:follow_up_status_create' %}" class="p-6 space-y-6">
+    <form method="post" action="{% url 'marketing:follow_up_status_create' %}" class="p-6 space-y-6" data-form-type="follow-up-status">
         {% csrf_token %}
+        <input type="hidden" name="form_type" value="follow-up-status">
         
         <!-- Basic Information Section -->
         <div>
