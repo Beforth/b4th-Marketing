@@ -4875,19 +4875,36 @@ def ongoing_projects(request):
 @login_required
 def region_employee_overview(request):
     """Region wise team and target overview UI"""
-    # Determine user role
+    # Helper function to get user info from HRMS session
+    def get_user_info_dict(request):
+        """Get user info from HRMS session"""
+        return request.session.get('hrms_user_info', {})
+    
+    # Determine user role - Updated for HRMS compatibility
     user_role = 'marketing_head'
-    if request.user.groups.filter(name__iexact='Regional Head').exists():
+    
+    # Get user info from HRMS session instead of Django groups
+    user_info = get_user_info_dict(request)
+    user_roles = user_info.get('roles', [])
+    
+    # Check HRMS roles instead of Django groups
+    if any('regional head' in str(role).lower() for role in user_roles):
         user_role = 'regional_head'
-    elif request.user.groups.filter(name__iexact='Marketing Head').exists():
+    elif any('marketing head' in str(role).lower() for role in user_roles):
         user_role = 'marketing_head'
-    elif request.user.is_superuser:
+    elif user_info.get('is_superuser', False):
         user_role = 'marketing_head'
 
     # Determine accessible regions
     regions_qs = Region.objects.select_related('manager').order_by('name')
     if user_role == 'regional_head':
-        regions_qs = regions_qs.filter(manager=request.user)
+        # For HRMS users, filter by username instead of user object
+        current_username = user_info.get('username', request.session.get('username', ''))
+        if current_username:
+            regions_qs = regions_qs.filter(manager__username=current_username)
+        else:
+            # Fallback: show no regions if username not found
+            regions_qs = regions_qs.none()
 
     today = timezone.now().date()
     last_day = calendar.monthrange(today.year, today.month)[1]

@@ -35,7 +35,7 @@ DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 
 # HRMS RBAC API Configuration
-HRMS_RBAC_API_URL=https://hrms.aureolegroup.com/api/rbac
+HRMS_RBAC_API_URL=http://127.0.0.1:8000/api/rbac
 EOF
     echo "✅ Created .env file. Please update SECRET_KEY before production use."
     echo ""

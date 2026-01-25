@@ -14,7 +14,7 @@ The following settings have been added:
 
 ```python
 # HRMS RBAC API Configuration
-HRMS_RBAC_API_URL = 'https://hrms.aureolegroup.com/api/rbac'
+HRMS_RBAC_API_URL = 'http://127.0.0.1:8000/api/rbac'
 HRMS_RBAC_EXEMPT_URLS = [
     '/hrms-login/',
     '/hrms-logout/',
