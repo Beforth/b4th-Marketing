@@ -4,6 +4,7 @@
 {% block title %}Follow-up Reminders - Marketing Hub{% endblock %}
 
 {% block content %}
+{% csrf_token %}
 <div class="space-y-6">
     <!-- Header -->
     <div class="flex items-center justify-between">
@@ -114,19 +115,27 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ visit.next_follow_up|date:"M d, Y" }}</div>
-                            <div class="text-sm text-red-600">{{ visit.next_follow_up|timesince }} overdue</div>
+                            <div class="text-sm text-gray-900">{{ visit.next_follow_up_date|date:"M d, Y" }}</div>
+                            <div class="text-sm text-red-600">{{ visit.next_follow_up_date|timesince }} overdue</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                {{ visit.next_follow_up|timesince }}
+                                {{ visit.next_follow_up_date|timesince }}
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ visit.visited_by.get_full_name|default:visit.visited_by.username }}</div>
+                            <div class="text-sm text-gray-900">
+                                {% if visit.assigned_to_full_name %}
+                                    {{ visit.assigned_to_full_name }}
+                                {% elif visit.assigned_to %}
+                                    {{ visit.assigned_to.get_full_name|default:visit.assigned_to.username }}
+                                {% else %}
+                                    Unassigned
+                                {% endif %}
+                            </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ visit.visit_date|date:"M d, Y" }}</div>
+                            <div class="text-sm text-gray-900">{{ visit.scheduled_date|date:"M d, Y" }}</div>
                             <div class="text-sm text-gray-500">{{ visit.purpose|title }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -180,29 +189,37 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ visit.next_follow_up|date:"M d, Y" }}</div>
-                            <div class="text-sm text-yellow-600">Due in {{ visit.next_follow_up|timeuntil }}</div>
+                            <div class="text-sm text-gray-900">{{ visit.next_follow_up_date|date:"M d, Y" }}</div>
+                            <div class="text-sm text-yellow-600">Due in {{ visit.next_follow_up_date|timeuntil }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            {% if visit.next_follow_up|date:"Y-m-d" == today|date:"Y-m-d" %}
+                            {% if visit.next_follow_up_date|date:"Y-m-d" == today|date:"Y-m-d" %}
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                     Today
                                 </span>
-                            {% elif visit.next_follow_up|date:"Y-m-d" == tomorrow|date:"Y-m-d" %}
+                            {% elif visit.next_follow_up_date|date:"Y-m-d" == tomorrow|date:"Y-m-d" %}
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                                     Tomorrow
                                 </span>
                             {% else %}
                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                    {{ visit.next_follow_up|timeuntil }}
+                                    {{ visit.next_follow_up_date|timeuntil }}
                                 </span>
                             {% endif %}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ visit.visited_by.get_full_name|default:visit.visited_by.username }}</div>
+                            <div class="text-sm text-gray-900">
+                                {% if visit.assigned_to_full_name %}
+                                    {{ visit.assigned_to_full_name }}
+                                {% elif visit.assigned_to %}
+                                    {{ visit.assigned_to.get_full_name|default:visit.assigned_to.username }}
+                                {% else %}
+                                    Unassigned
+                                {% endif %}
+                            </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ visit.visit_date|date:"M d, Y" }}</div>
+                            <div class="text-sm text-gray-900">{{ visit.scheduled_date|date:"M d, Y" }}</div>
                             <div class="text-sm text-gray-500">{{ visit.purpose|title }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -255,12 +272,77 @@
     </div>
 </div>
 
+<!-- Complete Follow-up Modal -->
+<div id="completeModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-sm mx-4">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Complete Follow-up</h3>
+        <p class="text-sm text-gray-600 mb-6">Are you sure you want to mark this follow-up as completed?</p>
+        <div class="flex justify-end gap-3">
+            <button onclick="closeCompleteModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                Cancel
+            </button>
+            <button id="confirmCompleteBtn" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700">
+                Complete
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Complete All Follow-ups Modal -->
+<div id="completeAllModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-sm mx-4">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Complete All Overdue Follow-ups</h3>
+        <p class="text-sm text-gray-600 mb-6">Are you sure you want to mark all overdue follow-ups as completed? This action cannot be undone.</p>
+        <div class="flex justify-end gap-3">
+            <button onclick="closeCompleteAllModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                Cancel
+            </button>
+            <button id="confirmCompleteAllBtn" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700">
+                Complete All
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Reschedule Follow-up Modal -->
+<div id="rescheduleModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md mx-4">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Reschedule Follow-up</h3>
+        <div class="mb-6">
+            <label for="newFollowUpDate" class="block text-sm font-medium text-gray-700 mb-2">New Follow-up Date</label>
+            <input type="date" id="newFollowUpDate" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div class="flex justify-end gap-3">
+            <button onclick="closeRescheduleModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                Cancel
+            </button>
+            <button id="confirmRescheduleBtn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                Reschedule
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
+let currentVisitId = null;
+
 // Mark follow-up as completed
 function markAsCompleted(visitId) {
-    if (confirm('Mark this follow-up as completed?')) {
+    currentVisitId = visitId;
+    document.getElementById('completeModal').classList.remove('hidden');
+    document.getElementById('completeModal').classList.add('flex');
+}
+
+function closeCompleteModal() {
+    document.getElementById('completeModal').classList.add('hidden');
+    document.getElementById('completeModal').classList.remove('flex');
+    currentVisitId = null;
+}
+
+document.getElementById('confirmCompleteBtn').addEventListener('click', function() {
+    if (currentVisitId) {
         // Send AJAX request to mark as completed
-        fetch(`/marketing/visits/${visitId}/complete/`, {
+        fetch(`/visits/${currentVisitId}/complete/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -272,7 +354,7 @@ function markAsCompleted(visitId) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error marking follow-up as completed');
+                alert('Error marking follow-up as completed: ' + (data.error || 'Unknown error'));
             }
         })
         .catch(error => {
@@ -280,40 +362,67 @@ function markAsCompleted(visitId) {
             alert('Error marking follow-up as completed');
         });
     }
-}
+    closeCompleteModal();
+});
 
 // Mark all overdue follow-ups as completed
 function markAllAsCompleted() {
-    if (confirm('Mark all overdue follow-ups as completed?')) {
-        // Send AJAX request to mark all as completed
-        fetch('/marketing/follow-ups/mark-all-complete/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Error marking follow-ups as completed');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error marking follow-ups as completed');
-        });
-    }
+    document.getElementById('completeAllModal').classList.remove('hidden');
+    document.getElementById('completeAllModal').classList.add('flex');
 }
+
+function closeCompleteAllModal() {
+    document.getElementById('completeAllModal').classList.add('hidden');
+    document.getElementById('completeAllModal').classList.remove('flex');
+}
+
+document.getElementById('confirmCompleteAllBtn').addEventListener('click', function() {
+    // Send AJAX request to mark all as completed
+    fetch('/follow-ups/mark-all-complete/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error marking follow-ups as completed: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error marking follow-ups as completed');
+    });
+    closeCompleteAllModal();
+});
 
 // Reschedule follow-up
 function rescheduleFollowUp(visitId) {
-    const newDate = prompt('Enter new follow-up date (YYYY-MM-DD):');
-    if (newDate) {
+    currentVisitId = visitId;
+    // Set default date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('newFollowUpDate').value = tomorrow.toISOString().split('T')[0];
+    
+    document.getElementById('rescheduleModal').classList.remove('hidden');
+    document.getElementById('rescheduleModal').classList.add('flex');
+}
+
+function closeRescheduleModal() {
+    document.getElementById('rescheduleModal').classList.add('hidden');
+    document.getElementById('rescheduleModal').classList.remove('flex');
+    currentVisitId = null;
+}
+
+document.getElementById('confirmRescheduleBtn').addEventListener('click', function() {
+    const newDate = document.getElementById('newFollowUpDate').value;
+    if (currentVisitId && newDate) {
         // Send AJAX request to reschedule
-        fetch(`/marketing/visits/${visitId}/reschedule/`, {
+        fetch(`/visits/${currentVisitId}/reschedule/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -326,7 +435,7 @@ function rescheduleFollowUp(visitId) {
             if (data.success) {
                 location.reload();
             } else {
-                alert('Error rescheduling follow-up');
+                alert('Error rescheduling follow-up: ' + (data.error || 'Unknown error'));
             }
         })
         .catch(error => {
@@ -334,7 +443,8 @@ function rescheduleFollowUp(visitId) {
             alert('Error rescheduling follow-up');
         });
     }
-}
+    closeRescheduleModal();
+});
 
 // Export follow-ups
 function exportFollowUps() {

@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from marketing_app.hrms_rbac import hrms_login_required
 from marketing_app.permissions import (
     require_permission, require_any_permission, check_permission,
@@ -1574,8 +1576,8 @@ def customer_visit(request):
             purpose=purpose,
             outcome=outcome,
             next_follow_up_date=next_follow_up,
-            gps_latitude=latitude,
-            gps_longitude=longitude,
+            gps_latitude=latitude if latitude and latitude.strip() else None,
+            gps_longitude=longitude if longitude and longitude.strip() else None,
             assigned_to=get_django_user(request)
         )
         
@@ -1704,6 +1706,71 @@ def follow_up_reminders(request):
         'follow_up_stats': follow_up_stats,
     }
     return render(request, 'marketing/follow_up_reminders.html', context)
+
+@login_required
+def visit_complete(request, visit_id):
+    """Mark a visit follow-up as completed"""
+    from django.http import JsonResponse
+    
+    if request.method == 'POST':
+        try:
+            visit = get_object_or_404(Visit, id=visit_id)
+            # Clear the next follow-up date to mark as completed
+            visit.next_follow_up_date = None
+            visit.save()
+            
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+@login_required
+def visit_reschedule(request, visit_id):
+    """Reschedule a visit follow-up"""
+    from django.http import JsonResponse
+    import json
+    from datetime import datetime
+    
+    if request.method == 'POST':
+        try:
+            visit = get_object_or_404(Visit, id=visit_id)
+            data = json.loads(request.body)
+            new_date = data.get('next_follow_up')
+            
+            if new_date:
+                # Parse the date and update the visit
+                visit.next_follow_up_date = datetime.strptime(new_date, '%Y-%m-%d').date()
+                visit.save()
+                
+                return JsonResponse({'success': True})
+            else:
+                return JsonResponse({'success': False, 'error': 'No date provided'})
+                
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+@login_required
+def mark_all_followups_complete(request):
+    """Mark all overdue follow-ups as completed"""
+    from django.http import JsonResponse
+    
+    if request.method == 'POST':
+        try:
+            today = datetime.now().date()
+            # Get all overdue follow-ups
+            overdue_visits = Visit.objects.filter(next_follow_up_date__lt=today)
+            
+            # Clear their follow-up dates
+            count = overdue_visits.update(next_follow_up_date=None)
+            
+            return JsonResponse({'success': True, 'count': count})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 @login_required
 def daily_status_report(request):
@@ -1859,8 +1926,10 @@ def urs_list(request):
 def urs_detail(request, urs_id):
     """View URS details"""
     urs = get_object_or_404(URS, id=urs_id)
-    related_quotations = Quotation.objects.filter(urs=urs)
+    # Get related GA drawings (GADrawing has a urs field)
     related_ga_drawings = GADrawing.objects.filter(urs=urs)
+    # Get related quotations through customer relationship (since Quotation doesn't have urs field)
+    related_quotations = Quotation.objects.filter(customer=urs.customer)
     
     context = {
         'urs': urs,
@@ -1868,6 +1937,103 @@ def urs_detail(request, urs_id):
         'related_ga_drawings': related_ga_drawings,
     }
     return render(request, 'marketing/urs_detail.html', context)
+
+@login_required
+@csrf_exempt
+def urs_approve(request, urs_id):
+    """Approve URS"""
+    from django.http import JsonResponse
+    import json
+    
+    if request.method == 'POST':
+        try:
+            urs = get_object_or_404(URS, id=urs_id)
+            
+            # Check if URS is still pending
+            if urs.status != 'pending':
+                return JsonResponse({
+                    'success': False,
+                    'message': f'URS is already {urs.status}'
+                })
+            
+            # Get comments from request body
+            try:
+                data = json.loads(request.body)
+                comments = data.get('comments', '')
+            except json.JSONDecodeError:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Invalid JSON data'
+                })
+            
+            # Update URS status
+            urs.status = 'approved'
+            urs.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'URS approved successfully'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Error: {str(e)}'
+            })
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+@login_required
+@csrf_exempt
+def urs_reject(request, urs_id):
+    """Reject URS"""
+    from django.http import JsonResponse
+    import json
+    
+    if request.method == 'POST':
+        try:
+            urs = get_object_or_404(URS, id=urs_id)
+            
+            # Check if URS is still pending
+            if urs.status != 'pending':
+                return JsonResponse({
+                    'success': False,
+                    'message': f'URS is already {urs.status}'
+                })
+            
+            # Get comments from request body
+            try:
+                data = json.loads(request.body)
+                comments = data.get('comments', '')
+            except json.JSONDecodeError:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Invalid JSON data'
+                })
+            
+            # Comments are optional for rejection
+            # if not comments.strip():
+            #     return JsonResponse({
+            #         'success': False,
+            #         'message': 'Rejection reason is required'
+            #     })
+            
+            # Update URS status
+            urs.status = 'rejected'
+            urs.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'URS rejected successfully'
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Error: {str(e)}'
+            })
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
 @login_required
 def ga_drawing_create(request):

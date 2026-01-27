@@ -56,14 +56,14 @@
             <!-- Drawing File Upload -->
             <div>
                 <label for="drawing_file" class="block text-sm font-medium text-gray-700 mb-2">Drawing File <span class="text-red-500">*</span></label>
-                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                <div id="drop-zone" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
                     <div class="space-y-1 text-center">
                         <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                         <div class="flex text-sm text-gray-600">
                             <label for="drawing_file" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                                <span>Upload a file</span>
+                                <span id="upload-text">Upload a file</span>
                                 <input id="drawing_file" name="drawing_file" type="file" class="sr-only" accept=".pdf,.dwg,.dxf,.jpg,.jpeg,.png" required>
                             </label>
                             <p class="pl-1">or drag and drop</p>
@@ -71,9 +71,32 @@
                         <p class="text-xs text-gray-500">PDF, DWG, DXF, JPG, PNG up to 10MB</p>
                     </div>
                 </div>
-                <div id="file-info" class="mt-2 text-sm text-gray-500 hidden">
-                    <p>Selected file: <span id="file-name"></span></p>
-                    <p>File size: <span id="file-size"></span></p>
+                <div id="file-info" class="mt-3 p-3 bg-green-50 border border-green-200 rounded-md hidden">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-medium text-green-800">File selected successfully!</p>
+                            <p class="text-sm text-green-700">
+                                <span class="font-medium">Name:</span> <span id="file-name"></span><br>
+                                <span class="font-medium">Size:</span> <span id="file-size"></span>
+                            </p>
+                        </div>
+                        <button type="button" id="remove-file" class="ml-auto text-green-500 hover:text-green-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="file-error" class="mt-3 p-3 bg-red-50 border border-red-200 rounded-md hidden">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                        <p id="error-message" class="text-sm text-red-800"></p>
+                    </div>
                 </div>
             </div>
 
@@ -111,33 +134,85 @@
 document.addEventListener('DOMContentLoaded', function() {
     const fileInput = document.getElementById('drawing_file');
     const fileInfo = document.getElementById('file-info');
+    const fileError = document.getElementById('file-error');
     const fileName = document.getElementById('file-name');
     const fileSize = document.getElementById('file-size');
+    const uploadText = document.getElementById('upload-text');
+    const removeFileBtn = document.getElementById('remove-file');
+    const dropZone = document.getElementById('drop-zone');
+    const errorMessage = document.getElementById('error-message');
     
     // File upload handling
     fileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            fileName.textContent = file.name;
-            fileSize.textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
-            fileInfo.classList.remove('hidden');
-            
-            // Validate file size (10MB limit)
-            if (file.size > 10 <span class="text-red-500">*</span> 1024 <span class="text-red-500">*</span> 1024) {
-                alert('File size must be less than 10MB');
-                fileInput.value = '';
-                fileInfo.classList.add('hidden');
-            }
-        } else {
-            fileInfo.classList.add('hidden');
-        }
+        handleFileSelection(e.target.files[0]);
     });
     
-    // Drag and drop functionality
-    const dropZone = document.querySelector('.border-dashed');
+    // Remove file functionality
+    removeFileBtn.addEventListener('click', function() {
+        fileInput.value = '';
+        hideFileInfo();
+        uploadText.textContent = 'Upload a file';
+        dropZone.classList.remove('border-green-400', 'bg-green-50');
+    });
     
+    function handleFileSelection(file) {
+        hideFileInfo();
+        
+        if (!file) {
+            return;
+        }
+        
+        // Validate file type
+        const allowedTypes = ['.pdf', '.dwg', '.dxf', '.jpg', '.jpeg', '.png'];
+        const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+        
+        if (!allowedTypes.includes(fileExtension)) {
+            showError('Invalid file type. Please select PDF, DWG, DXF, JPG, or PNG files.');
+            fileInput.value = '';
+            return;
+        }
+        
+        // Validate file size (10MB limit)
+        const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+        if (file.size > maxSize) {
+            showError('File size must be less than 10MB. Please select a smaller file.');
+            fileInput.value = '';
+            return;
+        }
+        
+        // Show file info
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        fileInfo.classList.remove('hidden');
+        uploadText.textContent = 'File selected';
+        dropZone.classList.add('border-green-400', 'bg-green-50');
+        
+        console.log('File selected:', file.name, 'Size:', formatFileSize(file.size));
+    }
+    
+    function hideFileInfo() {
+        fileInfo.classList.add('hidden');
+        fileError.classList.add('hidden');
+    }
+    
+    function showError(message) {
+        errorMessage.textContent = message;
+        fileError.classList.remove('hidden');
+        fileInfo.classList.add('hidden');
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Drag and drop functionality
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropZone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
     });
     
     function preventDefaults(e) {
@@ -169,13 +244,29 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (files.length > 0) {
             fileInput.files = files;
-            fileInput.dispatchEvent(new Event('change'));
+            handleFileSelection(files[0]);
         }
     }
     
-    // Auto-save draft functionality
+    // Form validation before submit
     const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        if (!fileInput.files || fileInput.files.length === 0) {
+            e.preventDefault();
+            showError('Please select a drawing file before submitting.');
+            return false;
+        }
+        
+        // Clear draft on successful submission
+        localStorage.removeItem('ga_drawing_draft');
+        
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating...';
+    });
     
+    // Auto-save draft functionality (excluding file)
     setInterval(function() {
         const formElements = form.elements;
         const draftData = {};
@@ -192,19 +283,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load draft data on page load
     const savedDraft = localStorage.getItem('ga_drawing_draft');
     if (savedDraft) {
-        const draftData = JSON.parse(savedDraft);
-        for (let fieldName in draftData) {
-            const element = form.elements[fieldName];
-            if (element) {
-                element.value = draftData[fieldName];
+        try {
+            const draftData = JSON.parse(savedDraft);
+            for (let fieldName in draftData) {
+                const element = form.elements[fieldName];
+                if (element && element.type !== 'file') {
+                    element.value = draftData[fieldName];
+                }
             }
+        } catch (e) {
+            console.log('Error loading draft data:', e);
         }
     }
-    
-    // Clear draft on successful submission
-    form.addEventListener('submit', function() {
-        localStorage.removeItem('ga_drawing_draft');
-    });
 });
 </script>
 {% endblock %}
