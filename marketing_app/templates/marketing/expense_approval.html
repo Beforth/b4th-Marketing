@@ -25,10 +25,10 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs font-medium text-gray-600">Pending Approval</p>
-                    <p class="text-lg sm:text-xl font-bold text-gray-900">8</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">{{ pending_count }}</p>
                     <p class="text-xs text-yellow-600 flex items-center gap-1 mt-1">
-                        <i data-lucide="trending-up" class="w-3 h-3"></i>
-                        +2 today
+                        <i data-lucide="clock" class="w-3 h-3"></i>
+                        Awaiting review
                     </p>
                 </div>
                 <div class="h-8 w-8 sm:h-10 sm:w-10 bg-yellow-100 rounded-lg flex items-center justify-center">
@@ -40,10 +40,10 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs font-medium text-gray-600">Approved Today</p>
-                    <p class="text-lg sm:text-xl font-bold text-gray-900">5</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">{{ approved_today }}</p>
                     <p class="text-xs text-green-600 flex items-center gap-1 mt-1">
-                        <i data-lucide="trending-up" class="w-3 h-3"></i>
-                        +25%
+                        <i data-lucide="check-circle" class="w-3 h-3"></i>
+                        Processed
                     </p>
                 </div>
                 <div class="h-8 w-8 sm:h-10 sm:w-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -55,10 +55,10 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-xs font-medium text-gray-600">Rejected Today</p>
-                    <p class="text-lg sm:text-xl font-bold text-gray-900">1</p>
+                    <p class="text-lg sm:text-xl font-bold text-gray-900">{{ rejected_today }}</p>
                     <p class="text-xs text-red-600 flex items-center gap-1 mt-1">
-                        <i data-lucide="trending-down" class="w-3 h-3"></i>
-                        -50%
+                        <i data-lucide="x-circle" class="w-3 h-3"></i>
+                        Declined
                     </p>
                 </div>
                 <div class="h-8 w-8 sm:h-10 sm:w-10 bg-red-100 rounded-lg flex items-center justify-center">
@@ -74,88 +74,366 @@
             <h3 class="text-base sm:text-lg font-semibold text-gray-900">Pending Approvals</h3>
         </div>
         <div class="p-3 sm:p-6">
+            {% if pending_expenses %}
             <div class="space-y-3 sm:space-y-4">
-                <!-- Expense Item 1 -->
+                {% for expense in pending_expenses %}
                 <div class="border border-gray-200 rounded-lg p-3 sm:p-4">
                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
                         <div class="flex items-center gap-3">
                             <div class="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                <span class="text-xs sm:text-sm font-medium text-blue-600">JS</span>
+                                <span class="text-xs sm:text-sm font-medium text-blue-600">
+                                    {{ expense.expense_full_name|default:expense.expense_username|first|upper }}
+                                </span>
                             </div>
                             <div>
-                                <div class="text-sm sm:text-base font-medium text-gray-900">Jane Smith</div>
-                                <div class="text-xs sm:text-sm text-gray-500">Marketing Manager</div>
-                                <div class="text-xs sm:text-sm text-gray-500">Submitted: 2024-01-22 14:30</div>
+                                <div class="text-sm sm:text-base font-medium text-gray-900">
+                                    {{ expense.expense_full_name|default:expense.expense_username|default:"Unknown User" }}
+                                </div>
+                                <div class="text-xs sm:text-sm text-gray-500">{{ expense.expense_email|default:"No email" }}</div>
+                                <div class="text-xs sm:text-sm text-gray-500">Submitted: {{ expense.created_at|date:"M d, Y H:i" }}</div>
                             </div>
                         </div>
                         <div class="text-left sm:text-right">
-                            <div class="text-lg sm:text-xl font-bold text-gray-900">₹1,200</div>
-                            <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">Meals</span>
+                            <div class="text-lg sm:text-xl font-bold text-gray-900">₹{{ expense.amount }}</div>
+                            <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
+                                {{ expense.get_expense_type_display }}
+                            </span>
                         </div>
                     </div>
                     
                     <div class="mb-3 sm:mb-4">
                         <h4 class="text-xs sm:text-sm font-medium text-gray-900 mb-1 sm:mb-2">Description</h4>
-                        <p class="text-xs sm:text-sm text-gray-600">Client lunch meeting at Taj Palace Hotel. Discussed Q2 marketing campaign with key stakeholders.</p>
+                        <p class="text-xs sm:text-sm text-gray-600">{{ expense.description|default:"No description provided" }}</p>
                     </div>
                     
                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-3">
                         <div class="flex gap-2 sm:gap-3">
-                            <a href="#" class="text-blue-600 hover:text-blue-900 text-xs sm:text-sm font-medium">View Receipt</a>
-                            <a href="#" class="text-green-600 hover:text-green-900 text-xs sm:text-sm font-medium">View Details</a>
+                            {% if expense.receipt %}
+                            <a href="{{ expense.receipt.url }}" target="_blank" class="text-blue-600 hover:text-blue-900 text-xs sm:text-sm font-medium">View Receipt</a>
+                            {% else %}
+                            <span class="text-gray-400 text-xs sm:text-sm">No receipt</span>
+                            {% endif %}
                         </div>
                         <div class="flex gap-2 sm:gap-3">
-                            <button class="px-3 sm:px-4 py-2 text-xs sm:text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                            <button onclick="openRejectModal({{ expense.id }}, '{{ expense.expense_full_name|default:expense.expense_username|escapejs }}', '{{ expense.amount }}', '{{ expense.get_expense_type_display|escapejs }}')" 
+                                    class="px-3 sm:px-4 py-2 text-xs sm:text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                                 <i data-lucide="x" class="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2"></i>Reject
                             </button>
-                            <button class="px-3 sm:px-4 py-2 text-xs sm:text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <button onclick="openApproveModal({{ expense.id }}, '{{ expense.expense_full_name|default:expense.expense_username|escapejs }}', '{{ expense.amount }}', '{{ expense.get_expense_type_display|escapejs }}')" 
+                                    class="px-3 sm:px-4 py-2 text-xs sm:text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                                 <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2"></i>Approve
                             </button>
                         </div>
                     </div>
                 </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8 sm:py-12">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="check-circle" class="w-8 h-8 text-gray-400"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No Pending Expenses</h3>
+                <p class="text-gray-600">All expenses have been reviewed and processed.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
 
-                <!-- Expense Item 2 -->
-                <div class="border border-gray-200 rounded-lg p-3 sm:p-4">
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
-                        <div class="flex items-center gap-3">
-                            <div class="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                                <span class="text-xs sm:text-sm font-medium text-green-600">MB</span>
-                            </div>
-                            <div>
-                                <div class="text-sm sm:text-base font-medium text-gray-900">Mike Brown</div>
-                                <div class="text-xs sm:text-sm text-gray-500">Sales Executive</div>
-                                <div class="text-xs sm:text-sm text-gray-500">Submitted: 2024-01-22 16:45</div>
-                            </div>
-                        </div>
-                        <div class="text-left sm:text-right">
-                            <div class="text-lg sm:text-xl font-bold text-gray-900">₹3,500</div>
-                            <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Travel</span>
-                        </div>
+<!-- Approve Expense Modal -->
+<div id="approve-expense-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full transform transition-all">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
                     </div>
-                    
-                    <div class="mb-3 sm:mb-4">
-                        <h4 class="text-xs sm:text-sm font-medium text-gray-900 mb-1 sm:mb-2">Description</h4>
-                        <p class="text-xs sm:text-sm text-gray-600">Flight tickets for customer visit to Mumbai. Meeting with TechCorp Inc. for product demonstration.</p>
-                    </div>
-                    
-                    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-3">
-                        <div class="flex gap-2 sm:gap-3">
-                            <a href="#" class="text-blue-600 hover:text-blue-900 text-xs sm:text-sm font-medium">View Receipt</a>
-                            <a href="#" class="text-green-600 hover:text-green-900 text-xs sm:text-sm font-medium">View Details</a>
+                    <h3 class="text-lg font-semibold text-gray-900">Approve Expense</h3>
+                </div>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="px-6 py-4">
+                <p class="text-sm text-gray-600 mb-4">
+                    Are you sure you want to approve this expense?
+                </p>
+                
+                <!-- Expense Summary -->
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <h4 class="text-sm font-medium text-green-900 mb-2">Expense Details:</h4>
+                    <div class="space-y-1 text-xs text-green-700">
+                        <div class="flex justify-between">
+                            <span>Employee:</span>
+                            <span id="approve-modal-employee" class="font-medium text-green-900">-</span>
                         </div>
-                        <div class="flex gap-2 sm:gap-3">
-                            <button class="px-3 sm:px-4 py-2 text-xs sm:text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-                                <i data-lucide="x" class="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2"></i>Reject
-                            </button>
-                            <button class="px-3 sm:px-4 py-2 text-xs sm:text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2"></i>Approve
-                            </button>
+                        <div class="flex justify-between">
+                            <span>Amount:</span>
+                            <span id="approve-modal-amount" class="font-medium text-green-900">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Type:</span>
+                            <span id="approve-modal-type" class="font-medium text-green-900">-</span>
                         </div>
                     </div>
                 </div>
+                
+                <!-- Info Message -->
+                <div class="flex items-start gap-2 text-xs text-green-600 bg-green-50 border border-green-200 rounded-lg p-3">
+                    <i data-lucide="info" class="w-4 h-4 flex-shrink-0 mt-0.5"></i>
+                    <div>
+                        <p class="font-medium mb-1">Note:</p>
+                        <p>This expense will be marked as approved and the employee will be notified.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3">
+                <button type="button" onclick="closeApproveModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
+                    <i data-lucide="x" class="w-4 h-4 inline mr-2"></i>
+                    Cancel
+                </button>
+                <button type="button" onclick="confirmApprove()" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors">
+                    <i data-lucide="check-circle" class="w-4 h-4 inline mr-2"></i>
+                    Yes, Approve
+                </button>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Reject Expense Modal -->
+<div id="reject-expense-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full transform transition-all">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                        <i data-lucide="x-circle" class="w-5 h-5 text-red-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900">Reject Expense</h3>
+                </div>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="px-6 py-4">
+                <p class="text-sm text-gray-600 mb-4">
+                    Are you sure you want to reject this expense?
+                </p>
+                
+                <!-- Expense Summary -->
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                    <h4 class="text-sm font-medium text-red-900 mb-2">Expense Details:</h4>
+                    <div class="space-y-1 text-xs text-red-700">
+                        <div class="flex justify-between">
+                            <span>Employee:</span>
+                            <span id="reject-modal-employee" class="font-medium text-red-900">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Amount:</span>
+                            <span id="reject-modal-amount" class="font-medium text-red-900">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Type:</span>
+                            <span id="reject-modal-type" class="font-medium text-red-900">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Warning Message -->
+                <div class="flex items-start gap-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
+                    <i data-lucide="alert-triangle" class="w-4 h-4 flex-shrink-0 mt-0.5"></i>
+                    <div>
+                        <p class="font-medium mb-1">Warning:</p>
+                        <p>This expense will be marked as rejected and the employee will be notified.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3">
+                <button type="button" onclick="closeRejectModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
+                    <i data-lucide="x" class="w-4 h-4 inline mr-2"></i>
+                    Cancel
+                </button>
+                <button type="button" onclick="confirmReject()" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">
+                    <i data-lucide="x-circle" class="w-4 h-4 inline mr-2"></i>
+                    Yes, Reject
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% csrf_token %}
+
+<script>
+let currentExpenseId = null;
+
+function openApproveModal(expenseId, employeeName, amount, type) {
+    currentExpenseId = expenseId;
+    
+    // Populate modal with expense data
+    document.getElementById('approve-modal-employee').textContent = employeeName;
+    document.getElementById('approve-modal-amount').textContent = '₹' + amount;
+    document.getElementById('approve-modal-type').textContent = type;
+    
+    // Show modal with animation
+    const modal = document.getElementById('approve-expense-modal');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.querySelector('.bg-white').classList.add('scale-100');
+    }, 10);
+    
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+function closeApproveModal() {
+    const modal = document.getElementById('approve-expense-modal');
+    modal.querySelector('.bg-white').classList.remove('scale-100');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 200);
+    currentExpenseId = null;
+}
+
+function confirmApprove() {
+    if (!currentExpenseId) return;
+    
+    // Show loading state
+    const approveBtn = document.querySelector('[onclick="confirmApprove()"]');
+    const originalText = approveBtn.innerHTML;
+    approveBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 inline mr-2 animate-spin"></i>Approving...';
+    approveBtn.disabled = true;
+    
+    // Create and submit form
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.style.display = 'none';
+    
+    // Add CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    // Add action
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'action';
+    actionInput.value = 'approve';
+    form.appendChild(actionInput);
+    
+    // Add expense ID
+    const expenseIdInput = document.createElement('input');
+    expenseIdInput.type = 'hidden';
+    expenseIdInput.name = 'expense_id';
+    expenseIdInput.value = currentExpenseId;
+    form.appendChild(expenseIdInput);
+    
+    // Submit form
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function openRejectModal(expenseId, employeeName, amount, type) {
+    currentExpenseId = expenseId;
+    
+    // Populate modal with expense data
+    document.getElementById('reject-modal-employee').textContent = employeeName;
+    document.getElementById('reject-modal-amount').textContent = '₹' + amount;
+    document.getElementById('reject-modal-type').textContent = type;
+    
+    // Show modal with animation
+    const modal = document.getElementById('reject-expense-modal');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.querySelector('.bg-white').classList.add('scale-100');
+    }, 10);
+    
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+function closeRejectModal() {
+    const modal = document.getElementById('reject-expense-modal');
+    modal.querySelector('.bg-white').classList.remove('scale-100');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 200);
+    currentExpenseId = null;
+}
+
+function confirmReject() {
+    if (!currentExpenseId) return;
+    
+    // Show loading state
+    const rejectBtn = document.querySelector('[onclick="confirmReject()"]');
+    const originalText = rejectBtn.innerHTML;
+    rejectBtn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 inline mr-2 animate-spin"></i>Rejecting...';
+    rejectBtn.disabled = true;
+    
+    // Create and submit form
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.style.display = 'none';
+    
+    // Add CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = 'csrfmiddlewaretoken';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    // Add action
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'action';
+    actionInput.value = 'reject';
+    form.appendChild(actionInput);
+    
+    // Add expense ID
+    const expenseIdInput = document.createElement('input');
+    expenseIdInput.type = 'hidden';
+    expenseIdInput.name = 'expense_id';
+    expenseIdInput.value = currentExpenseId;
+    form.appendChild(expenseIdInput);
+    
+    // Submit form
+    document.body.appendChild(form);
+    form.submit();
+}
+
+// Close modals when clicking outside
+document.addEventListener('click', function(e) {
+    const approveModal = document.getElementById('approve-expense-modal');
+    const rejectModal = document.getElementById('reject-expense-modal');
+    
+    if (e.target === approveModal) {
+        closeApproveModal();
+    }
+    if (e.target === rejectModal) {
+        closeRejectModal();
+    }
+});
+
+// Initialize Lucide icons on page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
+</script>
 {% endblock %}

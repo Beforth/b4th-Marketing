@@ -1,0 +1,207 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Expense Details - Marketing Hub{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header -->
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Expense Details</h1>
+            <p class="text-sm text-gray-600">View expense information and status</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'marketing:expense_list' %}" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-xs sm:text-sm transition-colors">
+                <i data-lucide="arrow-left" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                Back to Expenses
+            </a>
+            {% if expense.status == 'prepared' %}
+            <a href="#" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs sm:text-sm transition-colors">
+                <i data-lucide="edit" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                Edit Expense
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Expense Information Card -->
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900">Expense #{{ expense.id }}</h3>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium 
+                    {% if expense.status == 'approved' %}bg-green-100 text-green-800
+                    {% elif expense.status == 'rejected' %}bg-red-100 text-red-800
+                    {% elif expense.status == 'verified' %}bg-blue-100 text-blue-800
+                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                    {{ expense.get_status_display }}
+                </span>
+            </div>
+        </div>
+        
+        <div class="p-3 sm:p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <!-- Employee Information -->
+                <div class="space-y-3 sm:space-y-4">
+                    <h4 class="text-sm font-medium text-gray-900 border-b border-gray-200 pb-2">Employee Information</h4>
+                    
+                    <div class="flex items-center space-x-3">
+                        <div class="flex-shrink-0 h-10 w-10 sm:h-12 sm:w-12">
+                            <div class="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                                <span class="text-sm sm:text-base font-medium text-blue-600">
+                                    {% if expense.expense_full_name %}
+                                        {{ expense.expense_full_name|slice:":2"|upper }}
+                                    {% elif expense.user and expense.user.get_full_name %}
+                                        {{ expense.user.get_full_name|slice:":2"|upper }}
+                                    {% elif expense.user and expense.user.username %}
+                                        {{ expense.user.username|slice:":2"|upper }}
+                                    {% else %}
+                                        UN
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">
+                                {% if expense.expense_full_name %}
+                                    {{ expense.expense_full_name }}
+                                {% elif expense.user and expense.user.get_full_name %}
+                                    {{ expense.user.get_full_name }}
+                                {% elif expense.user and expense.user.username %}
+                                    {{ expense.user.username }}
+                                {% else %}
+                                    Unknown User
+                                {% endif %}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                {% if expense.expense_username %}
+                                    {{ expense.expense_username }}
+                                {% elif expense.user and expense.user.username %}
+                                    {{ expense.user.username }}
+                                {% endif %}
+                            </div>
+                            {% if expense.expense_email %}
+                            <div class="text-xs text-gray-500">{{ expense.expense_email }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expense Details -->
+                <div class="space-y-3 sm:space-y-4">
+                    <h4 class="text-sm font-medium text-gray-900 border-b border-gray-200 pb-2">Expense Details</h4>
+                    
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-xs sm:text-sm text-gray-600">Date:</span>
+                            <span class="text-xs sm:text-sm font-medium text-gray-900">{{ expense.date }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-xs sm:text-sm text-gray-600">Type:</span>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                                {% if expense.expense_type == 'travel' %}bg-blue-100 text-blue-800
+                                {% elif expense.expense_type == 'meals' %}bg-yellow-100 text-yellow-800
+                                {% elif expense.expense_type == 'accommodation' %}bg-purple-100 text-purple-800
+                                {% elif expense.expense_type == 'transport' %}bg-green-100 text-green-800
+                                {% elif expense.expense_type == 'entertainment' %}bg-pink-100 text-pink-800
+                                {% elif expense.expense_type == 'office' %}bg-gray-100 text-gray-800
+                                {% else %}bg-indigo-100 text-indigo-800{% endif %}">
+                                {{ expense.get_expense_type_display }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-xs sm:text-sm text-gray-600">Amount:</span>
+                            <span class="text-sm sm:text-base font-bold text-gray-900">₹{{ expense.amount }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-xs sm:text-sm text-gray-600">Submitted:</span>
+                            <span class="text-xs sm:text-sm text-gray-900">{{ expense.created_at|date:"M d, Y H:i" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mt-4 sm:mt-6">
+                <h4 class="text-sm font-medium text-gray-900 mb-2">Description</h4>
+                <div class="bg-gray-50 rounded-lg p-3 sm:p-4">
+                    <p class="text-xs sm:text-sm text-gray-700">{{ expense.description }}</p>
+                </div>
+            </div>
+
+            <!-- Receipt -->
+            {% if expense.receipt %}
+            <div class="mt-4 sm:mt-6">
+                <h4 class="text-sm font-medium text-gray-900 mb-2">Receipt</h4>
+                <div class="bg-gray-50 rounded-lg p-3 sm:p-4">
+                    <a href="{{ expense.receipt.url }}" target="_blank" class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 text-xs sm:text-sm">
+                        <i data-lucide="paperclip" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                        View Receipt
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Approval Information -->
+            {% if expense.status != 'prepared' %}
+            <div class="mt-4 sm:mt-6">
+                <h4 class="text-sm font-medium text-gray-900 mb-2">Approval Information</h4>
+                <div class="bg-gray-50 rounded-lg p-3 sm:p-4 space-y-2">
+                    {% if expense.verified_by_full_name or expense.verified_by %}
+                    <div class="flex justify-between text-xs sm:text-sm">
+                        <span class="text-gray-600">Verified by:</span>
+                        <span class="text-gray-900">
+                            {{ expense.verified_by_full_name|default:expense.verified_by.get_full_name|default:expense.verified_by.username|default:"Unknown" }}
+                        </span>
+                    </div>
+                    {% if expense.verified_at %}
+                    <div class="flex justify-between text-xs sm:text-sm">
+                        <span class="text-gray-600">Verified at:</span>
+                        <span class="text-gray-900">{{ expense.verified_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                    
+                    {% if expense.approved_by_full_name or expense.approved_by %}
+                    <div class="flex justify-between text-xs sm:text-sm">
+                        <span class="text-gray-600">Approved by:</span>
+                        <span class="text-gray-900">
+                            {{ expense.approved_by_full_name|default:expense.approved_by.get_full_name|default:expense.approved_by.username|default:"Unknown" }}
+                        </span>
+                    </div>
+                    {% if expense.approved_at %}
+                    <div class="flex justify-between text-xs sm:text-sm">
+                        <span class="text-gray-600">Approved at:</span>
+                        <span class="text-gray-900">{{ expense.approved_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    {% if expense.status == 'prepared' %}
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-3 sm:p-6">
+        <h4 class="text-sm font-medium text-gray-900 mb-3">Actions</h4>
+        <div class="flex items-center gap-2 sm:gap-3">
+            <button class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-xs sm:text-sm transition-colors">
+                <i data-lucide="check" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                Submit for Approval
+            </button>
+            <button class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs sm:text-sm transition-colors">
+                <i data-lucide="edit" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                Edit Expense
+            </button>
+            <button class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-xs sm:text-sm transition-colors">
+                <i data-lucide="trash-2" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+                Delete
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

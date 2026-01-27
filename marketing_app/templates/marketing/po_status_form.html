@@ -1,0 +1,222 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}New PO Status - Marketing Hub{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header -->
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">New PO Status</h1>
+            <p class="text-sm text-gray-600">Create a new purchase order status entry</p>
+        </div>
+        <a href="{% url 'marketing:po_status_list' %}" class="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-xs sm:text-sm transition-colors">
+            <i data-lucide="arrow-left" class="w-3 h-3 sm:w-4 sm:h-4"></i>
+            Back to PO Status
+        </a>
+    </div>
+
+    <!-- PO Status Form -->
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Basic Information -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900">Basic Information</h3>
+            </div>
+            <div class="p-3 sm:p-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                    <div>
+                        <label for="month" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                            Month <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="month" name="month" required 
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="e.g., January 2024">
+                    </div>
+                    <div>
+                        <label for="region" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                            Region <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="region" name="region" required 
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Enter region">
+                    </div>
+                    <div>
+                        <label for="company" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                            Company <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="company" name="company" required 
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Enter company name">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Details -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900">Order Details</h3>
+            </div>
+            <div class="p-3 sm:p-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                    <div>
+                        <label for="order_is_for" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                            Order Type <span class="text-red-500">*</span>
+                        </label>
+                        <select id="order_is_for" name="order_is_for" required 
+                                class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select Order Type</option>
+                            {% for value, label in ORDER_TYPE_CHOICES %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="po_number" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                            PO Number <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="po_number" name="po_number" required 
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Enter PO number">
+                    </div>
+                    <div>
+                        <label for="responsible_marketing_person" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                            Marketing Person <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="responsible_marketing_person" name="responsible_marketing_person" required 
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Enter marketing person name">
+                    </div>
+                    <div>
+                        <label for="coordinator" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                            Coordinator <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="coordinator" name="coordinator" required 
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="Enter coordinator name">
+                    </div>
+                    <div>
+                        <label for="po_date" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                            PO Date <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" id="po_date" name="po_date" required 
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="po_acceptance_date" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">PO Acceptance Date</label>
+                        <input type="date" id="po_acceptance_date" name="po_acceptance_date" 
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="wo_date" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">WO Date</label>
+                        <input type="date" id="wo_date" name="wo_date" 
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Details -->
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900">Financial Details</h3>
+            </div>
+            <div class="p-3 sm:p-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div>
+                        <label for="po_value_without_gst" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                            PO Value (Without GST) <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="po_value_without_gst" name="po_value_without_gst" step="0.01" required 
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="0.00">
+                    </div>
+                    <div>
+                        <label for="gst" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                            GST <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="gst" name="gst" step="0.01" required 
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="0.00">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Tracking -->
+        {% for i in "12345" %}
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div class="px-3 sm:px-6 py-3 sm:py-4 border-b border-gray-200">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900">Payment Round {{ i }} (PayR-0{{ i }})</h3>
+            </div>
+            <div class="p-3 sm:p-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+                    <div>
+                        <label for="payr0{{ i }}_agreed_percentage" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Agreed %</label>
+                        <input type="number" id="payr0{{ i }}_agreed_percentage" name="payr0{{ i }}_agreed_percentage" step="0.01" 
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="0.00">
+                    </div>
+                    <div>
+                        <label for="payr0{{ i }}_agreed_amount" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Agreed Amount</label>
+                        <input type="number" id="payr0{{ i }}_agreed_amount" name="payr0{{ i }}_agreed_amount" step="0.01" 
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="0.00">
+                    </div>
+                    <div>
+                        <label for="payr0{{ i }}_received_percentage" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Received %</label>
+                        <input type="number" id="payr0{{ i }}_received_percentage" name="payr0{{ i }}_received_percentage" step="0.01" 
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="0.00">
+                    </div>
+                    <div>
+                        <label for="payr0{{ i }}_received_amount" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Received Amount</label>
+                        <input type="number" id="payr0{{ i }}_received_amount" name="payr0{{ i }}_received_amount" step="0.01" 
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               placeholder="0.00">
+                    </div>
+                    <div>
+                        <label for="payr0{{ i }}_received_date" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Received Date</label>
+                        <input type="date" id="payr0{{ i }}_received_date" name="payr0{{ i }}_received_date" 
+                               class="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Form Actions -->
+        <div class="flex items-center justify-end gap-2 sm:gap-3 pt-3 sm:pt-4">
+            <a href="{% url 'marketing:po_status_list' %}" 
+               class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <i data-lucide="x" class="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2"></i>Cancel
+            </a>
+            <button type="submit" 
+                    class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                <i data-lucide="save" class="w-3 h-3 sm:w-4 sm:h-4 inline mr-1 sm:mr-2"></i>Create PO Status
+            </button>
+        </div>
+    </form>
+
+    <!-- Guidelines -->
+    <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-6">
+        <h3 class="text-base sm:text-lg font-medium text-blue-900 mb-2 sm:mb-3">PO Status Guidelines</h3>
+        <ul class="text-blue-700 space-y-1 sm:space-y-2 text-xs sm:text-sm">
+            <li>• All required fields must be filled before submission</li>
+            <li>• Payment rounds (PayR-01 to PayR-05) are optional and can be filled as payments are processed</li>
+            <li>• Agreed percentages and amounts represent the payment terms</li>
+            <li>• Received percentages and amounts track actual payments received</li>
+            <li>• Use the received date field to track when payments were actually received</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
+{% endblock %}

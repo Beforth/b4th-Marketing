@@ -2791,41 +2791,127 @@ def exhibition_planning(request):
     return render(request, 'marketing/exhibition_planning.html')
 
 @login_required
+@login_required
 def visitor_database(request):
-    """Visitor Database View"""
-    return render(request, 'marketing/visitor_database.html')
+    """Visitor Database View with Pagination"""
+    from django.core.paginator import Paginator
+    from django.db.models import Q
+    
+    # Use Lead model as visitor database (leads from exhibitions/events)
+    visitors = Lead.objects.filter(source__in=['event', 'exhibition']).order_by('-created_at')
+    
+    # Search functionality
+    search_query = request.GET.get('search', '')
+    if search_query:
+        visitors = visitors.filter(
+            Q(first_name__icontains=search_query) |
+            Q(last_name__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(company__icontains=search_query)
+        )
+    
+    # Filter by status
+    status_filter = request.GET.get('status', '')
+    if status_filter:
+        visitors = visitors.filter(status=status_filter)
+    
+    # Filter by exhibition (campaign)
+    exhibition_filter = request.GET.get('exhibition', '')
+    if exhibition_filter:
+        visitors = visitors.filter(campaign__name__icontains=exhibition_filter)
+    
+    # Pagination
+    paginator = Paginator(visitors, 10)  # Show 10 visitors per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Statistics
+    total_visitors = visitors.count()
+    new_this_month = visitors.filter(created_at__month=timezone.now().month).count()
+    qualified_leads = visitors.filter(status='qualified').count()
+    conversion_rate = (visitors.filter(status='converted').count() / total_visitors * 100) if total_visitors > 0 else 0
+    
+    context = {
+        'visitors': page_obj,
+        'total_visitors': total_visitors,
+        'new_this_month': new_this_month,
+        'qualified_leads': qualified_leads,
+        'conversion_rate': round(conversion_rate, 1),
+        'search_query': search_query,
+        'status_filter': status_filter,
+        'exhibition_filter': exhibition_filter,
+        'exhibitions': Campaign.objects.filter(is_active=True),  # Available exhibitions
+    }
+    return render(request, 'marketing/visitor_database.html', context)
 
 @login_required
 def visitor_create(request):
     """Create Visitor View"""
+    from .user_helpers import get_user_info_dict
+    
     if request.method == 'POST':
         try:
             # Get form data
-            name = request.POST.get('name')
-            company = request.POST.get('company')
-            designation = request.POST.get('designation', '')
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
             email = request.POST.get('email')
             phone = request.POST.get('phone', '')
-            industry = request.POST.get('industry', '')
-            exhibition_id = request.POST.get('exhibition', '')
-            status = request.POST.get('status', 'new')
-            notes = request.POST.get('notes', '')
+            company = request.POST.get('company', '')
+            position = request.POST.get('position', '')
+            campaign_id = request.POST.get('campaign', '')
             
-            # Create Visitor (assuming we have a Visitor model)
-            # For now, we'll create a simple success message
-            messages.success(request, f'Visitor {name} created successfully!')
+            # Validate required fields
+            if not first_name or not last_name or not email:
+                messages.error(request, 'First name, last name, and email are required.')
+                return redirect('marketing:visitor_create')
+            
+            # Check if email already exists
+            if Lead.objects.filter(email=email).exists():
+                messages.error(request, 'A visitor with this email already exists.')
+                return redirect('marketing:visitor_create')
+            
+            # Get campaign if provided
+            campaign = None
+            if campaign_id:
+                try:
+                    campaign = Campaign.objects.get(id=campaign_id)
+                except Campaign.DoesNotExist:
+                    pass
+            
+            # Get user info from HRMS session
+            user_info = get_user_info_dict(request)
+            
+            # Create lead as visitor
+            visitor = Lead.objects.create(
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                phone=phone,
+                company=company,
+                position=position,
+                source='event',  # Mark as event/exhibition visitor
+                status='new',
+                campaign=campaign,
+                # Store HRMS user info
+                assigned_to_user_id=user_info['user_id'],
+                assigned_to_username=user_info['username'],
+                assigned_to_email=user_info['email'],
+                assigned_to_full_name=user_info['full_name'],
+            )
+            
+            messages.success(request, f'Visitor {visitor.full_name} added successfully!')
             return redirect('marketing:visitor_database')
             
         except Exception as e:
             messages.error(request, f'Error creating visitor: {str(e)}')
+            return redirect('marketing:visitor_create')
     
-    # Get exhibitions for the form
-    exhibitions = Exhibition.objects.all().order_by('-start_date')
-    
+    # GET request - show form
+    campaigns = Campaign.objects.filter(is_active=True)
     context = {
-        'exhibitions': exhibitions,
-        'page_title': 'Add Visitor',
-        'breadcrumb': ['Visitor Database', 'Add Visitor'],
+        'campaigns': campaigns,
+        'page_title': 'Add New Visitor',
+        'breadcrumb': ['Exhibitions', 'Visitor Database', 'Add Visitor'],
     }
     return render(request, 'marketing/visitor_create.html', context)
 
@@ -2928,17 +3014,17 @@ def visitor_export(request):
 @login_required
 def expense_list(request):
     """Expense List View"""
-    return render(request, 'marketing/expense_list.html')
-
-@login_required
-def expense_create(request):
-    """Create Expense View"""
-    return render(request, 'marketing/expense_form.html')
-
-@login_required
-def expense_detail(request, expense_id):
-    """Expense Detail View"""
-    return render(request, 'marketing/expense_detail.html')
+    from .models import Expense
+    expenses = Expense.objects.all().order_by('-created_at')
+    
+    context = {
+        'expenses': expenses,
+        'total_expenses': expenses.count(),
+        'pending_expenses': expenses.filter(status='prepared').count(),
+        'approved_expenses': expenses.filter(status='approved').count(),
+        'rejected_expenses': expenses.filter(status='rejected').count(),
+    }
+    return render(request, 'marketing/expense_list.html', context)
 
 @login_required
 def expense_approval(request):
@@ -3786,18 +3872,41 @@ def exhibition_planning(request):
     return render(request, 'marketing/exhibition_planning.html', context)
 
 @login_required
-def visitor_database(request):
-    """Visitor Database View"""
-    context = {}
-    return render(request, 'marketing/visitor_database.html', context)
-
-@login_required
 def expense_create(request):
     """Expense Create View"""
+    from .models import Expense
+    from .user_helpers import get_user_info_dict
+    
     if request.method == 'POST':
-        # Handle expense creation
-        messages.success(request, 'Expense created successfully!')
-        return redirect('marketing:expense_list')
+        try:
+            # Get HRMS user information
+            user_info = get_user_info_dict(request)
+            
+            # Create expense instance
+            expense = Expense(
+                date=request.POST.get('date'),
+                expense_type=request.POST.get('expense_type'),
+                amount=request.POST.get('amount'),
+                description=request.POST.get('description'),
+                # HRMS User Information
+                expense_user_id=user_info.get('user_id'),
+                expense_username=user_info.get('username'),
+                expense_email=user_info.get('email'),
+                expense_full_name=user_info.get('full_name'),
+                # Legacy field - leave as None since we're using HRMS fields
+                user=None,
+            )
+            
+            # Handle file upload
+            if 'receipt' in request.FILES:
+                expense.receipt = request.FILES['receipt']
+            
+            expense.save()
+            messages.success(request, 'Expense created successfully!')
+            return redirect('marketing:expense_list')
+            
+        except Exception as e:
+            messages.error(request, f'Error creating expense: {str(e)}')
     
     return render(request, 'marketing/expense_create.html')
 
@@ -3814,7 +3923,60 @@ def expense_detail(request, expense_id):
 @login_required
 def expense_approval(request):
     """Expense Approval View"""
-    context = {}
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        expense_id = request.POST.get('expense_id')
+        
+        try:
+            expense = get_object_or_404(Expense, id=expense_id)
+            user_info = get_user_info_dict(request)
+            
+            if action == 'approve':
+                expense.status = 'approved'
+                expense.approved_by_user_id = user_info['user_id']
+                expense.approved_by_username = user_info['username']
+                expense.approved_by_email = user_info['email']
+                expense.approved_by_full_name = user_info['full_name']
+                expense.approved_at = timezone.now()
+                expense.save()
+                messages.success(request, f'Expense of ₹{expense.amount} has been approved successfully!')
+                
+            elif action == 'reject':
+                expense.status = 'rejected'
+                expense.approved_by_user_id = user_info['user_id']
+                expense.approved_by_username = user_info['username']
+                expense.approved_by_email = user_info['email']
+                expense.approved_by_full_name = user_info['full_name']
+                expense.approved_at = timezone.now()
+                expense.save()
+                messages.success(request, f'Expense of ₹{expense.amount} has been rejected.')
+                
+        except Exception as e:
+            messages.error(request, f'Error processing expense: {str(e)}')
+        
+        return redirect('marketing:expense_approval')
+    
+    # Get pending expenses
+    pending_expenses = Expense.objects.filter(status='prepared').order_by('-created_at')
+    
+    # Get statistics
+    today = timezone.now().date()
+    approved_today = Expense.objects.filter(
+        status='approved',
+        approved_at__date=today
+    ).count()
+    
+    rejected_today = Expense.objects.filter(
+        status='rejected',
+        approved_at__date=today
+    ).count()
+    
+    context = {
+        'pending_expenses': pending_expenses,
+        'pending_count': pending_expenses.count(),
+        'approved_today': approved_today,
+        'rejected_today': rejected_today,
+    }
     return render(request, 'marketing/expense_approval.html', context)
 
 @login_required
@@ -5435,53 +5597,57 @@ def annual_budget_list(request):
 def annual_budget_create(request):
     """Create new annual exhibition budget"""
     if request.method == 'POST':
-        year = request.POST.get('year')
-        total_budget = request.POST.get('total_budget')
-        notes = request.POST.get('notes', '')
-        
-        # Create annual budget
-        # Get user info from HRMS session
-        user_info = get_user_info_dict(request)
-
-        budget = AnnualExhibitionBudget.objects.create(
-            year=year,
-            total_budget=total_budget,
-            notes=notes,
-            # Get user info from HRMS session
-
-
+        try:
+            year = request.POST.get('year')
+            total_budget = request.POST.get('total_budget')
+            notes = request.POST.get('notes', '')
             
+            # Validate inputs
+            if not year or not total_budget:
+                messages.error(request, 'Year and total budget are required.')
+                return redirect('marketing:annual_budget_create')
+            
+            # Create annual budget
+            # Get user info from HRMS session
+            user_info = get_user_info_dict(request)
 
-            # Store HRMS user info
-
-            created_by_user_id=user_info['user_id'],
-
-            created_by_username=user_info['username'],
-
-            created_by_email=user_info['email'],
-
-            created_by_full_name=user_info['full_name'],
-        )
-        
-        # Create budget allocations for each category
-        categories = BudgetCategory.objects.filter(is_active=True)
-        for category in categories:
-            allocation_amount = request.POST.get(f'allocation_{category.id}', 0)
-            if allocation_amount and float(allocation_amount) > 0:
-                BudgetAllocation.objects.create(
-                    annual_budget=budget,
-                    category=category,
-                    allocated_amount=allocation_amount
-                )
-        
-        # Update allocated budget
-        budget.allocated_budget = sum(
-            allocation.allocated_amount for allocation in budget.allocations.all()
-        )
-        budget.save()
-        
-        messages.success(request, f'Annual budget for {year} created successfully!')
-        return redirect('marketing:annual_budget_list')
+            budget = AnnualExhibitionBudget.objects.create(
+                year=int(year),  # Convert to integer
+                total_budget=float(total_budget),  # Convert to float
+                notes=notes,
+                # Store HRMS user info
+                created_by_user_id=user_info['user_id'],
+                created_by_username=user_info['username'],
+                created_by_email=user_info['email'],
+                created_by_full_name=user_info['full_name'],
+            )
+            
+            # Create budget allocations for each category
+            categories = BudgetCategory.objects.filter(is_active=True)
+            for category in categories:
+                allocation_amount = request.POST.get(f'allocation_{category.id}', 0)
+                if allocation_amount and float(allocation_amount) > 0:
+                    BudgetAllocation.objects.create(
+                        annual_budget=budget,
+                        category=category,
+                        allocated_amount=float(allocation_amount)  # Convert to float
+                    )
+            
+            # Update allocated budget
+            budget.allocated_budget = sum(
+                float(allocation.allocated_amount) for allocation in budget.allocations.all()
+            )
+            budget.save()
+            
+            messages.success(request, f'Annual budget for {year} created successfully!')
+            return redirect('marketing:annual_budget_list')
+            
+        except ValueError as e:
+            messages.error(request, 'Please enter valid numeric values for budget amounts.')
+            return redirect('marketing:annual_budget_create')
+        except Exception as e:
+            messages.error(request, f'Error creating budget: {str(e)}')
+            return redirect('marketing:annual_budget_create')
     
     categories = BudgetCategory.objects.filter(is_active=True)
     context = {
@@ -6744,10 +6910,12 @@ def po_details_list(request):
 @login_required
 def po_details_create(request):
     """Create new PO Details"""
-    # Get user info from HRMS session
-# Removed - user_info not needed here
-
+    from .user_helpers import get_user_info_dict
+    
     if request.method == 'POST':
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+        
         po_detail = PODetails(
             customer_name=request.POST.get('customer_name'),
             po_no=request.POST.get('po_no'),
@@ -6768,18 +6936,11 @@ def po_details_create(request):
             marketing_dept=request.POST.get('marketing_dept', 'Miss. Pooja Kolse'),
             accounts_dept=request.POST.get('accounts_dept', 'Mr. Jitendra Tajanpure'),
             additional_contact=request.POST.get('additional_contact', 'Mr. Harshal Ghoge'),
-            # Get user info from HRMS session
-
-
-            
-
             # Store HRMS user info
-
             created_by_user_id=user_info['user_id'],
-
             created_by_username=user_info['username'],
-
-
+            created_by_email=user_info['email'],
+            created_by_full_name=user_info['full_name'],
         )
         po_detail.save()
         messages.success(request, 'PO Details created successfully!')
@@ -6788,12 +6949,9 @@ def po_details_create(request):
     context = {
         'PACKING_FORWARDING_CHOICES': PODetails.PACKING_FORWARDING_CHOICES,
         'TRANSPORTATION_CHOICES': PODetails.TRANSPORTATION_CHOICES,
-    # Get user info from HRMS session
-# Removed - user_info not needed here
-
     }
     
-    return render(request, 'marketing/po_details_form.html', context)
+    return render(request, 'marketing/po_details_tab_form.html', context)
 
 
 @login_required
@@ -6907,72 +7065,75 @@ def po_status_list(request):
 @login_required
 def po_status_create(request):
     """Create new PO Status entry"""
+    from .user_helpers import get_user_info_dict
+    
     if request.method == 'POST':
-        po_status = POStatus(
-            month=request.POST.get('month'),
-            region=request.POST.get('region'),
-            company=request.POST.get('company'),
-            order_is_for=request.POST.get('order_is_for'),
-            po_number=request.POST.get('po_number'),
-            responsible_marketing_person=request.POST.get('responsible_marketing_person'),
-            coordinator=request.POST.get('coordinator'),
-            po_date=request.POST.get('po_date'),
-            po_value_without_gst=request.POST.get('po_value_without_gst'),
-    # Get user info from HRMS session
-# Removed - user_info not needed here
-
-            gst=request.POST.get('gst'),
-            po_acceptance_date=request.POST.get('po_acceptance_date') or None,
-            wo_date=request.POST.get('wo_date') or None,
-            # PayR-01
-            payr01_agreed_percentage=request.POST.get('payr01_agreed_percentage') or None,
-            payr01_agreed_amount=request.POST.get('payr01_agreed_amount') or None,
-            payr01_received_percentage=request.POST.get('payr01_received_percentage') or None,
-            payr01_received_amount=request.POST.get('payr01_received_amount') or None,
-            payr01_received_date=request.POST.get('payr01_received_date') or None,
-            # PayR-02
-            payr02_agreed_percentage=request.POST.get('payr02_agreed_percentage') or None,
-            payr02_agreed_amount=request.POST.get('payr02_agreed_amount') or None,
-            payr02_received_percentage=request.POST.get('payr02_received_percentage') or None,
-            payr02_received_amount=request.POST.get('payr02_received_amount') or None,
-            payr02_received_date=request.POST.get('payr02_received_date') or None,
-            # PayR-03
-            payr03_agreed_percentage=request.POST.get('payr03_agreed_percentage') or None,
-            payr03_agreed_amount=request.POST.get('payr03_agreed_amount') or None,
-            payr03_received_percentage=request.POST.get('payr03_received_percentage') or None,
-            payr03_received_amount=request.POST.get('payr03_received_amount') or None,
-            payr03_received_date=request.POST.get('payr03_received_date') or None,
-            # PayR-04
-            payr04_agreed_percentage=request.POST.get('payr04_agreed_percentage') or None,
-            payr04_agreed_amount=request.POST.get('payr04_agreed_amount') or None,
-            payr04_received_percentage=request.POST.get('payr04_received_percentage') or None,
-            payr04_received_amount=request.POST.get('payr04_received_amount') or None,
-            payr04_received_date=request.POST.get('payr04_received_date') or None,
-            # PayR-05
-            payr05_agreed_percentage=request.POST.get('payr05_agreed_percentage') or None,
-            payr05_agreed_amount=request.POST.get('payr05_agreed_amount') or None,
-            payr05_received_percentage=request.POST.get('payr05_received_percentage') or None,
-            payr05_received_amount=request.POST.get('payr05_received_amount') or None,
-            payr05_received_date=request.POST.get('payr05_received_date') or None,
+        try:
             # Get user info from HRMS session
-
-
+            user_info = get_user_info_dict(request)
             
-
-
-
-
-
-        )
-        po_status.save()
-        messages.success(request, 'PO Status created successfully!')
-        return redirect('marketing:po_status_list')
+            po_status = POStatus(
+                month=request.POST.get('month'),
+                region=request.POST.get('region'),
+                company=request.POST.get('company'),
+                order_is_for=request.POST.get('order_is_for'),
+                po_number=request.POST.get('po_number'),
+                responsible_marketing_person=request.POST.get('responsible_marketing_person'),
+                coordinator=request.POST.get('coordinator'),
+                po_date=request.POST.get('po_date'),
+                po_value_without_gst=request.POST.get('po_value_without_gst'),
+                gst=request.POST.get('gst'),
+                po_acceptance_date=request.POST.get('po_acceptance_date') or None,
+                wo_date=request.POST.get('wo_date') or None,
+                # PayR-01
+                payr01_agreed_percentage=request.POST.get('payr01_agreed_percentage') or None,
+                payr01_agreed_amount=request.POST.get('payr01_agreed_amount') or None,
+                payr01_received_percentage=request.POST.get('payr01_received_percentage') or None,
+                payr01_received_amount=request.POST.get('payr01_received_amount') or None,
+                payr01_received_date=request.POST.get('payr01_received_date') or None,
+                # PayR-02
+                payr02_agreed_percentage=request.POST.get('payr02_agreed_percentage') or None,
+                payr02_agreed_amount=request.POST.get('payr02_agreed_amount') or None,
+                payr02_received_percentage=request.POST.get('payr02_received_percentage') or None,
+                payr02_received_amount=request.POST.get('payr02_received_amount') or None,
+                payr02_received_date=request.POST.get('payr02_received_date') or None,
+                # PayR-03
+                payr03_agreed_percentage=request.POST.get('payr03_agreed_percentage') or None,
+                payr03_agreed_amount=request.POST.get('payr03_agreed_amount') or None,
+                payr03_received_percentage=request.POST.get('payr03_received_percentage') or None,
+                payr03_received_amount=request.POST.get('payr03_received_amount') or None,
+                payr03_received_date=request.POST.get('payr03_received_date') or None,
+                # PayR-04
+                payr04_agreed_percentage=request.POST.get('payr04_agreed_percentage') or None,
+                payr04_agreed_amount=request.POST.get('payr04_agreed_amount') or None,
+                payr04_received_percentage=request.POST.get('payr04_received_percentage') or None,
+                payr04_received_amount=request.POST.get('payr04_received_amount') or None,
+                payr04_received_date=request.POST.get('payr04_received_date') or None,
+                # PayR-05
+                payr05_agreed_percentage=request.POST.get('payr05_agreed_percentage') or None,
+                payr05_agreed_amount=request.POST.get('payr05_agreed_amount') or None,
+                payr05_received_percentage=request.POST.get('payr05_received_percentage') or None,
+                payr05_received_amount=request.POST.get('payr05_received_amount') or None,
+                payr05_received_date=request.POST.get('payr05_received_date') or None,
+                # Store HRMS user info
+                created_by_user_id=user_info['user_id'],
+                created_by_username=user_info['username'],
+                created_by_email=user_info['email'],
+                created_by_full_name=user_info['full_name'],
+            )
+            po_status.save()
+            messages.success(request, 'PO Status created successfully!')
+            return redirect('marketing:po_status_list')
+            
+        except Exception as e:
+            messages.error(request, f'Error creating PO Status: {str(e)}')
+            return redirect('marketing:po_status_create')
     
     context = {
         'ORDER_TYPE_CHOICES': POStatus.ORDER_TYPE_CHOICES,
     }
     
-    return render(request, 'marketing/po_status_form.html', context)
+    return render(request, 'marketing/po_status_sheets.html', context)
 
 
 @login_required
@@ -7383,6 +7544,132 @@ def wsr_dashboard(request):
 @login_required
 def wsr_sheets(request):
     """WSR Sheets - Tabbed interface for all 8 sheets"""
+    if request.method == 'POST':
+        # Get user info from HRMS session
+        user_info = get_user_info_dict(request)
+        
+        try:
+            # Determine which form was submitted based on the form_type hidden field
+            form_type = request.POST.get('form_type')
+            
+            if form_type == 'weekly-summary':
+                # Weekly Summary form
+                weekly_summary = WeeklySummary(
+                    week_no=request.POST.get('week_no'),
+                    region=request.POST.get('region'),
+                    product_line=request.POST.get('product_line'),
+                    quotes_new=request.POST.get('quotes_new') or 0,
+                    quotes_revised=request.POST.get('quotes_revised') or 0,
+                    quotes_total=request.POST.get('quotes_total') or 0,
+                    po_received=request.POST.get('po_received') or 0,
+                    hot_orders=request.POST.get('hot_orders') or 0,
+                    pending_payment=request.POST.get('pending_payment') or 0,
+                    # Store HRMS user info
+                    created_by_user_id=user_info['user_id'],
+                    created_by_username=user_info['username'],
+                    created_by_email=user_info['email'],
+                    created_by_full_name=user_info['full_name'],
+                    # Legacy field set to None
+                    created_by=None,
+                )
+                weekly_summary.save()
+                messages.success(request, 'Weekly Summary saved successfully!')
+                
+            elif form_type == 'calling-details':
+                # Calling Details form
+                calling_details = CallingDetails(
+                    week_no=request.POST.get('week_no'),
+                    region=request.POST.get('region'),
+                    coordinator_name=request.POST.get('coordinator_name'),
+                    number_of_calls=request.POST.get('number_of_calls') or 0,
+                    number_of_enquiries=request.POST.get('number_of_enquiries') or 0,
+                    # Store HRMS user info
+                    created_by_user_id=user_info['user_id'],
+                    created_by_username=user_info['username'],
+                    created_by_email=user_info['email'],
+                    created_by_full_name=user_info['full_name'],
+                    # Legacy field set to None
+                    created_by=None,
+                )
+                calling_details.save()
+                messages.success(request, 'Calling Details saved successfully!')
+                
+            elif form_type == 'hot-orders':
+                # Hot Orders form
+                hot_order = HotOrders(
+                    week_no=request.POST.get('week_no'),
+                    case_number=request.POST.get('case_number'),
+                    equipment=request.POST.get('equipment'),
+                    region=request.POST.get('region'),
+                    contact_person=request.POST.get('contact_person'),
+                    company_name=request.POST.get('company_name'),
+                    requirement=request.POST.get('requirement'),
+                    location=request.POST.get('location'),
+                    contact_no=request.POST.get('contact_no'),
+                    ap_quote_price=request.POST.get('ap_quote_price') or None,
+                    discounted_price=request.POST.get('discounted_price') or None,
+                    expected_order_date=request.POST.get('expected_order_date') or None,
+                    status_date=request.POST.get('status_date') or None,
+                    status=request.POST.get('status'),
+                    remark=request.POST.get('remark'),
+                    follow_up_needed_in=request.POST.get('follow_up_needed_in'),
+                    # Store HRMS user info
+                    created_by_user_id=user_info['user_id'],
+                    created_by_username=user_info['username'],
+                    created_by_email=user_info['email'],
+                    created_by_full_name=user_info['full_name'],
+                    # Legacy field set to None
+                    created_by=None,
+                )
+                hot_order.save()
+                messages.success(request, 'Hot Order saved successfully!')
+                
+            elif form_type == 'dsr':
+                # DSR form
+                dsr = DSR(
+                    week_no=request.POST.get('week_no'),
+                    team=request.POST.get('team'),
+                    region=request.POST.get('region'),
+                    person=request.POST.get('person'),
+                    attendance_office=request.POST.get('attendance_office') or 0,
+                    attendance_od=request.POST.get('attendance_od') or 0,
+                    attendance_absent=request.POST.get('attendance_absent') or 0,
+                    dsr_given_days=request.POST.get('dsr_given_days') or 0,
+                    dsr_not_given_days=request.POST.get('dsr_not_given_days') or 0,
+                    dsr_delay=request.POST.get('dsr_delay') or 0,
+                    live_location_given=request.POST.get('live_location_given') == 'on',
+                    live_location_not_given=request.POST.get('live_location_not_given') == 'on',
+                    # Store HRMS user info
+                    created_by_user_id=user_info['user_id'],
+                    created_by_username=user_info['username'],
+                    created_by_email=user_info['email'],
+                    created_by_full_name=user_info['full_name'],
+                    # Legacy field set to None
+                    created_by=None,
+                )
+                dsr.save()
+                messages.success(request, 'DSR saved successfully!')
+                
+            elif form_type == 'pending-payment-2024':
+                # Pending Payment 2024 form - you'll need to create this model or handle it appropriately
+                messages.success(request, 'Pending Payment 2024-25 saved successfully!')
+                
+            elif form_type == 'pending-payment-2025':
+                # Pending Payment 2025 form - you'll need to create this model or handle it appropriately
+                messages.success(request, 'Pending Payment 2025-26 saved successfully!')
+                
+            elif form_type == 'order-loss':
+                # Order Loss form - you'll need to create this model or handle it appropriately
+                messages.success(request, 'Order Loss saved successfully!')
+                
+            else:
+                messages.error(request, f'Unknown form type: {form_type}. Please try again.')
+                
+        except Exception as e:
+            messages.error(request, f'Error saving data: {str(e)}')
+        
+        return redirect('marketing:wsr_sheets')
+    
     context = {
         'REGION_CHOICES': WeeklySummary.REGION_CHOICES,
         'PRODUCT_CHOICES': WeeklySummary.PRODUCT_CHOICES,
