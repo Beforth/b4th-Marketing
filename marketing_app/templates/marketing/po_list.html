@@ -145,9 +145,14 @@
             <h3 class="text-base sm:text-lg font-semibold text-gray-900">
                 Purchase Orders ({{ page_obj.paginator.count }})
             </h3>
+            <!-- Debug info -->
+            <div class="text-sm text-gray-500 mt-1">
+                Debug: page_obj.object_list count = {{ page_obj.object_list|length }}, 
+                has items = {% if page_obj.object_list %}YES{% else %}NO{% endif %}
+            </div>
         </div>
         
-        {% if page_obj %}
+        {% if page_obj.object_list %}
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">

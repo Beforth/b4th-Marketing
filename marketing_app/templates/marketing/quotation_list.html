@@ -188,7 +188,18 @@
                                                 {{ quotation.quotation_number }}
                                             </a>
                                         </div>
-                                        <div class="text-xs sm:text-sm text-gray-500">Created by {{ quotation.created_by.get_full_name|default:quotation.created_by.username }}</div>
+                                        <div class="text-xs sm:text-sm text-gray-500">
+                                            Created by 
+                                            {% if quotation.created_by %}
+                                                {{ quotation.created_by.get_full_name|default:quotation.created_by.username }}
+                                            {% elif quotation.created_by_full_name %}
+                                                {{ quotation.created_by_full_name }}
+                                            {% elif quotation.created_by_username %}
+                                                {{ quotation.created_by_username }}
+                                            {% else %}
+                                                <span class="text-gray-400 italic">Unknown User</span>
+                                            {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             </td>

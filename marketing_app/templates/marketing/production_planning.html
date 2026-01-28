@@ -12,18 +12,18 @@
             <p class="text-gray-600">Plan and schedule manufacturing activities</p>
         </div>
         <div class="flex space-x-3">
-            <a href="#" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+            <button onclick="scrollToForm()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2">
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 <span>New Plan</span>
-            </a>
-            <a href="#" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2">
+            </button>
+            <button onclick="showComingSoon('Create Batch')" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2">
                 <i data-lucide="factory" class="w-4 h-4"></i>
                 <span>Create Batch</span>
-            </a>
-            <a href="#" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center space-x-2">
+            </button>
+            <button onclick="showComingSoon('Schedule View')" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 flex items-center space-x-2">
                 <i data-lucide="calendar" class="w-4 h-4"></i>
                 <span>Schedule View</span>
-            </a>
+            </button>
         </div>
     </div>
 
@@ -292,5 +292,25 @@
         const endDateField = document.querySelector('input[name="planned_end_date"]');
         endDateField.min = startDate;
     });
+    
+    // Scroll to form function
+    function scrollToForm() {
+        const form = document.querySelector('form');
+        if (form) {
+            form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Focus on the first input field
+            const firstInput = form.querySelector('select[name="work_order"]');
+            if (firstInput) {
+                setTimeout(() => firstInput.focus(), 500);
+            }
+        }
+    }
+    
+    // Show coming soon message
+    function showComingSoon(feature) {
+        alert(`${feature} feature is coming soon! This will allow you to:\n\n${feature === 'Create Batch' ? 
+            '• Create manufacturing batches\n• Group multiple work orders\n• Optimize production scheduling' : 
+            '• View production timeline\n• Schedule resources\n• Track progress visually'}`);
+    }
 </script>
 {% endblock %}

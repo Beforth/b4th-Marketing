@@ -92,14 +92,22 @@ urlpatterns = [
     path('payment-followups/update/<int:followup_id>/', views.payment_followup_update, name='payment_followup_update'),
     
     # Production
-    # Work Order Format System (replaces existing work orders)
-    path('work-orders/dashboard/', views.work_order_format_dashboard, name='work_order_format_dashboard'),
-    path('work-orders/sheets/', views.work_order_format_sheets, name='work_order_format_sheets'),
-    path('work-orders/', views.work_order_format_list, name='work_order_format_list'),
+    # Regular Work Order System (linked to Purchase Orders) - Main system
+    path('work-orders/', views.workorder_list, name='workorder_list'),
     path('work-orders/create/', views.work_order_format_create, name='work_order_format_create'),
-    path('work-orders/<int:pk>/', views.work_order_format_detail, name='work_order_format_detail'),
-    path('work-orders/<int:pk>/edit/', views.work_order_format_edit, name='work_order_format_edit'),
-    path('work-orders/<int:pk>/delete/', views.work_order_format_delete, name='work_order_format_delete'),
+    path('work-orders/dashboard/', views.work_order_format_dashboard, name='work_order_format_dashboard'),
+    
+    # Work Order Format System (equipment specifications)
+    path('work-order-formats/', views.work_order_format_list, name='work_order_format_list'),
+    path('work-order-formats/sheets/', views.work_order_format_sheets, name='work_order_format_sheets'),
+    path('work-order-formats/<int:pk>/', views.work_order_format_detail, name='work_order_format_detail'),
+    path('work-order-formats/<int:pk>/edit/', views.work_order_format_edit, name='work_order_format_edit'),
+    path('work-order-formats/<int:pk>/delete/', views.work_order_format_delete, name='work_order_format_delete'),
+    
+    # Legacy URLs for backward compatibility
+    path('workorders/', views.workorder_list, name='workorder_list_legacy'),
+    path('workorders/create/', views.workorder_create, name='workorder_create'),
+    path('workorders/<int:workorder_id>/', views.workorder_detail, name='workorder_detail'),
     path('production-planning/', views.production_planning, name='production_planning'),
     path('manufacturing/', views.manufacturing_list, name='manufacturing_list'),
     path('manufacturing/<int:manufacturing_id>/', views.manufacturing_detail, name='manufacturing_detail'),

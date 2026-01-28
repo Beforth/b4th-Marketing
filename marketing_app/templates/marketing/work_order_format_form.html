@@ -1,0 +1,431 @@
+{% extends 'marketing/base.html' %}
+{% load static %}
+
+{% block title %}Create Work Order - Marketing Hub{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Create Work Order</h1>
+            <p class="text-sm text-gray-600">Create a new work order format for equipment manufacturing</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'marketing:work_order_format_list' %}" class="inline-flex items-center gap-2 rounded-lg bg-white border border-gray-300 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Work Order Form -->
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <form method="post" class="space-y-8 p-6">
+            {% csrf_token %}
+            
+            <!-- Header Information -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Header Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="date" class="block text-sm font-medium text-gray-700 mb-2">Date *</label>
+                        <input type="date" name="date" id="date" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label for="work_order_no" class="block text-sm font-medium text-gray-700 mb-2">Work Order No. *</label>
+                        <input type="text" name="work_order_no" id="work_order_no" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter work order number">
+                    </div>
+                    <div>
+                        <label for="equipment_no" class="block text-sm font-medium text-gray-700 mb-2">Equipment No. *</label>
+                        <input type="text" name="equipment_no" id="equipment_no" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter equipment number">
+                    </div>
+                    <div>
+                        <label for="delivery_date" class="block text-sm font-medium text-gray-700 mb-2">Delivery Date *</label>
+                        <input type="date" name="delivery_date" id="delivery_date" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Equipment Details -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Equipment Details</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="equipment_type" class="block text-sm font-medium text-gray-700 mb-2">Equipment Type *</label>
+                        <input type="text" name="equipment_type" id="equipment_type" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter equipment type">
+                    </div>
+                    <div>
+                        <label for="capacity" class="block text-sm font-medium text-gray-700 mb-2">Capacity (Ltr) *</label>
+                        <input type="text" name="capacity" id="capacity" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter capacity">
+                    </div>
+                    <div>
+                        <label for="model" class="block text-sm font-medium text-gray-700 mb-2">Model *</label>
+                        <input type="text" name="model" id="model" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter model">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Material of Construction -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Material of Construction (MOC)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="inner_body_moc" class="block text-sm font-medium text-gray-700 mb-2">Inner Body MOC *</label>
+                        <input type="text" name="inner_body_moc" id="inner_body_moc" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter inner body MOC">
+                    </div>
+                    <div>
+                        <label for="outer_body_moc" class="block text-sm font-medium text-gray-700 mb-2">Outer Body MOC *</label>
+                        <input type="text" name="outer_body_moc" id="outer_body_moc" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter outer body MOC">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dimensions -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Dimensions</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="inside_dimensions" class="block text-sm font-medium text-gray-700 mb-2">Inside Dimensions (W x D x H in MM) *</label>
+                        <input type="text" name="inside_dimensions" id="inside_dimensions" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., 1000 x 800 x 1200">
+                    </div>
+                    <div>
+                        <label for="outer_size" class="block text-sm font-medium text-gray-700 mb-2">Outer Size (W x D x H in MM) *</label>
+                        <input type="text" name="outer_size" id="outer_size" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., 1200 x 1000 x 1400">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Temperature Specifications -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Temperature Specifications</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="temp_range" class="block text-sm font-medium text-gray-700 mb-2">Temperature Range *</label>
+                        <input type="text" name="temp_range" id="temp_range" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., -20°C to +80°C">
+                    </div>
+                    <div>
+                        <label for="accuracy" class="block text-sm font-medium text-gray-700 mb-2">Accuracy *</label>
+                        <input type="text" name="accuracy" id="accuracy" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., ±1°C">
+                    </div>
+                    <div>
+                        <label for="uniformity" class="block text-sm font-medium text-gray-700 mb-2">Uniformity *</label>
+                        <input type="text" name="uniformity" id="uniformity" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., ±2°C">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Control Systems -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Control Systems</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="controller_system" class="block text-sm font-medium text-gray-700 mb-2">Controller System *</label>
+                        <select name="controller_system" id="controller_system" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select Controller System</option>
+                            {% for value, label in CONTROLLER_CHOICES %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="hmi_system" class="block text-sm font-medium text-gray-700 mb-2">HMI System *</label>
+                        <select name="hmi_system" id="hmi_system" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select HMI System</option>
+                            {% for value, label in HMI_CHOICES %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Communication & Monitoring -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Communication & Monitoring</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="gsm_system" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">GSM System</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label for="scanner" class="block text-sm font-medium text-gray-700 mb-2">Scanner</label>
+                        <input type="text" name="scanner" id="scanner" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter scanner details">
+                    </div>
+                    <div>
+                        <label for="software" class="block text-sm font-medium text-gray-700 mb-2">Software</label>
+                        <input type="text" name="software" id="software" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter software details">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Access Control & Alert Systems -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Access Control & Alert Systems</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="door_access_system" class="block text-sm font-medium text-gray-700 mb-2">Door Access System *</label>
+                        <select name="door_access_system" id="door_access_system" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select Door Access System</option>
+                            {% for value, label in DOOR_ACCESS_CHOICES %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="hooter_system" class="block text-sm font-medium text-gray-700 mb-2">Hooter System *</label>
+                        <select name="hooter_system" id="hooter_system" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select Hooter System</option>
+                            {% for value, label in HOOTER_CHOICES %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Physical Features -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Physical Features</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" name="castor_wheels" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">Castor Wheels</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label for="pipe_length" class="block text-sm font-medium text-gray-700 mb-2">Pipe Length (Meter/NA)</label>
+                        <input type="text" name="pipe_length" id="pipe_length" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter pipe length or NA">
+                    </div>
+                    <div>
+                        <label for="packaging" class="block text-sm font-medium text-gray-700 mb-2">Packaging *</label>
+                        <select name="packaging" id="packaging" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select Packaging</option>
+                            {% for value, label in PACKAGING_CHOICES %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="fat" class="block text-sm font-medium text-gray-700 mb-2">FAT *</label>
+                        <select name="fat" id="fat" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select FAT</option>
+                            {% for value, label in FAT_CHOICES %}
+                            <option value="{{ value }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Standby Systems -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Standby Systems</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="refrigeration_system" class="block text-sm font-medium text-gray-700 mb-2">Refrigeration System *</label>
+                        <select name="refrigeration_system" id="refrigeration_system" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select Option</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                            <option value="na">NA</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="sg_system" class="block text-sm font-medium text-gray-700 mb-2">S.G. System *</label>
+                        <select name="sg_system" id="sg_system" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select Option</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                            <option value="na">NA</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="sensor" class="block text-sm font-medium text-gray-700 mb-2">Sensor *</label>
+                        <select name="sensor" id="sensor" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Select Option</option>
+                            <option value="yes">Yes</option>
+                            <option value="na">NA</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tray & Rack Specifications -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Tray & Rack Specifications</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="tray_qty" class="block text-sm font-medium text-gray-700 mb-2">Tray Qty. (Nos) *</label>
+                        <input type="text" name="tray_qty" id="tray_qty" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter tray quantity">
+                    </div>
+                    <div>
+                        <label for="tray_type" class="block text-sm font-medium text-gray-700 mb-2">Tray Type *</label>
+                        <input type="text" name="tray_type" id="tray_type" value="Perforated" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter tray type">
+                    </div>
+                    <div>
+                        <label for="tray_moc" class="block text-sm font-medium text-gray-700 mb-2">Tray MOC *</label>
+                        <input type="text" name="tray_moc" id="tray_moc" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter tray MOC">
+                    </div>
+                    <div>
+                        <label for="tray_dimension" class="block text-sm font-medium text-gray-700 mb-2">Tray Dimension (W x D x H in MM) *</label>
+                        <input type="text" name="tray_dimension" id="tray_dimension" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., 800 x 600 x 50">
+                    </div>
+                    <div>
+                        <label for="rack_qty" class="block text-sm font-medium text-gray-700 mb-2">Rack Qty. (Nos/NA) *</label>
+                        <input type="text" name="rack_qty" id="rack_qty" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter rack quantity or NA">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documentation & Validation -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Documentation & Validation</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="flex items-start">
+                            <input type="checkbox" name="protocol_documents" checked class="mt-1 rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">Protocol for DQ, IQ, and OQ, PQ Documents will be provided</span>
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="calibration_duration" class="block text-sm font-medium text-gray-700 mb-2">Calibration Duration *</label>
+                            <input type="text" name="calibration_duration" id="calibration_duration" value="1 hour" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter calibration duration">
+                        </div>
+                        <div>
+                            <label for="validation_duration" class="block text-sm font-medium text-gray-700 mb-2">Validation Duration *</label>
+                            <input type="text" name="validation_duration" id="validation_duration" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., 24/48/72 hours with load and 24/48/72 hours without load">
+                        </div>
+                        <div>
+                            <label for="validation_compressor" class="block text-sm font-medium text-gray-700 mb-2">Validation Compressor *</label>
+                            <input type="text" name="validation_compressor" id="validation_compressor" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Validation at one set point with one compressor">
+                        </div>
+                        <div>
+                            <label for="calibration_probes" class="block text-sm font-medium text-gray-700 mb-2">Calibration Probes *</label>
+                            <input type="text" name="calibration_probes" id="calibration_probes" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., 8/9/10/Option">
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="flex items-start">
+                            <input type="checkbox" name="extra_validation_charge" checked class="mt-1 rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">Any extra Validation would be charged extra per day</span>
+                        </label>
+                        <label class="flex items-start">
+                            <input type="checkbox" name="plc_validation" checked class="mt-1 rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">PLC Based System validation will be carried out</span>
+                        </label>
+                        <label class="flex items-start">
+                            <input type="checkbox" name="training_handover" checked class="mt-1 rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-700">Training and handover of documents</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Special Instructions -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Special Instructions</h3>
+                <div>
+                    <label for="special_instructions" class="block text-sm font-medium text-gray-700 mb-2">Special Instructions</label>
+                    <textarea name="special_instructions" id="special_instructions" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter any special instructions or requirements..."></textarea>
+                </div>
+            </div>
+
+            <!-- Payment Terms -->
+            <div class="pb-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Payment Terms</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="advance_percentage" class="block text-sm font-medium text-gray-700 mb-2">Advance Percentage *</label>
+                        <input type="number" name="advance_percentage" id="advance_percentage" step="0.01" min="0" max="100" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label for="against_pi_percentage" class="block text-sm font-medium text-gray-700 mb-2">Against PI Percentage *</label>
+                        <input type="number" name="against_pi_percentage" id="against_pi_percentage" step="0.01" min="0" max="100" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="0.00">
+                    </div>
+                    <div>
+                        <label for="after_material_percentage" class="block text-sm font-medium text-gray-700 mb-2">After Material Percentage *</label>
+                        <input type="number" name="after_material_percentage" id="after_material_percentage" step="0.01" min="0" max="100" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="0.00">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+                <button type="button" onclick="history.back()" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-md shadow-sm text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    Create Work Order
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default date to today
+    const dateInput = document.getElementById('date');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+    
+    // Form validation
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Creating...';
+    });
+    
+    // Auto-save draft functionality
+    setInterval(function() {
+        const formElements = form.elements;
+        const draftData = {};
+        
+        for (let element of formElements) {
+            if (element.name && element.value) {
+                if (element.type === 'checkbox') {
+                    draftData[element.name] = element.checked;
+                } else {
+                    draftData[element.name] = element.value;
+                }
+            }
+        }
+        
+        localStorage.setItem('work_order_draft', JSON.stringify(draftData));
+    }, 30000);
+    
+    // Load draft data on page load
+    const savedDraft = localStorage.getItem('work_order_draft');
+    if (savedDraft) {
+        try {
+            const draftData = JSON.parse(savedDraft);
+            for (let fieldName in draftData) {
+                const element = form.elements[fieldName];
+                if (element) {
+                    if (element.type === 'checkbox') {
+                        element.checked = draftData[fieldName];
+                    } else {
+                        element.value = draftData[fieldName];
+                    }
+                }
+            }
+        } catch (e) {
+            console.log('Error loading draft data:', e);
+        }
+    }
+    
+    // Clear draft on successful submission
+    form.addEventListener('submit', function() {
+        localStorage.removeItem('work_order_draft');
+    });
+});
+</script>
+{% endblock %}

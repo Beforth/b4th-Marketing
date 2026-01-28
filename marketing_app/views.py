@@ -464,9 +464,23 @@ def email_templates(request):
 def campaign_analytics(request):
     """Campaign Analytics View"""
     # Get analytics data
-    campaigns = Campaign.objects.all().prefetch_related('leads')
+    campaigns = Campaign.objects.all().prefetch_related('lead_set')
     
-    # Calculate metrics
+    # Calculate metrics for each campaign
+    campaigns_with_metrics = []
+    for campaign in campaigns:
+        total_leads = campaign.lead_set.count()
+        converted_leads = campaign.lead_set.filter(status='converted').count()
+        conversion_rate = (converted_leads / total_leads * 100) if total_leads > 0 else 0
+        
+        campaigns_with_metrics.append({
+            'campaign': campaign,
+            'total_leads': total_leads,
+            'converted_leads': converted_leads,
+            'conversion_rate': conversion_rate,
+        })
+    
+    # Calculate overall metrics
     total_campaigns = campaigns.count()
     active_campaigns = campaigns.filter(status='active').count()
     total_budget = campaigns.aggregate(total=Sum('budget'))['total'] or 0
@@ -484,7 +498,8 @@ def campaign_analytics(request):
         'total_budget': total_budget,
         'total_leads': total_leads,
         'conversion_rate': conversion_rate,
-        'campaigns': campaigns,
+        'campaigns_with_metrics': campaigns_with_metrics,
+        'campaigns': campaigns,  # Keep for backward compatibility
     }
     
     return render(request, 'marketing/campaign_analytics.html', context)
@@ -623,8 +638,8 @@ def production_planning(request):
         status__in=['draft', 'approved', 'in_progress']
     ).count()
     
-    # Get work orders for form
-    work_orders = WorkOrder.objects.select_related('purchase_order__customer').filter(status='approved')
+    # Get work orders for form - include allocated and in_progress work orders
+    work_orders = WorkOrder.objects.select_related('purchase_order__customer').filter(status__in=['allocated', 'in_progress'])
     
     # Get users for assignment
     users = User.objects.filter(is_active=True)
@@ -2134,31 +2149,47 @@ def quotation_create(request):
         technical_specs = request.POST.get('technical_specs')
         terms_conditions = request.POST.get('terms_conditions')
         
+        # Get the URS and its customer
+        urs = get_object_or_404(URS, id=urs_id)
+        
+        # Handle validity period - convert to date if needed
+        valid_until_date = None
+        if validity_period:
+            try:
+                # Try to parse as date first
+                from datetime import datetime, timedelta
+                if 'days' in validity_period.lower():
+                    days = int(''.join(filter(str.isdigit, validity_period)))
+                    valid_until_date = datetime.now().date() + timedelta(days=days)
+                elif 'months' in validity_period.lower():
+                    months = int(''.join(filter(str.isdigit, validity_period)))
+                    valid_until_date = datetime.now().date() + timedelta(days=months*30)
+                else:
+                    # Try to parse as date string
+                    valid_until_date = datetime.strptime(validity_period, '%Y-%m-%d').date()
+            except:
+                # Default to 30 days from now if parsing fails
+                valid_until_date = datetime.now().date() + timedelta(days=30)
+        else:
+            # Default to 30 days from now
+            from datetime import datetime, timedelta
+            valid_until_date = datetime.now().date() + timedelta(days=30)
+        
         # Get user info from HRMS session
         user_info = get_user_info_dict(request)
 
         quotation = Quotation.objects.create(
-            urs_id=urs_id,
+            customer=urs.customer,  # Link to customer from URS
             quotation_number=quotation_number,
             total_amount=total_amount,
-            validity_period=validity_period,
+            valid_until=valid_until_date,  # Use the converted date
             payment_terms=payment_terms,
             delivery_terms=delivery_terms,
-            technical_specs=technical_specs,
             terms_conditions=terms_conditions,
-            # Get user info from HRMS session
-
-
-            
-
             # Store HRMS user info
-
             created_by_user_id=user_info['user_id'],
-
             created_by_username=user_info['username'],
-
             created_by_email=user_info['email'],
-
             created_by_full_name=user_info['full_name'],
             status='draft'
         )
@@ -2166,7 +2197,8 @@ def quotation_create(request):
         messages.success(request, f'Quotation "{quotation_number}" created successfully!')
         return redirect('marketing:quotation_list')
     
-    urs_list = URS.objects.filter(status='approved')
+    # Get approved URS for the form
+    urs_list = URS.objects.filter(status='approved').select_related('customer').order_by('-created_at')
     context = {
         'urs_list': urs_list,
     }
@@ -2270,7 +2302,7 @@ def technical_discussion(request):
 @login_required
 def technical_discussion_list(request):
     """List all Technical Discussions"""
-    discussions = TechnicalDiscussion.objects.select_related('quotation', 'recorded_by').all().order_by('-discussion_date')
+    discussions = TechnicalDiscussion.objects.select_related('quotation', 'created_by').all().order_by('-discussion_date')
     
     # Search functionality
     search = request.GET.get('search', '')
@@ -2496,7 +2528,7 @@ def create_quotation_revision(request, quotation_id):
 @login_required
 def workorder_list(request):
     """Work Order List View"""
-    work_orders = WorkOrder.objects.select_related('purchase_order__customer', 'assigned_to').order_by('-created_at')
+    work_orders = WorkOrder.objects.select_related('purchase_order__customer', 'allocated_to').order_by('-created_at')
     
     # Search functionality
     search_query = request.GET.get('search', '')
@@ -2595,6 +2627,10 @@ def workorder_create(request):
     purchase_orders = PurchaseOrder.objects.filter(status__in=['received', 'verified', 'approved']).order_by('-created_at')
     users = User.objects.filter(is_active=True).order_by('first_name', 'last_name')
     
+    print(f"DEBUG: workorder_create - Found {purchase_orders.count()} purchase orders")
+    for po in purchase_orders:
+        print(f"DEBUG: PO {po.po_number} - {po.customer.name} - Status: {po.status}")
+    
     context = {
         'purchase_orders': purchase_orders,
         'users': users,
@@ -2606,7 +2642,7 @@ def workorder_create(request):
 @login_required
 def workorder_detail(request, workorder_id):
     """Work Order Detail View"""
-    work_order = get_object_or_404(WorkOrder.objects.select_related('purchase_order__customer', 'assigned_to'), id=workorder_id)
+    work_order = get_object_or_404(WorkOrder.objects.select_related('purchase_order__customer', 'allocated_to'), id=workorder_id)
     
     # Get related manufacturing records
     manufacturing_records = Manufacturing.objects.filter(work_order=work_order).order_by('-created_at')
@@ -2939,11 +2975,91 @@ def dispatch_detail(request, dispatch_id):
 @login_required
 def exhibition_list(request):
     """Exhibition List View"""
-    return render(request, 'marketing/exhibition_list.html')
+    # Get all exhibitions
+    exhibitions = Exhibition.objects.all().order_by('-start_date')
+    
+    # Search functionality
+    search_query = request.GET.get('search', '')
+    if search_query:
+        exhibitions = exhibitions.filter(
+            Q(name__icontains=search_query) |
+            Q(venue__icontains=search_query) |
+            Q(organizer__icontains=search_query)
+        )
+    
+    # Status filter
+    status_filter = request.GET.get('status', '')
+    if status_filter:
+        exhibitions = exhibitions.filter(status=status_filter)
+    
+    # Pagination
+    paginator = Paginator(exhibitions, 10)  # Show 10 exhibitions per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Calculate statistics (from all exhibitions, not just current page)
+    all_exhibitions = Exhibition.objects.all()
+    total_exhibitions = all_exhibitions.count()
+    upcoming_exhibitions = all_exhibitions.filter(status='confirmed', start_date__gte=timezone.now().date()).count()
+    active_exhibitions = all_exhibitions.filter(status='in_progress').count()
+    completed_exhibitions = all_exhibitions.filter(status='completed').count()
+    
+    context = {
+        'page_obj': page_obj,
+        'exhibitions': page_obj,  # For backward compatibility
+        'search_query': search_query,
+        'status_filter': status_filter,
+        'total_exhibitions': total_exhibitions,
+        'upcoming_exhibitions': upcoming_exhibitions,
+        'active_exhibitions': active_exhibitions,
+        'completed_exhibitions': completed_exhibitions,
+        'status_choices': Exhibition.STATUS_CHOICES,
+    }
+    
+    return render(request, 'marketing/exhibition_list.html', context)
 
 @login_required
 def exhibition_create(request):
     """Create Exhibition View"""
+    if request.method == 'POST':
+        try:
+            # Get form data
+            name = request.POST.get('name')
+            organizer = request.POST.get('organizer', '')
+            venue = request.POST.get('venue', '')
+            start_date = request.POST.get('start_date')
+            end_date = request.POST.get('end_date')
+            budget = request.POST.get('budget', 0)
+            expected_visitors = request.POST.get('expected_visitors', 0)
+            description = request.POST.get('description', '')
+            
+            # Get user info from HRMS session
+            user_info = get_user_info_dict(request)
+            
+            # Create Exhibition
+            exhibition = Exhibition.objects.create(
+                name=name,
+                organizer=organizer,
+                venue=venue,
+                start_date=start_date,
+                end_date=end_date,
+                budget=budget or 0,
+                visitor_count=expected_visitors or 0,
+                notes=description,
+                status='planning',
+                # Store HRMS user info
+                created_by_user_id=user_info['user_id'],
+                created_by_username=user_info['username'],
+                created_by_email=user_info['email'],
+                created_by_full_name=user_info['full_name'],
+            )
+            
+            messages.success(request, f'Exhibition "{name}" created successfully!')
+            return redirect('marketing:exhibition_list')
+            
+        except Exception as e:
+            messages.error(request, f'Error creating exhibition: {str(e)}')
+    
     return render(request, 'marketing/exhibition_create.html')
 
 @login_required
@@ -4220,7 +4336,9 @@ def workflows(request):
 @login_required
 def po_list(request):
     """Purchase Order List View"""
+    print(f"DEBUG: po_list view called - User: {request.user}")
     purchase_orders = PurchaseOrder.objects.select_related('customer').order_by('-created_at')
+    print(f"DEBUG: Initial PO count: {purchase_orders.count()}")
     
     # Search functionality
     search_query = request.GET.get('search', '')
@@ -4230,21 +4348,37 @@ def po_list(request):
             Q(customer__name__icontains=search_query) |
             Q(quotation__quotation_number__icontains=search_query)
         )
+        print(f"DEBUG: After search filter: {purchase_orders.count()}")
     
     # Filter by status
     status_filter = request.GET.get('status', '')
     if status_filter:
         purchase_orders = purchase_orders.filter(status=status_filter)
+        print(f"DEBUG: After status filter: {purchase_orders.count()}")
+    
+    # Filter by customer
+    customer_filter = request.GET.get('customer', '')
+    if customer_filter:
+        purchase_orders = purchase_orders.filter(customer_id=customer_filter)
+        print(f"DEBUG: After customer filter: {purchase_orders.count()}")
     
     # Pagination
     paginator = Paginator(purchase_orders, 20)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    print(f"DEBUG: Final page object count: {page_obj.paginator.count}")
+    
+    # Get all customers for filter dropdown
+    customers = Customer.objects.all().order_by('name')
     
     context = {
+        'page_obj': page_obj,
         'purchase_orders': page_obj,
         'search_query': search_query,
         'status_filter': status_filter,
+        'customer_filter': customer_filter,
+        'status_choices': PurchaseOrder.STATUS_CHOICES,
+        'customers': customers,
     }
     return render(request, 'marketing/po_list.html', context)
 
@@ -4280,20 +4414,8 @@ def po_create(request):
                 payment_method=payment_method,
                 payment_terms_declared=payment_terms_declared,
                 special_requirements=special_requirements,
-                # Get user info from HRMS session
-
-
-                
-
-                # Store HRMS user info
-
-                created_by_user_id=user_info['user_id'],
-
-                created_by_username=user_info['username'],
-
-                created_by_email=user_info['email'],
-
-                created_by_full_name=user_info['full_name'],
+                # Note: PurchaseOrder model doesn't have created_by fields
+                # It only has verified_by and approved_by fields
             )
             
             messages.success(request, f'Purchase Order {po_number} created successfully!')
@@ -7437,14 +7559,22 @@ def work_order_format_dashboard(request):
     user_info = get_user_info_dict(request)
     username = user_info['username']
     
-    # Get statistics
-    work_order_count = WorkOrderFormat.objects.filter(created_by_username=username).count()
+    # Get statistics for both WorkOrder and WorkOrderFormat
+    work_order_count = WorkOrder.objects.filter(allocated_to_username=username).count()
+    work_order_format_count = WorkOrderFormat.objects.filter(created_by_username=username).count()
+    total_count = work_order_count + work_order_format_count
     
-    # Recent activities
-    recent_work_orders = WorkOrderFormat.objects.filter(created_by_username=username).order_by('-created_at')[:5]
+    # Recent activities - combine both types
+    recent_work_orders = list(WorkOrder.objects.filter(allocated_to_username=username).order_by('-created_at')[:3])
+    recent_work_order_formats = list(WorkOrderFormat.objects.filter(created_by_username=username).order_by('-created_at')[:2])
+    
+    # Combine and sort by created_at
+    all_recent = recent_work_orders + recent_work_order_formats
+    all_recent.sort(key=lambda x: x.created_at, reverse=True)
+    recent_work_orders = all_recent[:5]
     
     context = {
-        'work_order_count': work_order_count,
+        'work_order_count': total_count,
         'recent_work_orders': recent_work_orders,
     }
     
@@ -7468,109 +7598,57 @@ def work_order_format_sheets(request):
 
 @login_required
 def work_order_format_list(request):
-    """List all Work Order Format entries"""
-    search_query = request.GET.get('search', '')
-    equipment_filter = request.GET.get('equipment', '')
-    
-    user_info = get_user_info_dict(request)
-    username = user_info['username']
-    work_orders = WorkOrderFormat.objects.filter(created_by_username=username)
-    
-    if search_query:
-        work_orders = work_orders.filter(
-            Q(work_order_no__icontains=search_query) |
-            Q(equipment_type__icontains=search_query) |
-            Q(equipment_no__icontains=search_query)
-        )
-    
-    if equipment_filter:
-        work_orders = work_orders.filter(equipment_type__icontains=equipment_filter)
-    
-    # Pagination
-    paginator = Paginator(work_orders, 20)
-    page_number = request.GET.get('page')
-    # Get user info from HRMS session
-# Removed - user_info not needed here
-
-    page_obj = paginator.get_page(page_number)
-    
-    context = {
-        'page_obj': page_obj,
-        'search_query': search_query,
-        'equipment_filter': equipment_filter,
-    }
-    
-    return render(request, 'marketing/work_order_format_list.html', context)
+    """List all Work Order Format entries - Redirect to regular work orders"""
+    # Redirect to the regular work order list since that's what users expect
+    return redirect('marketing:workorder_list')
 
 
 @login_required
 def work_order_format_create(request):
     """Create new Work Order Format entry"""
     if request.method == 'POST':
-        work_order = WorkOrderFormat(
-    # Get user info from HRMS session
-# Removed - user_info not needed here
-
-            date=request.POST.get('date'),
-            work_order_no=request.POST.get('work_order_no'),
-            equipment_no=request.POST.get('equipment_no'),
-            delivery_date=request.POST.get('delivery_date'),
-            equipment_type=request.POST.get('equipment_type'),
-            capacity=request.POST.get('capacity'),
-            model=request.POST.get('model'),
-            inner_body_moc=request.POST.get('inner_body_moc'),
-            outer_body_moc=request.POST.get('outer_body_moc'),
-            inside_dimensions=request.POST.get('inside_dimensions'),
-            outer_size=request.POST.get('outer_size'),
-            temp_range=request.POST.get('temp_range'),
-            accuracy=request.POST.get('accuracy'),
-            uniformity=request.POST.get('uniformity'),
-            controller_system=request.POST.get('controller_system'),
-            hmi_system=request.POST.get('hmi_system'),
-            gsm_system=request.POST.get('gsm_system') == 'on',
-            scanner=request.POST.get('scanner', ''),
-            software=request.POST.get('software', ''),
-            door_access_system=request.POST.get('door_access_system'),
-            hooter_system=request.POST.get('hooter_system'),
-            castor_wheels=request.POST.get('castor_wheels') == 'on',
-            pipe_length=request.POST.get('pipe_length', ''),
-            packaging=request.POST.get('packaging'),
-            fat=request.POST.get('fat'),
-            refrigeration_system=request.POST.get('refrigeration_system'),
-            sg_system=request.POST.get('sg_system'),
-            sensor=request.POST.get('sensor'),
-            tray_qty=request.POST.get('tray_qty'),
-            tray_type=request.POST.get('tray_type'),
-            tray_moc=request.POST.get('tray_moc'),
-            tray_dimension=request.POST.get('tray_dimension'),
-            rack_qty=request.POST.get('rack_qty'),
-            protocol_documents=request.POST.get('protocol_documents') == 'on',
-            calibration_duration=request.POST.get('calibration_duration'),
-            validation_duration=request.POST.get('validation_duration'),
-            validation_compressor=request.POST.get('validation_compressor'),
-            extra_validation_charge=request.POST.get('extra_validation_charge') == 'on',
-            calibration_probes=request.POST.get('calibration_probes'),
-            plc_validation=request.POST.get('plc_validation') == 'on',
-            training_handover=request.POST.get('training_handover') == 'on',
-            special_instructions=request.POST.get('special_instructions', ''),
-            advance_percentage=request.POST.get('advance_percentage'),
-            against_pi_percentage=request.POST.get('against_pi_percentage'),
-            after_material_percentage=request.POST.get('after_material_percentage'),
-            # Get user info from HRMS session
-
-
+        try:
+            # Get form data from workorder_create.html template
+            work_order_number = request.POST.get('work_order_number')
+            purchase_order_id = request.POST.get('purchase_order')
+            department = request.POST.get('department')
+            priority = request.POST.get('priority', 'medium')
+            assigned_to_id = request.POST.get('assigned_to', '')
+            due_date = request.POST.get('due_date')
+            description = request.POST.get('description', '')
+            special_instructions = request.POST.get('special_instructions', '')
             
-
-
-
-
-
-        )
-        work_order.save()
-        messages.success(request, 'Work Order created successfully!')
-        return redirect('marketing:work_order_format_list')
+            # Get user info from HRMS session
+            user_info = get_user_info_dict(request)
+            
+            # Create Work Order with correct field names
+            work_order = WorkOrder.objects.create(
+                work_order_number=work_order_number,
+                purchase_order_id=purchase_order_id,
+                status='allocated',  # Default status
+                allocated_to_user_id=user_info['user_id'] if assigned_to_id else user_info['user_id'],
+                allocated_to_username=user_info['username'],
+                allocated_to_email=user_info['email'],
+                allocated_to_full_name=user_info['full_name'],
+                allocated_to_id=assigned_to_id if assigned_to_id else None,  # Legacy field
+                start_date=due_date,  # Use due_date as start_date
+                completion_date=due_date,  # Use due_date as completion_date for now
+                notes=f"{description}\n\nSpecial Instructions: {special_instructions}" if description or special_instructions else "",
+            )
+            
+            messages.success(request, f'Work Order {work_order_number} created successfully!')
+            return redirect('marketing:workorder_list')
+            
+        except Exception as e:
+            messages.error(request, f'Error creating Work Order: {str(e)}')
+    
+    # Get purchase orders for the dropdown
+    purchase_orders = PurchaseOrder.objects.filter(status__in=['received', 'verified', 'approved']).order_by('-created_at')
+    users = User.objects.filter(is_active=True).order_by('first_name', 'last_name')
     
     context = {
+        'purchase_orders': purchase_orders,
+        'users': users,
         'CONTROLLER_CHOICES': WorkOrderFormat.CONTROLLER_CHOICES,
         'HMI_CHOICES': WorkOrderFormat.HMI_CHOICES,
         'DOOR_ACCESS_CHOICES': WorkOrderFormat.DOOR_ACCESS_CHOICES,
@@ -7579,10 +7657,7 @@ def work_order_format_create(request):
         'FAT_CHOICES': WorkOrderFormat.FAT_CHOICES,
     }
     
-    # Get user info from HRMS session
-# Removed - user_info not needed here
-
-    return render(request, 'marketing/work_order_format_form.html', context)
+    return render(request, 'marketing/workorder_create.html', context)
 
 
 @login_required
